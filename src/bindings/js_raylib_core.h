@@ -104,7 +104,7 @@ static const JSCFunctionListEntry js_Vector2_proto_funcs[] = {
 };
 
 static int js_declare_Vector2(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Vector2_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Vector2_class_id);
     JSClassDef js_Vector2_def = { .class_name = "Vector2", .finalizer = js_Vector2_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Vector2_class_id, &js_Vector2_def);
     JSValue proto = JS_NewObject(ctx);
@@ -176,7 +176,7 @@ static const JSCFunctionListEntry js_Vector3_proto_funcs[] = {
 };
 
 static int js_declare_Vector3(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Vector3_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Vector3_class_id);
     JSClassDef js_Vector3_def = { .class_name = "Vector3", .finalizer = js_Vector3_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Vector3_class_id, &js_Vector3_def);
     JSValue proto = JS_NewObject(ctx);
@@ -265,7 +265,7 @@ static const JSCFunctionListEntry js_Vector4_proto_funcs[] = {
 };
 
 static int js_declare_Vector4(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Vector4_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Vector4_class_id);
     JSClassDef js_Vector4_def = { .class_name = "Vector4", .finalizer = js_Vector4_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Vector4_class_id, &js_Vector4_def);
     JSValue proto = JS_NewObject(ctx);
@@ -286,7 +286,7 @@ static const JSCFunctionListEntry js_Matrix_proto_funcs[] = {
 };
 
 static int js_declare_Matrix(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Matrix_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Matrix_class_id);
     JSClassDef js_Matrix_def = { .class_name = "Matrix", .finalizer = js_Matrix_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Matrix_class_id, &js_Matrix_def);
     JSValue proto = JS_NewObject(ctx);
@@ -375,7 +375,7 @@ static const JSCFunctionListEntry js_Color_proto_funcs[] = {
 };
 
 static int js_declare_Color(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Color_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Color_class_id);
     JSClassDef js_Color_def = { .class_name = "Color", .finalizer = js_Color_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Color_class_id, &js_Color_def);
     JSValue proto = JS_NewObject(ctx);
@@ -464,7 +464,7 @@ static const JSCFunctionListEntry js_Rectangle_proto_funcs[] = {
 };
 
 static int js_declare_Rectangle(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Rectangle_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Rectangle_class_id);
     JSClassDef js_Rectangle_def = { .class_name = "Rectangle", .finalizer = js_Rectangle_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Rectangle_class_id, &js_Rectangle_def);
     JSValue proto = JS_NewObject(ctx);
@@ -563,7 +563,7 @@ static const JSCFunctionListEntry js_Image_proto_funcs[] = {
 };
 
 static int js_declare_Image(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Image_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Image_class_id);
     JSClassDef js_Image_def = { .class_name = "Image", .finalizer = js_Image_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Image_class_id, &js_Image_def);
     JSValue proto = JS_NewObject(ctx);
@@ -616,7 +616,7 @@ static const JSCFunctionListEntry js_Texture_proto_funcs[] = {
 };
 
 static int js_declare_Texture(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Texture_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Texture_class_id);
     JSClassDef js_Texture_def = { .class_name = "Texture", .finalizer = js_Texture_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Texture_class_id, &js_Texture_def);
     JSValue proto = JS_NewObject(ctx);
@@ -667,7 +667,7 @@ static const JSCFunctionListEntry js_RenderTexture_proto_funcs[] = {
 };
 
 static int js_declare_RenderTexture(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_RenderTexture_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_RenderTexture_class_id);
     JSClassDef js_RenderTexture_def = { .class_name = "RenderTexture", .finalizer = js_RenderTexture_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_RenderTexture_class_id, &js_RenderTexture_def);
     JSValue proto = JS_NewObject(ctx);
@@ -788,7 +788,7 @@ static const JSCFunctionListEntry js_NPatchInfo_proto_funcs[] = {
 };
 
 static int js_declare_NPatchInfo(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_NPatchInfo_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_NPatchInfo_class_id);
     JSClassDef js_NPatchInfo_def = { .class_name = "NPatchInfo", .finalizer = js_NPatchInfo_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_NPatchInfo_class_id, &js_NPatchInfo_def);
     JSValue proto = JS_NewObject(ctx);
@@ -809,7 +809,7 @@ static const JSCFunctionListEntry js_GlyphInfo_proto_funcs[] = {
 };
 
 static int js_declare_GlyphInfo(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_GlyphInfo_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_GlyphInfo_class_id);
     JSClassDef js_GlyphInfo_def = { .class_name = "GlyphInfo", .finalizer = js_GlyphInfo_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_GlyphInfo_class_id, &js_GlyphInfo_def);
     JSValue proto = JS_NewObject(ctx);
@@ -854,7 +854,7 @@ static const JSCFunctionListEntry js_Font_proto_funcs[] = {
 };
 
 static int js_declare_Font(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Font_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Font_class_id);
     JSClassDef js_Font_def = { .class_name = "Font", .finalizer = js_Font_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Font_class_id, &js_Font_def);
     JSValue proto = JS_NewObject(ctx);
@@ -958,7 +958,7 @@ static const JSCFunctionListEntry js_Camera3D_proto_funcs[] = {
 };
 
 static int js_declare_Camera3D(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Camera3D_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Camera3D_class_id);
     JSClassDef js_Camera3D_def = { .class_name = "Camera3D", .finalizer = js_Camera3D_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Camera3D_class_id, &js_Camera3D_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1053,7 +1053,7 @@ static const JSCFunctionListEntry js_Camera2D_proto_funcs[] = {
 };
 
 static int js_declare_Camera2D(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Camera2D_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Camera2D_class_id);
     JSClassDef js_Camera2D_def = { .class_name = "Camera2D", .finalizer = js_Camera2D_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Camera2D_class_id, &js_Camera2D_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1260,7 +1260,7 @@ static const JSCFunctionListEntry js_Mesh_proto_funcs[] = {
 };
 
 static int js_declare_Mesh(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Mesh_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Mesh_class_id);
     JSClassDef js_Mesh_def = { .class_name = "Mesh", .finalizer = js_Mesh_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Mesh_class_id, &js_Mesh_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1289,7 +1289,7 @@ static const JSCFunctionListEntry js_Shader_proto_funcs[] = {
 };
 
 static int js_declare_Shader(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Shader_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Shader_class_id);
     JSClassDef js_Shader_def = { .class_name = "Shader", .finalizer = js_Shader_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Shader_class_id, &js_Shader_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1357,7 +1357,7 @@ static const JSCFunctionListEntry js_MaterialMap_proto_funcs[] = {
 };
 
 static int js_declare_MaterialMap(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_MaterialMap_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_MaterialMap_class_id);
     JSClassDef js_MaterialMap_def = { .class_name = "MaterialMap", .finalizer = js_MaterialMap_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_MaterialMap_class_id, &js_MaterialMap_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1398,7 +1398,7 @@ static const JSCFunctionListEntry js_Material_proto_funcs[] = {
 };
 
 static int js_declare_Material(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Material_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Material_class_id);
     JSClassDef js_Material_def = { .class_name = "Material", .finalizer = js_Material_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Material_class_id, &js_Material_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1419,7 +1419,7 @@ static const JSCFunctionListEntry js_Transform_proto_funcs[] = {
 };
 
 static int js_declare_Transform(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Transform_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Transform_class_id);
     JSClassDef js_Transform_def = { .class_name = "Transform", .finalizer = js_Transform_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Transform_class_id, &js_Transform_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1440,7 +1440,7 @@ static const JSCFunctionListEntry js_BoneInfo_proto_funcs[] = {
 };
 
 static int js_declare_BoneInfo(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_BoneInfo_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_BoneInfo_class_id);
     JSClassDef js_BoneInfo_def = { .class_name = "BoneInfo", .finalizer = js_BoneInfo_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_BoneInfo_class_id, &js_BoneInfo_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1505,7 +1505,7 @@ static const JSCFunctionListEntry js_Model_proto_funcs[] = {
 };
 
 static int js_declare_Model(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Model_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Model_class_id);
     JSClassDef js_Model_def = { .class_name = "Model", .finalizer = js_Model_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Model_class_id, &js_Model_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1526,7 +1526,7 @@ static const JSCFunctionListEntry js_ModelAnimation_proto_funcs[] = {
 };
 
 static int js_declare_ModelAnimation(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_ModelAnimation_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_ModelAnimation_class_id);
     JSClassDef js_ModelAnimation_def = { .class_name = "ModelAnimation", .finalizer = js_ModelAnimation_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_ModelAnimation_class_id, &js_ModelAnimation_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1567,7 +1567,7 @@ static const JSCFunctionListEntry js_Ray_proto_funcs[] = {
 };
 
 static int js_declare_Ray(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Ray_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Ray_class_id);
     JSClassDef js_Ray_def = { .class_name = "Ray", .finalizer = js_Ray_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Ray_class_id, &js_Ray_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1626,7 +1626,7 @@ static const JSCFunctionListEntry js_RayCollision_proto_funcs[] = {
 };
 
 static int js_declare_RayCollision(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_RayCollision_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_RayCollision_class_id);
     JSClassDef js_RayCollision_def = { .class_name = "RayCollision", .finalizer = js_RayCollision_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_RayCollision_class_id, &js_RayCollision_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1687,7 +1687,7 @@ static const JSCFunctionListEntry js_BoundingBox_proto_funcs[] = {
 };
 
 static int js_declare_BoundingBox(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_BoundingBox_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_BoundingBox_class_id);
     JSClassDef js_BoundingBox_def = { .class_name = "BoundingBox", .finalizer = js_BoundingBox_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_BoundingBox_class_id, &js_BoundingBox_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1740,7 +1740,7 @@ static const JSCFunctionListEntry js_Wave_proto_funcs[] = {
 };
 
 static int js_declare_Wave(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Wave_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Wave_class_id);
     JSClassDef js_Wave_def = { .class_name = "Wave", .finalizer = js_Wave_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Wave_class_id, &js_Wave_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1761,7 +1761,7 @@ static const JSCFunctionListEntry js_AudioStream_proto_funcs[] = {
 };
 
 static int js_declare_AudioStream(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_AudioStream_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_AudioStream_class_id);
     JSClassDef js_AudioStream_def = { .class_name = "AudioStream", .finalizer = js_AudioStream_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_AudioStream_class_id, &js_AudioStream_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1790,7 +1790,7 @@ static const JSCFunctionListEntry js_Sound_proto_funcs[] = {
 };
 
 static int js_declare_Sound(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Sound_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Sound_class_id);
     JSClassDef js_Sound_def = { .class_name = "Sound", .finalizer = js_Sound_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Sound_class_id, &js_Sound_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1842,7 +1842,7 @@ static const JSCFunctionListEntry js_Music_proto_funcs[] = {
 };
 
 static int js_declare_Music(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Music_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Music_class_id);
     JSClassDef js_Music_def = { .class_name = "Music", .finalizer = js_Music_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Music_class_id, &js_Music_def);
     JSValue proto = JS_NewObject(ctx);
@@ -1997,7 +1997,7 @@ static const JSCFunctionListEntry js_VrDeviceInfo_proto_funcs[] = {
 };
 
 static int js_declare_VrDeviceInfo(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_VrDeviceInfo_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_VrDeviceInfo_class_id);
     JSClassDef js_VrDeviceInfo_def = { .class_name = "VrDeviceInfo", .finalizer = js_VrDeviceInfo_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_VrDeviceInfo_class_id, &js_VrDeviceInfo_def);
     JSValue proto = JS_NewObject(ctx);
@@ -2018,7 +2018,7 @@ static const JSCFunctionListEntry js_VrStereoConfig_proto_funcs[] = {
 };
 
 static int js_declare_VrStereoConfig(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_VrStereoConfig_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_VrStereoConfig_class_id);
     JSClassDef js_VrStereoConfig_def = { .class_name = "VrStereoConfig", .finalizer = js_VrStereoConfig_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_VrStereoConfig_class_id, &js_VrStereoConfig_def);
     JSValue proto = JS_NewObject(ctx);
@@ -2039,7 +2039,7 @@ static const JSCFunctionListEntry js_FilePathList_proto_funcs[] = {
 };
 
 static int js_declare_FilePathList(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_FilePathList_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_FilePathList_class_id);
     JSClassDef js_FilePathList_def = { .class_name = "FilePathList", .finalizer = js_FilePathList_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_FilePathList_class_id, &js_FilePathList_def);
     JSValue proto = JS_NewObject(ctx);
@@ -2168,7 +2168,7 @@ static const JSCFunctionListEntry js_Light_proto_funcs[] = {
 };
 
 static int js_declare_Light(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Light_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Light_class_id);
     JSClassDef js_Light_def = { .class_name = "Light", .finalizer = js_Light_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Light_class_id, &js_Light_def);
     JSValue proto = JS_NewObject(ctx);
@@ -2213,7 +2213,7 @@ static const JSCFunctionListEntry js_Lightmapper_proto_funcs[] = {
 };
 
 static int js_declare_Lightmapper(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_Lightmapper_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_Lightmapper_class_id);
     JSClassDef js_Lightmapper_def = { .class_name = "Lightmapper", .finalizer = js_Lightmapper_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_Lightmapper_class_id, &js_Lightmapper_def);
     JSValue proto = JS_NewObject(ctx);
@@ -2354,7 +2354,7 @@ static const JSCFunctionListEntry js_LightmapperConfig_proto_funcs[] = {
 };
 
 static int js_declare_LightmapperConfig(JSContext * ctx, JSModuleDef * m) {
-    JS_NewClassID(&js_LightmapperConfig_class_id);
+    JS_NewClassID(JS_GetRuntime(ctx), &js_LightmapperConfig_class_id);
     JSClassDef js_LightmapperConfig_def = { .class_name = "LightmapperConfig", .finalizer = js_LightmapperConfig_finalizer };
     JS_NewClass(JS_GetRuntime(ctx), js_LightmapperConfig_class_id, &js_LightmapperConfig_def);
     JSValue proto = JS_NewObject(ctx);

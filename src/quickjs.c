@@ -64,7 +64,7 @@ static void js_std_dump_error1(JSContext *ctx, JSValueConst exception_val)
     JSValue val;
     bool is_error;
     
-    is_error = JS_IsError(ctx, exception_val);
+    is_error = JS_IsError(exception_val);
     js_dump_obj(ctx, stderr, exception_val);
     if (is_error) {
         val = JS_GetPropertyStr(ctx, exception_val, "stack");
@@ -109,7 +109,7 @@ int app_update_quickjs(){
 }
 
 static int js_module_set_import_meta(JSContext *ctx, JSValueConst func_val,
-                              JS_BOOL use_realpath, JS_BOOL is_main)
+                              int use_realpath, int is_main)
 {
     JSModuleDef *m;
     char buf[1024 + 16];
