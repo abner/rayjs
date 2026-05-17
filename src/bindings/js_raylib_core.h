@@ -9,6 +9,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <rcamera.h>
+#include <rlgl.h>
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 #define RLIGHTS_IMPLEMENTATION
@@ -582,6 +583,13 @@ static void js_Texture_finalizer(JSRuntime * rt, JSValue val) {
     }
 }
 
+static JSValue js_Texture_get_id(JSContext* ctx, JSValueConst this_val) {
+    Texture* ptr = JS_GetOpaque2(ctx, this_val, js_Texture_class_id);
+    unsigned int id = ptr->id;
+    JSValue ret = JS_NewUint32(ctx, id);
+    return ret;
+}
+
 static JSValue js_Texture_get_width(JSContext* ctx, JSValueConst this_val) {
     Texture* ptr = JS_GetOpaque2(ctx, this_val, js_Texture_class_id);
     int width = ptr->width;
@@ -611,6 +619,7 @@ static JSValue js_Texture_get_format(JSContext* ctx, JSValueConst this_val) {
 }
 
 static const JSCFunctionListEntry js_Texture_proto_funcs[] = {
+    JS_CGETSET_DEF("id",js_Texture_get_id,NULL),
     JS_CGETSET_DEF("width",js_Texture_get_width,NULL),
     JS_CGETSET_DEF("height",js_Texture_get_height,NULL),
     JS_CGETSET_DEF("mipmaps",js_Texture_get_mipmaps,NULL),
@@ -12091,6 +12100,29 @@ static JSValue js_meshMerge(JSContext * ctx, JSValueConst this_val, int argc, JS
     return ret;
 }
 
+static JSValue js_getMaterialTexture(JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv) {
+    Material* material = (Material*)JS_GetOpaque2(ctx, argv[0], js_Material_class_id);
+    if(material == NULL) return JS_EXCEPTION;
+    int mapType;
+    JS_ToInt32(ctx, &mapType, argv[1]);
+    Texture returnVal = GetMaterialTexture(material, mapType);
+    Texture* ret_ptr = (Texture*)js_malloc(ctx, sizeof(Texture));
+    *ret_ptr = returnVal;
+    JSValue ret = JS_NewObjectClass(ctx, js_Texture_class_id);
+    JS_SetOpaque(ret, ret_ptr);
+    return ret;
+}
+
+static JSValue js_rlEnableBackfaceCulling(JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv) {
+    rlEnableBackfaceCulling();
+    return JS_UNDEFINED;
+}
+
+static JSValue js_rlDisableBackfaceCulling(JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv) {
+    rlDisableBackfaceCulling();
+    return JS_UNDEFINED;
+}
+
 static const JSCFunctionListEntry js_raylib_core_funcs[] = {
     JS_CFUNC_DEF("initWindow",3,js_initWindow),
     JS_CFUNC_DEF("closeWindow",0,js_closeWindow),
@@ -12828,6 +12860,9 @@ static const JSCFunctionListEntry js_raylib_core_funcs[] = {
     JS_CFUNC_DEF("imageReadPixel",3,js_imageReadPixel),
     JS_CFUNC_DEF("meshCopy",1,js_meshCopy),
     JS_CFUNC_DEF("meshMerge",2,js_meshMerge),
+    JS_CFUNC_DEF("getMaterialTexture",2,js_getMaterialTexture),
+    JS_CFUNC_DEF("rlEnableBackfaceCulling",0,js_rlEnableBackfaceCulling),
+    JS_CFUNC_DEF("rlDisableBackfaceCulling",0,js_rlDisableBackfaceCulling),
 };
 
 static int js_raylib_core_init(JSContext * ctx, JSModuleDef * m) {

@@ -84,6 +84,8 @@ declare var Image: {
     new(): Image;
 }
 interface Texture {
+    /** OpenGL texture id */
+    id: number,
     /** Texture base width */
     width: number,
     /** Texture base height */
@@ -1907,6 +1909,12 @@ declare function imageReadPixel(image: Image, x: number, y: number): Color;
 declare function meshCopy(mesh: Mesh): Mesh;
 /** Create a new mesh that contains combined attributes of two meshes */
 declare function meshMerge(a: Mesh, b: Mesh): Mesh;
+/** Get texture from a material map slot */
+declare function getMaterialTexture(material: Material, mapType: number): Texture;
+/** Enable backface culling */
+declare function rlEnableBackfaceCulling(): void;
+/** Disable backface culling */
+declare function rlDisableBackfaceCulling(): void;
 /** (PI/180.0) */
 declare var DEG2RAD: number;
 /** (180.0/PI) */

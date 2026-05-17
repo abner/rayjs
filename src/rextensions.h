@@ -13,6 +13,7 @@ REXTAPI void SetShaderLocation(Shader *shader, int constant, int location); // S
 REXTAPI Color ImageReadPixel(Image *image, int x, int y); // Read a single pixel from an image
 REXTAPI Mesh MeshCopy(Mesh mesh); // Make a deep-copy of an existing mesh
 REXTAPI Mesh MeshMerge(Mesh a, Mesh b); // Create a new mesh that contains combined attributes of two meshes
+REXTAPI Texture GetMaterialTexture(Material *material, int mapType); // Get texture from a material map slot
 
 #endif
 

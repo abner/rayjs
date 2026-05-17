@@ -104,6 +104,7 @@ function main(){
     const core = new RayLibHeader("raylib_core")
     core.includes.include("raymath.h")
     core.includes.include("rcamera.h")
+    core.includes.include("rlgl.h")
     core.includes.line("#define RAYGUI_IMPLEMENTATION")
     core.includes.include("raygui.h")
     core.includes.line("#define RLIGHTS_IMPLEMENTATION")
@@ -281,9 +282,10 @@ function main(){
         },
         //destructor: "UnloadShader"
     }
-    getStruct(api.structs, "Texture")!.binding = { 
-        properties: { 
-            width: { get: true }, 
+    getStruct(api.structs, "Texture")!.binding = {
+        properties: {
+            id: { get: true },
+            width: { get: true },
             height: { get: true },
             mipmaps: { get: true },
             format: { get: true },
@@ -731,6 +733,10 @@ function main(){
     ignore("GuiTabBar")
     ignore("GuiGetIcons")
     ignore("GuiLoadIcons")
+
+    // rlgl functions — added manually since rlgl.h is not parsed as a whole
+    api.functions.push({ name: "rlEnableBackfaceCulling",  description: "Enable backface culling",  returnType: "void", params: [] })
+    api.functions.push({ name: "rlDisableBackfaceCulling", description: "Disable backface culling", returnType: "void", params: [] })
 
     api.structs.forEach(x => core.addApiStruct(x))
     api.functions.forEach(x => core.addApiFunction(x))
