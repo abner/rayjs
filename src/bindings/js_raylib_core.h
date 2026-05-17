@@ -12123,6 +12123,16 @@ static JSValue js_rlDisableBackfaceCulling(JSContext * ctx, JSValueConst this_va
     return JS_UNDEFINED;
 }
 
+static JSValue js_rlEnableWireMode(JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv) {
+    rlEnableWireMode();
+    return JS_UNDEFINED;
+}
+
+static JSValue js_rlDisableWireMode(JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv) {
+    rlDisableWireMode();
+    return JS_UNDEFINED;
+}
+
 static const JSCFunctionListEntry js_raylib_core_funcs[] = {
     JS_CFUNC_DEF("initWindow",3,js_initWindow),
     JS_CFUNC_DEF("closeWindow",0,js_closeWindow),
@@ -12863,6 +12873,8 @@ static const JSCFunctionListEntry js_raylib_core_funcs[] = {
     JS_CFUNC_DEF("getMaterialTexture",2,js_getMaterialTexture),
     JS_CFUNC_DEF("rlEnableBackfaceCulling",0,js_rlEnableBackfaceCulling),
     JS_CFUNC_DEF("rlDisableBackfaceCulling",0,js_rlDisableBackfaceCulling),
+    JS_CFUNC_DEF("rlEnableWireMode",0,js_rlEnableWireMode),
+    JS_CFUNC_DEF("rlDisableWireMode",0,js_rlDisableWireMode),
 };
 
 static int js_raylib_core_init(JSContext * ctx, JSModuleDef * m) {

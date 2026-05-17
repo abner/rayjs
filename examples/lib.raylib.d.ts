@@ -1915,6 +1915,10 @@ declare function getMaterialTexture(material: Material, mapType: number): Textur
 declare function rlEnableBackfaceCulling(): void;
 /** Disable backface culling */
 declare function rlDisableBackfaceCulling(): void;
+/** Enable wire mode */
+declare function rlEnableWireMode(): void;
+/** Disable wire mode */
+declare function rlDisableWireMode(): void;
 /** (PI/180.0) */
 declare var DEG2RAD: number;
 /** (180.0/PI) */

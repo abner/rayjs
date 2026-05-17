@@ -1643,6 +1643,8 @@ function main() {
     // rlgl functions — added manually since rlgl.h is not parsed as a whole
     api.functions.push({ name: "rlEnableBackfaceCulling", description: "Enable backface culling", returnType: "void", params: [] });
     api.functions.push({ name: "rlDisableBackfaceCulling", description: "Disable backface culling", returnType: "void", params: [] });
+    api.functions.push({ name: "rlEnableWireMode", description: "Enable wire mode", returnType: "void", params: [] });
+    api.functions.push({ name: "rlDisableWireMode", description: "Disable wire mode", returnType: "void", params: [] });
     api.structs.forEach(x => core.addApiStruct(x));
     api.functions.forEach(x => core.addApiFunction(x));
     api.defines.filter(x => x.type === "COLOR").map(x => ({ name: x.name, description: x.description, values: (x.value.match(/\{([^}]+)\}/) || "")[1].split(',').map(x => x.trim()) })).forEach(x => {
