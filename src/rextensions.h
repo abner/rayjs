@@ -57,7 +57,7 @@ Mesh MeshCopy(Mesh mesh){
     
     CPY_ATTRIBS(animVertices, Vector3);
     CPY_ATTRIBS(animNormals, Vector3);
-    CPY_ATTRIBS(boneIds, Color);
+    CPY_ATTRIBS(boneIndices, Color);
     CPY_ATTRIBS(boneWeights, Vector4);
 
     // NOTE: Vaoid and Vbos are not copied as the resulting mesh has yet to be uploaded
@@ -93,7 +93,7 @@ Mesh MeshMerge(Mesh a, Mesh b){
     }   
     MERGE_ATTRIBS(animVertices, Vector3);
     MERGE_ATTRIBS(animNormals, Vector3);
-    MERGE_ATTRIBS(boneIds, Color);
+    MERGE_ATTRIBS(boneIndices, Color);
     MERGE_ATTRIBS(boneWeights, Vector4);
 
     // NOTE: The resulting mesh has yet to be uploaded

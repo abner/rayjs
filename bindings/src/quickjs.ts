@@ -240,7 +240,7 @@ export abstract class GenericQuickJsGenerator<T extends QuickJsGenerator> extend
 
     jsClassDeclaration(structName: string, classId: string, finalizerName: string, funcListName: string){
         const body = this.function("js_declare_" + structName, "int", [{type: "JSContext *", name: "ctx"},{type: "JSModuleDef *", name: "m"}],true)
-        body.call("JS_NewClassID", ["&"+classId])
+        body.call("JS_NewClassID", ["JS_GetRuntime(ctx)","&"+classId])
         const classDefName = `js_${structName}_def` 
         body.declare(classDefName, "JSClassDef", false, `{ .class_name = "${structName}", .finalizer = ${finalizerName} }`)
         body.call("JS_NewClass", ["JS_GetRuntime(ctx)",classId,"&"+classDefName])

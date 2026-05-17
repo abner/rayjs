@@ -38,7 +38,8 @@ After Phase 1 merges to `main`, rebase Phase 2 onto it.
 ## Status checklist
 
 - [x] Phase 1 — quickjs-ng migration
-- [ ] Phase 2 — raylib 6.0 upgrade
+- [x] Phase 2 — raylib 6.0 upgrade
+- [ ] Phase 3 — binding gaps (see 03-binding-gaps.md)
 - [ ] README updated (drop MinGW caveat, point clone URL at this fork)
 - [ ] CI green on Linux, macOS, Windows
-- [ ] Examples smoke-tested end-to-end
+- [x] Examples smoke-tested end-to-end (macOS arm64/x86_64)

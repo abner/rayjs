@@ -26,7 +26,7 @@ function ignore(name: string){
 function main(){
      
     // Load the pre-generated raylib api
-    api = <RayLibApi>JSON.parse(readFileSync("thirdparty/raylib/parser/output/raylib_api.json", 'utf8'))
+    api = <RayLibApi>JSON.parse(readFileSync("thirdparty/raylib/tools/rlparser/output/raylib_api.json", 'utf8'))
 
     const parser = new HeaderParser()
     
@@ -249,7 +249,6 @@ function main(){
             transform: { get: true, set: true },
             meshCount: { get: true },
             materialCount: { get: true },
-            boneCount: { get: true },
         },
         //destructor: "UnloadModel"
     }
@@ -267,7 +266,7 @@ function main(){
             indices: { set: true },
             animVertices: { set: true },
             animNormals: { set: true },
-            boneIds: { set: true },
+            boneIndices: { set: true },
             boneWeights: { set: true },
         },
         createEmptyConstructor: true
@@ -330,7 +329,6 @@ function main(){
             vResolution: { set: true, get: true },
             hScreenSize: { set: true, get: true },
             vScreenSize: { set: true, get: true },
-            vScreenCenter: { set: true, get: true },
             eyeToScreenDistance: { set: true, get: true },
             lensSeparationDistance: { set: true, get: true },
             interpupillaryDistance: { set: true, get: true },
@@ -396,6 +394,8 @@ function main(){
     traceLog.params?.pop()
 
     // Memory functions not supported on JS, just use ArrayBuffer
+    ignore("LoadRandomSequence")
+    ignore("UnloadRandomSequence")
     ignore("MemAlloc")
     ignore("MemRealloc")
     ignore("MemFree")
@@ -429,6 +429,8 @@ function main(){
     getFunction(api.functions, "LoadFileText")!.binding = { after: gen => gen.call("UnloadFileText", ["returnVal"]) } 
     getFunction(api.functions, "SaveFileText")!.params![1].binding = { typeAlias: "const char *" } 
     ignore("UnloadFileText")
+    ignore("LoadTextLines")
+    ignore("UnloadTextLines")
     
     const createFileList = (gen: QuickJsGenerator, loadName: string, unloadName: string, args: string[]) => {
         gen.call(loadName, args, { type: "FilePathList", name: "files" })
@@ -468,11 +470,14 @@ function main(){
     }
     ignore("UnloadDroppedFiles")
     
-    // Compression/encoding functionality
+    // Compression/encoding/hashing functionality
     ignore("CompressData")
     ignore("DecompressData")
     ignore("EncodeDataBase64")
     ignore("DecodeDataBase64")
+    ignore("ComputeMD5")
+    ignore("ComputeSHA1")
+    ignore("ComputeSHA256")
 
     ignore("DrawLineStrip")
     ignore("DrawTriangleFan")
@@ -480,7 +485,9 @@ function main(){
     ignore("CheckCollisionPointPoly")
     ignore("CheckCollisionLines")
     ignore("LoadImageAnim")
+    ignore("LoadImageAnimFromMemory")
     ignore("ExportImageAsCode")
+    ignore("ExportImageToMemory")
 
     getFunction(api.functions, "LoadImageColors")!.binding = {
         jsReturns: "ArrayBuffer",
@@ -493,6 +500,7 @@ function main(){
         }
     }
 
+    ignore("ImageKernelConvolution")
     ignore("LoadImagePalette")
     ignore("UnloadImageColors")
     ignore("UnloadImagePalette")
@@ -510,6 +518,7 @@ function main(){
     ignore("UnloadFontData")
     ignore("ExportFontAsCode")
     ignore("DrawTextCodepoints")
+    ignore("MeasureTextCodepoints")
     ignore("GetGlyphInfo")
     ignore("LoadUTF8")
     ignore("UnloadUTF8")
@@ -528,7 +537,6 @@ function main(){
     ignore("LoadMaterials")
     ignore("LoadModelAnimations")
     ignore("UpdateModelAnimation")
-    ignore("UnloadModelAnimation")
     ignore("UnloadModelAnimations")
     ignore("IsModelAnimationValid")
     ignore("ExportWaveAsCode")
@@ -538,7 +546,6 @@ function main(){
     ignore("UnloadWaveSamples")
     ignore("LoadMusicStreamFromMemory")
     ignore("LoadAudioStream")
-    ignore("IsAudioStreamReady")
     ignore("UnloadAudioStream")
     ignore("UpdateAudioStream")
     ignore("IsAudioStreamProcessed")
@@ -582,6 +589,62 @@ function main(){
             } 
         }
     }
+    const setOutParamFloat = (fun: RayLibFunction, index: number) => {
+        const param = fun.params![index]
+        param.binding = {
+            jsType: `{ ${param.name}: number }`,
+            customConverter: (gen, src) => {
+                gen.declare(param.name, param.type, false, "NULL")
+                gen.declare(param.name + "_out", "float")
+                const body = gen.if("!JS_IsNull(" + src + ")")
+                body.statement(param.name + " = &" + param.name + "_out")
+                body.call("JS_GetPropertyStr", ["ctx", src, '"' + param.name + '"'], { name: param.name + "_js", type: "JSValue" })
+                body.statement("double _dbl_" + param.name + " = 0")
+                body.call("JS_ToFloat64", ["ctx", "&_dbl_" + param.name, param.name + "_js"])
+                body.statement(param.name + "_out = (float)_dbl_" + param.name)
+            },
+            customCleanup: (gen, src) => {
+                const body = gen.if("!JS_IsNull(" + src + ")")
+                body.call("JS_SetPropertyStr", ["ctx", src, `"${param.name}"`, "JS_NewFloat64(ctx," + param.name + "_out)"])
+            }
+        }
+    }
+    const setOutParamBool = (fun: RayLibFunction, index: number) => {
+        const param = fun.params![index]
+        param.binding = {
+            jsType: `{ ${param.name}: boolean }`,
+            customConverter: (gen, src) => {
+                gen.declare(param.name, param.type, false, "NULL")
+                gen.declare(param.name + "_out", "bool")
+                const body = gen.if("!JS_IsNull(" + src + ")")
+                body.statement(param.name + " = &" + param.name + "_out")
+                body.call("JS_GetPropertyStr", ["ctx", src, '"' + param.name + '"'], { name: param.name + "_js", type: "JSValue" })
+                body.statement(param.name + "_out = (bool)JS_ToBool(ctx, " + param.name + "_js)")
+            },
+            customCleanup: (gen, src) => {
+                const body = gen.if("!JS_IsNull(" + src + ")")
+                body.call("JS_SetPropertyStr", ["ctx", src, `"${param.name}"`, "JS_NewBool(ctx," + param.name + "_out)"])
+            }
+        }
+    }
+    const setOutParamStringNoLen = (fun: RayLibFunction, index: number) => {
+        const param = fun!.params![index]
+        param.binding = {
+            jsType: `{ ${param.name}: string }`,
+            customConverter: (gen,src) => {
+                gen.call("JS_GetPropertyStr", ["ctx",src, '"'+param.name+'"'], { name: param.name+"_js", type: "JSValue" })
+                gen.declare(param.name+"_len", "size_t");
+                gen.call("JS_ToCStringLen",["ctx", "&"+param.name+"_len", param.name+"_js"], { name: param.name+"_val", type: "const char *" })
+                gen.call("memcpy", ["(void *)textbuffer", param.name+"_val", param.name+"_len"])
+                gen.statement("textbuffer["+param.name+"_len] = 0")
+                gen.declare(param.name, param.type, false, "textbuffer");
+            },
+            customCleanup: (gen, src) => {
+                gen.jsCleanUpParameter("const char *", param.name + "_val")
+                gen.call("JS_SetPropertyStr", ["ctx", src, `"${param.name}"`, "JS_NewString(ctx,"+param.name+")"])
+            }
+        }
+    }
     const setOutParamString = (fun: RayLibFunction, index: number, indexLen: number) => {
         const lenParam = fun!.params![indexLen]
         lenParam.binding = { ignore: true }
@@ -607,10 +670,30 @@ function main(){
 
     core.definitions.declare("textbuffer[4096]", "char", true)
 
+    setOutParamBool(getFunction(api.functions, "GuiToggle")!, 2)
+    setOutParam(getFunction(api.functions, "GuiToggleGroup")!, 2)
+    setOutParam(getFunction(api.functions, "GuiToggleSlider")!, 2)
+    setOutParamBool(getFunction(api.functions, "GuiCheckBox")!, 2)
+    setOutParam(getFunction(api.functions, "GuiComboBox")!, 2)
     setOutParam(getFunction(api.functions, "GuiDropdownBox")!, 2)
     setOutParam(getFunction(api.functions, "GuiSpinner")!, 2)
     setOutParam(getFunction(api.functions, "GuiValueBox")!, 2)
+    // GuiListView now has two out params: scrollIndex(2) and active(3)
     setOutParam(getFunction(api.functions, "GuiListView")!, 2)
+    setOutParam(getFunction(api.functions, "GuiListView")!, 3)
+    // raygui 5.0 float* out-param controls
+    setOutParamFloat(getFunction(api.functions, "GuiSlider")!, 3)
+    setOutParamFloat(getFunction(api.functions, "GuiSliderBar")!, 3)
+    setOutParamFloat(getFunction(api.functions, "GuiProgressBar")!, 3)
+    setOutParamFloat(getFunction(api.functions, "GuiColorBarAlpha")!, 2)
+    setOutParamFloat(getFunction(api.functions, "GuiColorBarHue")!, 2)
+    // GuiValueBoxFloat: char *textValue (mutable text buffer) + float *value out-params
+    const gvbf = getFunction(api.functions, "GuiValueBoxFloat")!
+    setOutParamStringNoLen(gvbf, 2)
+    setOutParamFloat(gvbf, 3)
+    // GuiScrollPanel, GuiColorPanel/Picker/HSV, GuiGrid: struct pointer out-params
+    // The default generator extracts the underlying C pointer from JS opaque objects,
+    // so the C function modifies them in-place and the JS object reflects the change.
 
     // const setStringListParam = (fun: RayLibFunction, index: number, indexLen: number) => {
     //     const lenParam = fun!.params![indexLen]
@@ -639,7 +722,7 @@ function main(){
 
     const gtib = getFunction(api.functions, "GuiTextInputBox")!
     setOutParamString(gtib,4,5)
-    setOutParam(gtib, 6)
+    setOutParamBool(gtib, 6)
     
     // needs string array
     ignore("GuiTabBar")
