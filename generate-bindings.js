@@ -974,7 +974,10 @@ function ignore(name) {
 }
 function main() {
     // Load the pre-generated raylib api
-    api = JSON.parse((0, fs_1.readFileSync)("thirdparty/raylib/tools/rlparser/output/raylib_api.json", 'utf8'));
+    // Patch: LoadDirectoryFilesEx description contains unescaped double quotes in the upstream JSON
+    let apiJson = (0, fs_1.readFileSync)("thirdparty/raylib/tools/rlparser/output/raylib_api.json", 'utf8');
+    apiJson = apiJson.replace(`"*.*", "FILES*", "DIRS*"`, `'*.*', 'FILES*', 'DIRS*'`);
+    api = JSON.parse(apiJson);
     const parser = new header_parser_1.HeaderParser();
     const rmathHeader = (0, fs_1.readFileSync)("thirdparty/raylib/src/raymath.h", "utf8");
     const mathApi = parser.parseFunctions(rmathHeader);

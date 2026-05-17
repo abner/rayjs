@@ -26,7 +26,10 @@ function ignore(name: string){
 function main(){
      
     // Load the pre-generated raylib api
-    api = <RayLibApi>JSON.parse(readFileSync("thirdparty/raylib/tools/rlparser/output/raylib_api.json", 'utf8'))
+    // Patch: LoadDirectoryFilesEx description contains unescaped double quotes in the upstream JSON
+    let apiJson = readFileSync("thirdparty/raylib/tools/rlparser/output/raylib_api.json", 'utf8')
+    apiJson = apiJson.replace(`"*.*", "FILES*", "DIRS*"`, `'*.*', 'FILES*', 'DIRS*'`)
+    api = <RayLibApi>JSON.parse(apiJson)
 
     const parser = new HeaderParser()
     
