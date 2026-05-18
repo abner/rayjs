@@ -18,8 +18,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
-      with: 
+    - uses: actions/checkout@v4
+      with:
         submodules: true
       
     - name: Configure CMake
@@ -32,18 +32,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: rayjs
+        name: rayjs-macos
         path: rayjs
-  
-  deploy:
-    needs: build
-    runs-on: macos-latest
-
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: rayjs
-          path: build
