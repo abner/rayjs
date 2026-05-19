@@ -21,8 +21,8 @@ static const JSCFunctionListEntry global_obj[] = {
 };
 
 
-#ifdef QJS_USE_MIMALLOC
 #include <mimalloc.h>
+#ifdef QJS_USE_MIMALLOC
 static void * jsc_malloc(JSContext *ctx, size_t sz ){ return mi_malloc(sz); }
 static void * jsc_calloc(JSContext *ctx, size_t n, size_t sz ){ return mi_calloc(n,sz); }
 static void * jsc_realloc(JSContext *ctx, void * ptr, size_t sz ){ return mi_realloc(ptr,sz); }

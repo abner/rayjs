@@ -6,6 +6,10 @@
 	#include <rayjs_base.h>
 	#include <config.h>
 	#include <raylib.h>
+	#include <rlgl.h>
+	#ifndef MAX_MESH_VERTEX_BUFFERS
+	    #define MAX_MESH_VERTEX_BUFFERS 9
+	#endif
 	
 	static float js_getfloat(JSContext * ctx,JSValue src,bool * error){
 		float ret;
@@ -864,15 +868,11 @@
 		ret.animNormals =(float  *)jsc_malloc(ctx,sizeof(float *)*ptr.vertexCount*3);
 		for(int i7=0;i7<ptr.vertexCount*3;i7++){
 		}
-		ret.boneIds =(unsigned char  *)jsc_malloc(ctx,sizeof(unsigned char *)*ptr.vertexCount*4);
+		ret.boneIndices =(unsigned char  *)jsc_malloc(ctx,sizeof(unsigned char *)*ptr.vertexCount*4);
 		for(int i8=0;i8<ptr.vertexCount*4;i8++){
 		}
 		ret.boneWeights =(float  *)jsc_malloc(ctx,sizeof(float *)*ptr.vertexCount*4);
 		for(int i9=0;i9<ptr.vertexCount*4;i9++){
-		}
-		ret.boneMatrices =(Matrix  *)jsc_malloc(ctx,sizeof(Matrix *)*ptr.boneCount);
-		for(int i10=0;i10<ptr.boneCount;i10++){
-			ret.boneMatrices[i10] =ptr.boneMatrices[i10];
 		}
 		ret.vboId =(unsigned int  *)jsc_malloc(ctx,sizeof(unsigned int *)*MAX_MESH_VERTEX_BUFFERS);
 		for(int i11=0;i11<MAX_MESH_VERTEX_BUFFERS;i11++){
@@ -1450,17 +1450,17 @@
 		ret.meshMaterial =(int  *)jsc_malloc(ctx,sizeof(int *)*ptr.meshCount);
 		for(int i1=0;i1<ptr.meshCount;i1++){
 		}
-		ret.bones =(BoneInfo  *)jsc_malloc(ctx,sizeof(BoneInfo *)*ptr.boneCount);
-		for(int i2=0;i2<ptr.boneCount;i2++){
-			ret.bones[i2] =ptr.bones[i2];
+		ret.skeleton.bones =(BoneInfo  *)jsc_malloc(ctx,sizeof(BoneInfo)*ptr.skeleton.boneCount);
+		for(int i2=0;i2<ptr.skeleton.boneCount;i2++){
+			ret.skeleton.bones[i2] =ptr.skeleton.bones[i2];
 		}
-		ret.bindPose =(Transform  *)jsc_malloc(ctx,sizeof(Transform *)*ptr.boneCount);
-		for(int i3=0;i3<ptr.boneCount;i3++){
-			ret.bindPose[i3] =ptr.bindPose[i3];
+		ret.skeleton.bindPose =(Transform  *)jsc_malloc(ctx,sizeof(Transform)*ptr.skeleton.boneCount);
+		for(int i3=0;i3<ptr.skeleton.boneCount;i3++){
+			ret.skeleton.bindPose[i3] =ptr.skeleton.bindPose[i3];
 		}
 		return ret;
 	}
-	
+
 	static Transform * js_getTransform_arr_arg1(JSContext * ctx,JSValue src,bool * error,int size0){
 		Transform * ret;
 		bool is_arrayProxy=(bool)0;
@@ -1677,17 +1677,13 @@
 	
 	static ModelAnimation ModelAnimation_copy(JSContext * ctx,ModelAnimation ptr){
 		ModelAnimation ret=ptr;
-		ret.bones =(BoneInfo  *)jsc_malloc(ctx,sizeof(BoneInfo *)*ptr.boneCount);
-		for(int i=0;i<ptr.boneCount;i++){
-			ret.bones[i] =ptr.bones[i];
-		}
-		ret.framePoses =(Transform  * *)jsc_malloc(ctx,sizeof(Transform * *)*ptr.frameCount);
-		for(int i0=0;i0<ptr.frameCount;i0++){
-			Transform * framePoses_src1=ptr.framePoses[i0];
-			Transform * framePoses_target1=ret.framePoses[i0];
-			framePoses_target1 =(Transform  *)jsc_malloc(ctx,sizeof(Transform *)*ptr.boneCount);
+		ret.keyframePoses =(Transform  * *)jsc_malloc(ctx,sizeof(Transform * *)*ptr.keyframeCount);
+		for(int i0=0;i0<ptr.keyframeCount;i0++){
+			Transform * keyframePoses_src1=ptr.keyframePoses[i0];
+			Transform * keyframePoses_target1=ret.keyframePoses[i0];
+			keyframePoses_target1 =(Transform  *)jsc_malloc(ctx,sizeof(Transform *)*ptr.boneCount);
 			for(int i1=0;i1<ptr.boneCount;i1++){
-				framePoses_target1[i1] =framePoses_src1[i1];
+				keyframePoses_target1[i1] =keyframePoses_src1[i1];
 			}
 		}
 		return ret;
@@ -4327,7 +4323,7 @@
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type double");
 			error[0]=(bool)1;
-			return 0.0d;
+			return 0.0;
 		}
 		return ret;
 	}
@@ -7923,11 +7919,11 @@
 		return JS_UNDEFINED;
 	}
 	
-	static JSValue js_Mesh_boneIds_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+	static JSValue js_Mesh_boneIndices_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
 		Mesh * ptr=(Mesh  *)ptr_u;
 		JSValue ret=JS_NewArray(ctx);
 		for(int i=0;i<ptr[0].vertexCount*4;i++){
-			unsigned char src0=ptr[0].boneIds[i];
+			unsigned char src0=ptr[0].boneIndices[i];
 			JSValue ret1=JS_NewUint32(ctx,(uint32_t)((unsigned long)src0));
 			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
@@ -7937,7 +7933,7 @@
 		return ret;
 	}
 	
-	static int js_Mesh_boneIds_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
+	static int js_Mesh_boneIndices_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
 		Mesh * ptr=(Mesh  *)ptr_u;
 		int length=(int)ptr[0].vertexCount*4;
 		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
@@ -7948,7 +7944,7 @@
 		return true;
 	}
 	
-	static JSValue js_Mesh_boneIds_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+	static JSValue js_Mesh_boneIndices_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
 		Mesh * ptr=(Mesh  *)ptr_u;
 		if(as_sting==true){
 			if(property==JS_ATOM_length){
@@ -7959,7 +7955,7 @@
 			}
 		}else{
 			if(property>=0&&property<ptr[0].vertexCount*4){
-				unsigned char src=ptr[0].boneIds[property];
+				unsigned char src=ptr[0].boneIndices[property];
 				JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)src));
 				return ret;
 			}else{
@@ -7968,7 +7964,7 @@
 		}
 	}
 	
-	static int js_Mesh_boneIds_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
+	static int js_Mesh_boneIndices_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
 		Mesh * ptr=(Mesh  *)ptr_u;
 		if(as_sting==true){
 			return false;
@@ -7979,7 +7975,7 @@
 				unsigned char ret=js_getunsignedchar(ctx,set_to,&error);
 				if(error==1)return 0;
 				local_memlock=(bool)false;
-				ptr[0].boneIds[property]=ret;
+				ptr[0].boneIndices[property]=ret;
 				return true;
 			}else{
 				return false;
@@ -7988,7 +7984,7 @@
 		return true;
 	}
 	
-	static int js_Mesh_boneIds_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
+	static int js_Mesh_boneIndices_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
 		Mesh * ptr=(Mesh  *)ptr_u;
 		if(as_sting==true){
 			if(property==JS_ATOM_length){
@@ -8005,7 +8001,7 @@
 		}
 	}
 	
-	static JSValue js_Mesh_get_boneIds(JSContext * ctx,JSValue this_val){
+	static JSValue js_Mesh_get_boneIndices(JSContext * ctx,JSValue this_val){
 		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_Mesh_class_id);
 		Mesh * ptr=(Mesh  *)shadow[0].ptr;
 		JSValue anchor;
@@ -8014,11 +8010,11 @@
 		}else{
 			anchor=shadow[0].anchor;
 		}
-		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_Mesh_boneIds_values,.keys = js_Mesh_boneIds_keys,.get = js_Mesh_boneIds_get,.set = js_Mesh_boneIds_set,.has = js_Mesh_boneIds_has});
+		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_Mesh_boneIndices_values,.keys = js_Mesh_boneIndices_keys,.get = js_Mesh_boneIndices_get,.set = js_Mesh_boneIndices_set,.has = js_Mesh_boneIndices_has});
 		return ret;
 	}
 	
-	static JSValue js_Mesh_set_boneIds(JSContext * ctx,JSValue this_val,JSValue v){
+	static JSValue js_Mesh_set_boneIndices(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
 		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_Mesh_class_id);
 		Mesh * ptr=(Mesh  *)shadow[0].ptr;
@@ -8026,8 +8022,8 @@
 		unsigned char * value=js_getunsignedchar_arrnc(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		if(ptr[0].boneIds!=NULL)jsc_free(ctx,(void  *)ptr[0].boneIds);
-		ptr[0].boneIds =value;
+		if(ptr[0].boneIndices!=NULL)jsc_free(ctx,(void  *)ptr[0].boneIndices);
+		ptr[0].boneIndices =value;
 		return JS_UNDEFINED;
 	}
 	
@@ -8136,120 +8132,6 @@
 		local_memlock=(bool)false;
 		if(ptr[0].boneWeights!=NULL)jsc_free(ctx,(void  *)ptr[0].boneWeights);
 		ptr[0].boneWeights =value;
-		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_Mesh_boneMatrices_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
-		Mesh * ptr=(Mesh  *)ptr_u;
-		JSValue ret=JS_NewArray(ctx);
-		for(int i=0;i<ptr[0].boneCount;i++){
-			Matrix * src0=(ptr[0].boneMatrices+i);
-			JS_DupValue(ctx,anchor);
-			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
-			JSValue ret1=JS_NewObjectClass(ctx,js_Matrix_class_id);
-			JS_SetOpaque(ret1,(void  *)ptr_ret1);
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
-		}
-		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
-		}
-		return ret;
-	}
-	
-	static int js_Mesh_boneMatrices_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
-		Mesh * ptr=(Mesh  *)ptr_u;
-		int length=ptr[0].boneCount;
-		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
-		for(int i=0;i<length;i++){
-			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
-		}
-		keys[0][length] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_ATOM_length};
-		return true;
-	}
-	
-	static JSValue js_Mesh_boneMatrices_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
-		Mesh * ptr=(Mesh  *)ptr_u;
-		if(as_sting==true){
-			if(property==JS_ATOM_length){
-				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].boneCount));
-				return ret;
-			}else{
-				return JS_UNDEFINED;
-			}
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				Matrix * src=(ptr[0].boneMatrices+property);
-				JS_DupValue(ctx,anchor);
-				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
-				JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-				JS_SetOpaque(ret,(void  *)ptr_ret);
-				return ret;
-			}else{
-				return JS_UNDEFINED;
-			}
-		}
-	}
-	
-	static int js_Mesh_boneMatrices_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
-		Mesh * ptr=(Mesh  *)ptr_u;
-		if(as_sting==true){
-			return false;
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				bool error=(bool)0;
-				local_memlock=(bool)true;
-				Matrix ret=js_getMatrix(ctx,set_to,&error);
-				if(error==1)return 0;
-				local_memlock=(bool)false;
-				ptr[0].boneMatrices[property]=ret;
-				return true;
-			}else{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	static int js_Mesh_boneMatrices_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
-		Mesh * ptr=(Mesh  *)ptr_u;
-		if(as_sting==true){
-			if(property==JS_ATOM_length){
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				return true;
-			}else{
-				return false;
-			}
-		}
-	}
-	
-	static JSValue js_Mesh_get_boneMatrices(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_Mesh_class_id);
-		Mesh * ptr=(Mesh  *)shadow[0].ptr;
-		JSValue anchor;
-		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
-			anchor=this_val;
-		}else{
-			anchor=shadow[0].anchor;
-		}
-		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_Mesh_boneMatrices_values,.keys = js_Mesh_boneMatrices_keys,.get = js_Mesh_boneMatrices_get,.set = js_Mesh_boneMatrices_set,.has = js_Mesh_boneMatrices_has});
-		return ret;
-	}
-	
-	static JSValue js_Mesh_set_boneMatrices(JSContext * ctx,JSValue this_val,JSValue v){
-		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_Mesh_class_id);
-		Mesh * ptr=(Mesh  *)shadow[0].ptr;
-		local_memlock=(bool)true;
-		Matrix * value=js_getMatrix_arrnc(ctx,v,&error);
-		if(error==1)return JS_EXCEPTION;
-		local_memlock=(bool)false;
-		if(ptr[0].boneMatrices!=NULL)jsc_free(ctx,(void  *)ptr[0].boneMatrices);
-		ptr[0].boneMatrices =value;
 		return JS_UNDEFINED;
 	}
 	
@@ -8413,9 +8295,8 @@
 		JS_CGETSET_DEF("indices",js_Mesh_get_indices,js_Mesh_set_indices),
 		JS_CGETSET_DEF("animVertices",js_Mesh_get_animVertices,js_Mesh_set_animVertices),
 		JS_CGETSET_DEF("animNormals",js_Mesh_get_animNormals,js_Mesh_set_animNormals),
-		JS_CGETSET_DEF("boneIds",js_Mesh_get_boneIds,js_Mesh_set_boneIds),
+		JS_CGETSET_DEF("boneIndices",js_Mesh_get_boneIndices,js_Mesh_set_boneIndices),
 		JS_CGETSET_DEF("boneWeights",js_Mesh_get_boneWeights,js_Mesh_set_boneWeights),
-		JS_CGETSET_DEF("boneMatrices",js_Mesh_get_boneMatrices,js_Mesh_set_boneMatrices),
 		JS_CGETSET_DEF("boneCount",js_Mesh_get_boneCount,js_Mesh_set_boneCount),
 		JS_CGETSET_DEF("vaoId",js_Mesh_get_vaoId,js_Mesh_set_vaoId),
 		JS_CGETSET_DEF("vboId",js_Mesh_get_vboId,js_Mesh_set_vboId)
@@ -9613,7 +9494,7 @@
 	static JSValue js_Model_get_boneCount(JSContext * ctx,JSValue this_val){
 		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_Model_class_id);
 		Model * ptr=(Model  *)shadow[0].ptr;
-		int boneCount=ptr[0].boneCount;
+		int boneCount=ptr[0].skeleton.boneCount;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)boneCount));
 		return ret;
 	}
@@ -9626,15 +9507,15 @@
 		int value=js_getint(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		ptr[0].boneCount=value;
+		ptr[0].skeleton.boneCount=value;
 		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_Model_bones_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
 		Model * ptr=(Model  *)ptr_u;
 		JSValue ret=JS_NewArray(ctx);
-		for(int i=0;i<ptr[0].boneCount;i++){
-			BoneInfo * src0=(ptr[0].bones+i);
+		for(int i=0;i<ptr[0].skeleton.boneCount;i++){
+			BoneInfo * src0=(ptr[0].skeleton.bones+i);
 			JS_DupValue(ctx,anchor);
 			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
 			JSValue ret1=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
@@ -9649,7 +9530,7 @@
 	
 	static int js_Model_bones_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
 		Model * ptr=(Model  *)ptr_u;
-		int length=ptr[0].boneCount;
+		int length=ptr[0].skeleton.boneCount;
 		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
 		for(int i=0;i<length;i++){
 			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
@@ -9662,14 +9543,14 @@
 		Model * ptr=(Model  *)ptr_u;
 		if(as_sting==true){
 			if(property==JS_ATOM_length){
-				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].boneCount));
+				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].skeleton.boneCount));
 				return ret;
 			}else{
 				return JS_UNDEFINED;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				BoneInfo * src=(ptr[0].bones+property);
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				BoneInfo * src=(ptr[0].skeleton.bones+property);
 				JS_DupValue(ctx,anchor);
 				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
 				JSValue ret=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
@@ -9686,13 +9567,13 @@
 		if(as_sting==true){
 			return false;
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
 				bool error=(bool)0;
 				local_memlock=(bool)true;
 				BoneInfo ret=js_getBoneInfo(ctx,set_to,&error);
 				if(error==1)return 0;
 				local_memlock=(bool)false;
-				ptr[0].bones[property]=ret;
+				ptr[0].skeleton.bones[property]=ret;
 				return true;
 			}else{
 				return false;
@@ -9710,7 +9591,7 @@
 				return false;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
 				return true;
 			}else{
 				return false;
@@ -9739,16 +9620,16 @@
 		BoneInfo * value=js_getBoneInfo_arrnc(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		if(ptr[0].bones!=NULL)jsc_free(ctx,(void  *)ptr[0].bones);
-		ptr[0].bones =value;
+		if(ptr[0].skeleton.bones!=NULL)jsc_free(ctx,(void  *)ptr[0].skeleton.bones);
+		ptr[0].skeleton.bones =value;
 		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_Model_bindPose_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
 		Model * ptr=(Model  *)ptr_u;
 		JSValue ret=JS_NewArray(ctx);
-		for(int i=0;i<ptr[0].boneCount;i++){
-			Transform * src0=(ptr[0].bindPose+i);
+		for(int i=0;i<ptr[0].skeleton.boneCount;i++){
+			Transform * src0=(ptr[0].skeleton.bindPose+i);
 			JS_DupValue(ctx,anchor);
 			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
 			JSValue ret1=JS_NewObjectClass(ctx,js_Transform_class_id);
@@ -9763,7 +9644,7 @@
 	
 	static int js_Model_bindPose_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
 		Model * ptr=(Model  *)ptr_u;
-		int length=ptr[0].boneCount;
+		int length=ptr[0].skeleton.boneCount;
 		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
 		for(int i=0;i<length;i++){
 			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
@@ -9776,14 +9657,14 @@
 		Model * ptr=(Model  *)ptr_u;
 		if(as_sting==true){
 			if(property==JS_ATOM_length){
-				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].boneCount));
+				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].skeleton.boneCount));
 				return ret;
 			}else{
 				return JS_UNDEFINED;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				Transform * src=(ptr[0].bindPose+property);
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				Transform * src=(ptr[0].skeleton.bindPose+property);
 				JS_DupValue(ctx,anchor);
 				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
 				JSValue ret=JS_NewObjectClass(ctx,js_Transform_class_id);
@@ -9800,13 +9681,13 @@
 		if(as_sting==true){
 			return false;
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
 				bool error=(bool)0;
 				local_memlock=(bool)true;
 				Transform ret=js_getTransform(ctx,set_to,&error);
 				if(error==1)return 0;
 				local_memlock=(bool)false;
-				ptr[0].bindPose[property]=ret;
+				ptr[0].skeleton.bindPose[property]=ret;
 				return true;
 			}else{
 				return false;
@@ -9824,7 +9705,7 @@
 				return false;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].boneCount){
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
 				return true;
 			}else{
 				return false;
@@ -9853,8 +9734,8 @@
 		Transform * value=js_getTransform_arrnc(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		if(ptr[0].bindPose!=NULL)jsc_free(ctx,(void  *)ptr[0].bindPose);
-		ptr[0].bindPose =value;
+		if(ptr[0].skeleton.bindPose!=NULL)jsc_free(ctx,(void  *)ptr[0].skeleton.bindPose);
+		ptr[0].skeleton.bindPose =value;
 		return JS_UNDEFINED;
 	}
 	static const JSCFunctionListEntry js_Model_proto_funcs[]={
@@ -9909,8 +9790,8 @@
 	static JSValue js_ModelAnimation_get_frameCount(JSContext * ctx,JSValue this_val){
 		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_ModelAnimation_class_id);
 		ModelAnimation * ptr=(ModelAnimation  *)shadow[0].ptr;
-		int frameCount=ptr[0].frameCount;
-		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)frameCount));
+		int keyframeCount=ptr[0].keyframeCount;
+		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)keyframeCount));
 		return ret;
 	}
 	
@@ -9922,129 +9803,15 @@
 		int value=js_getint(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		ptr[0].frameCount=value;
-		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_ModelAnimation_bones_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
-		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		JSValue ret=JS_NewArray(ctx);
-		for(int i=0;i<ptr[0].boneCount;i++){
-			BoneInfo * src0=(ptr[0].bones+i);
-			JS_DupValue(ctx,anchor);
-			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
-			JSValue ret1=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
-			JS_SetOpaque(ret1,(void  *)ptr_ret1);
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
-		}
-		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
-		}
-		return ret;
-	}
-	
-	static int js_ModelAnimation_bones_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
-		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		int length=ptr[0].boneCount;
-		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
-		for(int i=0;i<length;i++){
-			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
-		}
-		keys[0][length] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_ATOM_length};
-		return true;
-	}
-	
-	static JSValue js_ModelAnimation_bones_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
-		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		if(as_sting==true){
-			if(property==JS_ATOM_length){
-				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].boneCount));
-				return ret;
-			}else{
-				return JS_UNDEFINED;
-			}
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				BoneInfo * src=(ptr[0].bones+property);
-				JS_DupValue(ctx,anchor);
-				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
-				JSValue ret=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
-				JS_SetOpaque(ret,(void  *)ptr_ret);
-				return ret;
-			}else{
-				return JS_UNDEFINED;
-			}
-		}
-	}
-	
-	static int js_ModelAnimation_bones_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
-		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		if(as_sting==true){
-			return false;
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				bool error=(bool)0;
-				local_memlock=(bool)true;
-				BoneInfo ret=js_getBoneInfo(ctx,set_to,&error);
-				if(error==1)return 0;
-				local_memlock=(bool)false;
-				ptr[0].bones[property]=ret;
-				return true;
-			}else{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	static int js_ModelAnimation_bones_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
-		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		if(as_sting==true){
-			if(property==JS_ATOM_length){
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			if(property>=0&&property<ptr[0].boneCount){
-				return true;
-			}else{
-				return false;
-			}
-		}
-	}
-	
-	static JSValue js_ModelAnimation_get_bones(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_ModelAnimation_class_id);
-		ModelAnimation * ptr=(ModelAnimation  *)shadow[0].ptr;
-		JSValue anchor;
-		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
-			anchor=this_val;
-		}else{
-			anchor=shadow[0].anchor;
-		}
-		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_ModelAnimation_bones_values,.keys = js_ModelAnimation_bones_keys,.get = js_ModelAnimation_bones_get,.set = js_ModelAnimation_bones_set,.has = js_ModelAnimation_bones_has});
-		return ret;
-	}
-	
-	static JSValue js_ModelAnimation_set_bones(JSContext * ctx,JSValue this_val,JSValue v){
-		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_ModelAnimation_class_id);
-		ModelAnimation * ptr=(ModelAnimation  *)shadow[0].ptr;
-		local_memlock=(bool)true;
-		BoneInfo * value=js_getBoneInfo_arrnc(ctx,v,&error);
-		if(error==1)return JS_EXCEPTION;
-		local_memlock=(bool)false;
-		if(ptr[0].bones!=NULL)jsc_free(ctx,(void  *)ptr[0].bones);
-		ptr[0].bones =value;
+		ptr[0].keyframeCount=value;
 		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_ModelAnimation_framePoses_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
 		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
 		JSValue ret=JS_NewArray(ctx);
-		for(int i=0;i<ptr[0].frameCount;i++){
-			Transform * src0=ptr[0].framePoses[i];
+		for(int i=0;i<ptr[0].keyframeCount;i++){
+			Transform * src0=ptr[0].keyframePoses[i];
 			JSValue ret1=JS_NewArray(ctx);
 			for(int i0=0;i0<ptr[0].boneCount;i0++){
 				Transform * src1=(src0+i0);
@@ -10064,7 +9831,7 @@
 	
 	static int js_ModelAnimation_framePoses_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
 		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
-		int length=ptr[0].frameCount;
+		int length=ptr[0].keyframeCount;
 		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
 		for(int i=0;i<length;i++){
 			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
@@ -10077,14 +9844,14 @@
 		ModelAnimation * ptr=(ModelAnimation  *)ptr_u;
 		if(as_sting==true){
 			if(property==JS_ATOM_length){
-				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].frameCount));
+				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].keyframeCount));
 				return ret;
 			}else{
 				return JS_UNDEFINED;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].frameCount){
-				Transform * src=ptr[0].framePoses[property];
+			if(property>=0&&property<ptr[0].keyframeCount){
+				Transform * src=ptr[0].keyframePoses[property];
 				JSValue ret=JS_NewArray(ctx);
 				for(int i=0;i<ptr[0].boneCount;i++){
 					Transform * src0=(src+i);
@@ -10106,13 +9873,13 @@
 		if(as_sting==true){
 			return false;
 		}else{
-			if(property>=0&&property<ptr[0].frameCount){
+			if(property>=0&&property<ptr[0].keyframeCount){
 				bool error=(bool)0;
 				local_memlock=(bool)true;
 				Transform * ret=js_getTransform_arr_arg1(ctx,set_to,&error,ptr[0].boneCount);
 				if(error==1)return 0;
 				local_memlock=(bool)false;
-				ptr[0].framePoses[property]=ret;
+				ptr[0].keyframePoses[property]=ret;
 				return true;
 			}else{
 				return false;
@@ -10130,7 +9897,7 @@
 				return false;
 			}
 		}else{
-			if(property>=0&&property<ptr[0].frameCount){
+			if(property>=0&&property<ptr[0].keyframeCount){
 				return true;
 			}else{
 				return false;
@@ -10161,8 +9928,8 @@
 		Transform * * value=js_getTransform_arr_arrnc(ctx,v,&error);
 		if(error==1)return JS_EXCEPTION;
 		local_memlock=(bool)false;
-		if(ptr[0].framePoses!=NULL)jsc_free(ctx,(void  *)*ptr[0].framePoses);
-		ptr[0].framePoses =value;
+		if(ptr[0].keyframePoses!=NULL)jsc_free(ctx,(void  *)*ptr[0].keyframePoses);
+		ptr[0].keyframePoses =value;
 		return JS_UNDEFINED;
 	}
 	
@@ -10265,9 +10032,8 @@
 	static const JSCFunctionListEntry js_ModelAnimation_proto_funcs[]={
 		JS_PROP_STRING_DEF("[Symbol.toStringTag]","ModelAnimation", JS_PROP_CONFIGURABLE),
 		JS_CGETSET_DEF("boneCount",js_ModelAnimation_get_boneCount,js_ModelAnimation_set_boneCount),
-		JS_CGETSET_DEF("frameCount",js_ModelAnimation_get_frameCount,js_ModelAnimation_set_frameCount),
-		JS_CGETSET_DEF("bones",js_ModelAnimation_get_bones,js_ModelAnimation_set_bones),
-		JS_CGETSET_DEF("framePoses",js_ModelAnimation_get_framePoses,js_ModelAnimation_set_framePoses),
+		JS_CGETSET_DEF("keyframeCount",js_ModelAnimation_get_frameCount,js_ModelAnimation_set_frameCount),
+		JS_CGETSET_DEF("keyframePoses",js_ModelAnimation_get_framePoses,js_ModelAnimation_set_framePoses),
 		JS_CGETSET_DEF("name",js_ModelAnimation_get_name,js_ModelAnimation_set_name)
 	};
 	
@@ -12361,27 +12127,7 @@
 		deallocate_shadow(rt,shadow);
 	}
 	
-	static JSValue js_FilePathList_get_capacity(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_FilePathList_class_id);
-		FilePathList * ptr=(FilePathList  *)shadow[0].ptr;
-		unsigned int capacity=ptr[0].capacity;
-		JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)capacity));
-		return ret;
-	}
-	
-	static JSValue js_FilePathList_set_capacity(JSContext * ctx,JSValue this_val,JSValue v){
-		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_FilePathList_class_id);
-		FilePathList * ptr=(FilePathList  *)shadow[0].ptr;
-		local_memlock=(bool)true;
-		unsigned int value=js_getunsignedint(ctx,v,&error);
-		if(error==1)return JS_EXCEPTION;
-		local_memlock=(bool)false;
-		ptr[0].capacity=value;
-		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_FilePathList_get_count(JSContext * ctx,JSValue this_val){
+		static JSValue js_FilePathList_get_count(JSContext * ctx,JSValue this_val){
 		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_FilePathList_class_id);
 		FilePathList * ptr=(FilePathList  *)shadow[0].ptr;
 		unsigned int count=ptr[0].count;
@@ -12512,7 +12258,6 @@
 	}
 	static const JSCFunctionListEntry js_FilePathList_proto_funcs[]={
 		JS_PROP_STRING_DEF("[Symbol.toStringTag]","FilePathList", JS_PROP_CONFIGURABLE),
-		JS_CGETSET_DEF("capacity",js_FilePathList_get_capacity,js_FilePathList_set_capacity),
 		JS_CGETSET_DEF("count",js_FilePathList_get_count,js_FilePathList_set_count),
 		JS_CGETSET_DEF("paths",js_FilePathList_get_paths,js_FilePathList_set_paths)
 	};
@@ -13699,21 +13444,19 @@
 			if(error==1)return JS_EXCEPTION;
 			unsigned short * indices=js_getunsignedshort_arrnc(ctx,argv[8],&error);
 			if(error==1)return JS_EXCEPTION;
-			float * animVertices=js_getfloat_arrnc(ctx,argv[9],&error);
+			int boneCount=js_getint(ctx,argv[9],&error);
 			if(error==1)return JS_EXCEPTION;
-			float * animNormals=js_getfloat_arrnc(ctx,argv[10],&error);
+			unsigned char * boneIndices=js_getunsignedchar_arrnc(ctx,argv[10],&error);
 			if(error==1)return JS_EXCEPTION;
-			unsigned char * boneIds=js_getunsignedchar_arrnc(ctx,argv[11],&error);
+			float * boneWeights=js_getfloat_arrnc(ctx,argv[11],&error);
 			if(error==1)return JS_EXCEPTION;
-			float * boneWeights=js_getfloat_arrnc(ctx,argv[12],&error);
+			float * animVertices=js_getfloat_arrnc(ctx,argv[12],&error);
 			if(error==1)return JS_EXCEPTION;
-			Matrix * boneMatrices=js_getMatrix_arrnc(ctx,argv[13],&error);
+			float * animNormals=js_getfloat_arrnc(ctx,argv[13],&error);
 			if(error==1)return JS_EXCEPTION;
-			int boneCount=js_getint(ctx,argv[14],&error);
+			unsigned int vaoId=js_getunsignedint(ctx,argv[14],&error);
 			if(error==1)return JS_EXCEPTION;
-			unsigned int vaoId=js_getunsignedint(ctx,argv[15],&error);
-			if(error==1)return JS_EXCEPTION;
-			unsigned int * vboId=js_getunsignedint_arrnc(ctx,argv[16],&error);
+			unsigned int * vboId=js_getunsignedint_arrnc(ctx,argv[15],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Mesh){
 				vertexCount,
@@ -13725,12 +13468,11 @@
 				tangents,
 				colors,
 				indices,
+				boneCount,
+				boneIndices,
+				boneWeights,
 				animVertices,
 				animNormals,
-				boneIds,
-				boneWeights,
-				boneMatrices,
-				boneCount,
 				vaoId,
 				vboId
 			};
@@ -13989,20 +13731,17 @@
 		}else{
 			int boneCount=js_getint(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
-			int frameCount=js_getint(ctx,argv[1],&error);
+			int keyframeCount=js_getint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
-			BoneInfo * bones=js_getBoneInfo_arrnc(ctx,argv[2],&error);
+			ModelAnimPose * keyframePoses=js_getTransform_arr_arrnc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
-			Transform * * framePoses=js_getTransform_arr_arrnc(ctx,argv[3],&error);
-			if(error==1)return JS_EXCEPTION;
-			char * name=js_getchar_arr32nc(ctx,argv[4],&error);
+			char * name=js_getchar_arr32nc(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(ModelAnimation){
+				{name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]},
 				boneCount,
-				frameCount,
-				bones,
-				framePoses,
-				{name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]}
+				keyframeCount,
+				keyframePoses
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(ModelAnimation));
@@ -14399,14 +14138,11 @@
 			if(error==1)return JS_EXCEPTION;
 			_struct =FilePathList_copy(ctx,ptr);
 		}else{
-			unsigned int capacity=js_getunsignedint(ctx,argv[0],&error);
+			unsigned int count=js_getunsignedint(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
-			unsigned int count=js_getunsignedint(ctx,argv[1],&error);
-			if(error==1)return JS_EXCEPTION;
-			char * * paths=js_getchar_arr_arrnc(ctx,argv[2],&error);
+			char * * paths=js_getchar_arr_arrnc(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(FilePathList){
-				capacity,
 				count,
 				paths
 			};
@@ -16818,17 +16554,15 @@
 	
 	static JSValue js_DrawCircleGradient(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		int centerX=js_getint(ctx,argv[0],&error);
+		Vector2 center=js_getVector2(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
-		int centerY=js_getint(ctx,argv[1],&error);
+		float radius=js_getfloat(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		float radius=js_getfloat(ctx,argv[2],&error);
+		Color inner=js_getColor(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
-		Color inner=js_getColor(ctx,argv[3],&error);
+		Color outer=js_getColor(ctx,argv[3],&error);
 		if(error==1)return JS_EXCEPTION;
-		Color outer=js_getColor(ctx,argv[4],&error);
-		if(error==1)return JS_EXCEPTION;
-		DrawCircleGradient(centerX,centerY,radius,inner,outer);
+		DrawCircleGradient(center,radius,inner,outer);
 		return JS_UNDEFINED;
 	}
 	
@@ -21127,38 +20861,6 @@
 		return JS_UNDEFINED;
 	}
 	
-	static JSValue js_DrawModelPoints(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		Model model=js_getModel(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		Vector3 position=js_getVector3(ctx,argv[1],&error);
-		if(error==1)return JS_EXCEPTION;
-		float scale=js_getfloat(ctx,argv[2],&error);
-		if(error==1)return JS_EXCEPTION;
-		Color tint=js_getColor(ctx,argv[3],&error);
-		if(error==1)return JS_EXCEPTION;
-		DrawModelPoints(model,position,scale,tint);
-		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_DrawModelPointsEx(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		Model model=js_getModel(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		Vector3 position=js_getVector3(ctx,argv[1],&error);
-		if(error==1)return JS_EXCEPTION;
-		Vector3 rotationAxis=js_getVector3(ctx,argv[2],&error);
-		if(error==1)return JS_EXCEPTION;
-		float rotationAngle=js_getfloat(ctx,argv[3],&error);
-		if(error==1)return JS_EXCEPTION;
-		Vector3 scale=js_getVector3(ctx,argv[4],&error);
-		if(error==1)return JS_EXCEPTION;
-		Color tint=js_getColor(ctx,argv[5],&error);
-		if(error==1)return JS_EXCEPTION;
-		DrawModelPointsEx(model,position,rotationAxis,rotationAngle,scale,tint);
-		return JS_UNDEFINED;
-	}
-	
 	static JSValue js_DrawBoundingBox(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
 		BoundingBox box=js_getBoundingBox(ctx,argv[0],&error);
@@ -21660,32 +21362,12 @@
 		if(error==1)return JS_EXCEPTION;
 		ModelAnimation anim=js_getModelAnimation(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int frame=js_getint(ctx,argv[2],&error);
+		float frame=js_getfloat(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		UpdateModelAnimation(model,anim,frame);
 		return JS_UNDEFINED;
 	}
-	
-	static JSValue js_UpdateModelAnimationBones(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		Model model=js_getModel(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		ModelAnimation anim=js_getModelAnimation(ctx,argv[1],&error);
-		if(error==1)return JS_EXCEPTION;
-		int frame=js_getint(ctx,argv[2],&error);
-		if(error==1)return JS_EXCEPTION;
-		UpdateModelAnimationBones(model,anim,frame);
-		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_UnloadModelAnimation(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		ModelAnimation anim=js_getModelAnimation(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		UnloadModelAnimation(anim);
-		return JS_UNDEFINED;
-	}
-	
+
 	static JSValue js_UnloadModelAnimations(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
 		ModelAnimation * animations=js_getModelAnimation_arr(ctx,argv[0],&error);
@@ -22742,7 +22424,7 @@
 		JS_CFUNC_DEF("DrawCircle",4,js_DrawCircle),
 		JS_CFUNC_DEF("DrawCircleSector",6,js_DrawCircleSector),
 		JS_CFUNC_DEF("DrawCircleSectorLines",6,js_DrawCircleSectorLines),
-		JS_CFUNC_DEF("DrawCircleGradient",5,js_DrawCircleGradient),
+		JS_CFUNC_DEF("DrawCircleGradient",4,js_DrawCircleGradient),
 		JS_CFUNC_DEF("DrawCircleV",3,js_DrawCircleV),
 		JS_CFUNC_DEF("DrawCircleLines",4,js_DrawCircleLines),
 		JS_CFUNC_DEF("DrawCircleLinesV",3,js_DrawCircleLinesV),
@@ -22995,8 +22677,6 @@
 		JS_CFUNC_DEF("DrawModelEx",6,js_DrawModelEx),
 		JS_CFUNC_DEF("DrawModelWires",4,js_DrawModelWires),
 		JS_CFUNC_DEF("DrawModelWiresEx",6,js_DrawModelWiresEx),
-		JS_CFUNC_DEF("DrawModelPoints",4,js_DrawModelPoints),
-		JS_CFUNC_DEF("DrawModelPointsEx",6,js_DrawModelPointsEx),
 		JS_CFUNC_DEF("DrawBoundingBox",2,js_DrawBoundingBox),
 		JS_CFUNC_DEF("DrawBillboard",5,js_DrawBillboard),
 		JS_CFUNC_DEF("DrawBillboardRec",6,js_DrawBillboardRec),
@@ -23029,8 +22709,6 @@
 		JS_CFUNC_DEF("SetModelMeshMaterial",3,js_SetModelMeshMaterial),
 		JS_CFUNC_DEF("LoadModelAnimations",2,js_LoadModelAnimations),
 		JS_CFUNC_DEF("UpdateModelAnimation",3,js_UpdateModelAnimation),
-		JS_CFUNC_DEF("UpdateModelAnimationBones",3,js_UpdateModelAnimationBones),
-		JS_CFUNC_DEF("UnloadModelAnimation",1,js_UnloadModelAnimation),
 		JS_CFUNC_DEF("UnloadModelAnimations",2,js_UnloadModelAnimations),
 		JS_CFUNC_DEF("IsModelAnimationValid",2,js_IsModelAnimationValid),
 		JS_CFUNC_DEF("CheckCollisionSpheres",4,js_CheckCollisionSpheres),
@@ -23434,8 +23112,8 @@
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_MAP_BRDF",JS_NewInt32(ctx,(int32_t)SHADER_LOC_MAP_BRDF));
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_VERTEX_BONEIDS",JS_NewInt32(ctx,(int32_t)SHADER_LOC_VERTEX_BONEIDS));
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_VERTEX_BONEWEIGHTS",JS_NewInt32(ctx,(int32_t)SHADER_LOC_VERTEX_BONEWEIGHTS));
-		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_BONE_MATRICES",JS_NewInt32(ctx,(int32_t)SHADER_LOC_BONE_MATRICES));
-		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_VERTEX_INSTANCE_TX",JS_NewInt32(ctx,(int32_t)SHADER_LOC_VERTEX_INSTANCE_TX));
+		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_BONE_MATRICES",JS_NewInt32(ctx,(int32_t)SHADER_LOC_MATRIX_BONETRANSFORMS));
+		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_VERTEX_INSTANCE_TX",JS_NewInt32(ctx,(int32_t)0));
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_MAP_DIFFUSE",JS_NewInt32(ctx,(int32_t)SHADER_LOC_MAP_DIFFUSE));
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_LOC_MAP_SPECULAR",JS_NewInt32(ctx,(int32_t)SHADER_LOC_MAP_SPECULAR));
 		JS_SetModuleExport(ctx,m,(const char  *)"SHADER_UNIFORM_FLOAT",JS_NewInt32(ctx,(int32_t)SHADER_UNIFORM_FLOAT));

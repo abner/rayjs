@@ -2851,7 +2851,7 @@
 		if(error==1)return JS_EXCEPTION;
 		char * fsCode=js_getchar_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadShaderCode((const char  *)vsCode,(const char  *)fsCode);
+		int returnVal=rlLoadShaderProgram((const char  *)vsCode,(const char  *)fsCode);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
@@ -2862,7 +2862,7 @@
 		if(error==1)return JS_EXCEPTION;
 		int type=js_getint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlCompileShader((const char  *)shaderCode,type);
+		int returnVal=rlLoadShader((const char  *)shaderCode,type);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
@@ -2873,7 +2873,7 @@
 		if(error==1)return JS_EXCEPTION;
 		unsigned int fShaderId=js_getunsignedint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadShaderProgram(vShaderId,fShaderId);
+		int returnVal=rlLoadShaderProgramEx(vShaderId,fShaderId);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
@@ -3020,7 +3020,7 @@
 		bool error=(bool)0;
 		unsigned int shaderId=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadComputeShaderProgram(shaderId);
+		int returnVal=rlLoadShaderProgramCompute(shaderId);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
@@ -3409,7 +3409,7 @@
 		js_declare_rlRenderBatch(ctx,m);
 		JSValue rlRenderBatch_constr=JS_NewCFunction2(ctx,js_rlRenderBatch_constructor,(const char  *)"rlRenderBatch",(int)6,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"rlRenderBatch",rlRenderBatch_constr);
-		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_11_SOFTWARE",JS_NewInt32(ctx,(int32_t)RL_OPENGL_11_SOFTWARE));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_11_SOFTWARE",JS_NewInt32(ctx,(int32_t)0));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_11",JS_NewInt32(ctx,(int32_t)RL_OPENGL_11));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_21",JS_NewInt32(ctx,(int32_t)RL_OPENGL_21));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_33",JS_NewInt32(ctx,(int32_t)RL_OPENGL_33));

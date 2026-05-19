@@ -41,20 +41,19 @@ include(GNUInstallDirs)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
-option(RAYJS_USE_MIMALLOC "Use mimalloc as the memory allocator" OFF)
-#if(RAYJS_USE_MIMALLOC)
-#	message("=== Configure mimalloc ===")
-#	set(MI_BUILD_OBJECT OFF CACHE BOOL "Build object library" FORCE)
-#	set(MI_BUILD_TESTS OFF CACHE BOOL "Build test executables" FORCE)
-#	set(MI_BUILD_SHARED OFF CACHE BOOL "Build test executables" FORCE)
-#	#set(MI_SECURE ON CACHE BOOL "Use full security mitigations" FORCE)
-#	set(MI_WIN_REDIRECT OFF CACHE BOOL "Use redirection module ('mimalloc-redirect') on Windows if compiling mimalloc as a DLL" FORCE)
-#	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc EXCLUDE_FROM_ALL)
-#endif()
+message("=== Configure mimalloc ===")
+set(MI_BUILD_OBJECT OFF CACHE BOOL "Build object library" FORCE)
+set(MI_BUILD_TESTS OFF CACHE BOOL "Build test executables" FORCE)
+set(MI_BUILD_SHARED OFF CACHE BOOL "Build shared library" FORCE)
+set(MI_WIN_REDIRECT OFF CACHE BOOL "Use redirection module on Windows" FORCE)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc EXCLUDE_FROM_ALL)
+
+# Controls whether raylib/raygui/quickjs also use mimalloc for their allocators
+option(RAYJS_USE_MIMALLOC "Use mimalloc allocators in raylib/raygui/quickjs overrides" OFF)
 
 message("=== Configure QuickJS ===")
 # add quickjs
-set(quickjs_version 2024-09-28)
+set(quickjs_version 0.14.0)
 set(quickjs_sources_root ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/quickjs)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.h ${quickjs_sources_root}/quickjs.h @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.c ${quickjs_sources_root}/quickjs.c @ONLY)
@@ -64,7 +63,6 @@ set(quickjs_sources
 	${quickjs_sources_root}/quickjs-atom.h
 	${quickjs_sources_root}/libregexp.c
 	${quickjs_sources_root}/libunicode.c
-	${quickjs_sources_root}/cutils.c
 	${quickjs_sources_root}/cutils.h
 	${quickjs_sources_root}/dtoa.c
 	${quickjs_sources_root}/gen/repl.c
@@ -108,6 +106,7 @@ add_executable(${CMAKE_PROJECT_NAME} ${files})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raygui/src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/shaders)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/others)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/shapes)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/src/external/glfw/include)
 set_target_properties(${CMAKE_PROJECT_NAME}
     PROPERTIES
@@ -116,10 +115,8 @@ set_target_properties(${CMAKE_PROJECT_NAME}
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${quickjs_sources_root})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc/include)
 
-set(RAYJS_LINK_LIBRARIES "quickjs")
-if(RAYJS_USE_MIMALLOC)
-	set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "mimalloc-static")
-endif()
+set(RAYJS_LINK_LIBRARIES "quickjs" "mimalloc-static")
 set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "raylib" "lightmapper")
 target_link_libraries(${CMAKE_PROJECT_NAME} ${RAYJS_LINK_LIBRARIES})
