@@ -14,7 +14,7 @@
 ********************************************************************************************/
 
 import {
-    BeginDrawing, BLANK, ClearBackground, ClearWindowState, CloseWindow, DARKBLUE, DrawCircleV, DrawFPS, DrawRectangleLinesEx, DrawText, EndDrawing, FLAG_FULLSCREEN_MODE, FLAG_MSAA_4X_HINT, FLAG_VSYNC_HINT, FLAG_WINDOW_ALWAYS_RUN, FLAG_WINDOW_HIDDEN, FLAG_WINDOW_HIGHDPI, FLAG_WINDOW_MAXIMIZED, FLAG_WINDOW_MINIMIZED, FLAG_WINDOW_RESIZABLE, FLAG_WINDOW_TOPMOST, FLAG_WINDOW_TRANSPARENT, FLAG_WINDOW_UNDECORATED, FLAG_WINDOW_UNFOCUSED, GetMousePosition, GetScreenHeight, GetScreenWidth, GRAY, GREEN, InitWindow, IsKeyPressed, IsWindowState, KEY_A, KEY_D, KEY_F, KEY_H, KEY_M, KEY_N, KEY_R, KEY_T, KEY_U, KEY_V, LIME, MAROON, MaximizeWindow, MinimizeWindow, RAYWHITE, Rectangle, RestoreWindow, SetWindowState, TextFormat, ToggleFullscreen, Vector2, WindowShouldClose
+    BeginDrawing, BLANK, ClearBackground, ClearWindowState, CloseWindow, DARKBLUE, DrawCircleV, DrawFPS, DrawRectangleLinesEx, DrawText, EndDrawing, FLAG_FULLSCREEN_MODE, FLAG_MSAA_4X_HINT, FLAG_VSYNC_HINT, FLAG_WINDOW_ALWAYS_RUN, FLAG_WINDOW_HIDDEN, FLAG_WINDOW_HIGHDPI, FLAG_WINDOW_MAXIMIZED, FLAG_WINDOW_MINIMIZED, FLAG_WINDOW_RESIZABLE, FLAG_WINDOW_TOPMOST, FLAG_WINDOW_TRANSPARENT, FLAG_WINDOW_UNDECORATED, FLAG_WINDOW_UNFOCUSED, GetMousePosition, GetScreenHeight, GetScreenWidth, GRAY, GREEN, InitWindow, IsKeyPressed, IsWindowState, KEY_A, KEY_D, KEY_F, KEY_H, KEY_M, KEY_N, KEY_R, KEY_T, KEY_U, KEY_V, LIME, MAROON, MaximizeWindow, MinimizeWindow, RAYWHITE, Rectangle, RestoreWindow, SetConfigFlags, SetTargetFPS, SetWindowState, TextFormat, ToggleFullscreen, Vector2, WindowShouldClose
 } from "rayjs:raylib";
 
 //------------------------------------------------------------------------------------
@@ -44,7 +44,8 @@ import {
     */
 
     // Set configuration flags for window creation
-    //SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+    // SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+    // SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED);
     InitWindow(screenWidth, screenHeight, "raylib [core] example - window flags");
 
     let ballPosition = new Vector2( GetScreenWidth() / 2, GetScreenHeight() / 2 );
@@ -53,7 +54,7 @@ import {
 
     let framesCounter = 0;
 
-    //SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    // SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //----------------------------------------------------------
 
     // Main game loop

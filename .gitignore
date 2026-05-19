@@ -16,3 +16,7 @@ result.png
 monkey.obj
 my_result.png
 /examples/out
+
+node_modules/
+bindings/node_modules
+build_test/
