@@ -164,6 +164,13 @@ qjs.exe bindings/src/index.js
 ```
 qjs.exe can be aquired from https://github.com/quickjs-ng/quickjs or rayjs.exe itself can be used
 
+### Submodule patches
+CMakeLists.txt overlays patched copies of `quickjs.h`/`quickjs.c` (and raylib/raygui
+headers when mimalloc is enabled) onto the submodule directories at configure time via
+`configure_file`. This means `thirdparty/quickjs` will appear dirty after configuring —
+that is expected. See [`src/overrides/quickjs/PATCHES.md`](src/overrides/quickjs/PATCHES.md)
+for a description of every patch and instructions for updating.
+
 ### Build with cmake
 Make sure you have cmake installed and in your path.
 ```bash

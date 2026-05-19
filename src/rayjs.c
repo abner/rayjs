@@ -623,6 +623,20 @@ start:
         } else {
             const char *filename;
             filename = argv[optind];
+            /* Change CWD to the script's directory so relative asset paths work. */
+            char _abs_script[JS__PATH_MAX];
+            char _script_dir[JS__PATH_MAX];
+            if (realpath(filename, _abs_script)) {
+                filename = _abs_script;
+                js__pstrcpy(_script_dir, sizeof(_script_dir), _abs_script);
+            } else {
+                js__pstrcpy(_script_dir, sizeof(_script_dir), filename);
+            }
+            char *_sep = strrchr(_script_dir, '/');
+#ifdef _WIN32
+            if (!_sep) _sep = strrchr(_script_dir, '\\');
+#endif
+            if (_sep) { *_sep = '\0'; chdir(_script_dir); }
             if (eval_file(ctx, filename, module))
                 goto fail;
         }
