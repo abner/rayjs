@@ -96,7 +96,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 message("=== Configure raylib ===")
-add_definitions(-DGRAPHICS_API_OPENGL_43)
+if(APPLE)
+    # macOS supports OpenGL up to 4.1 only
+    add_definitions(-DGRAPHICS_API_OPENGL_33)
+else()
+    add_definitions(-DGRAPHICS_API_OPENGL_43)
+endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib EXCLUDE_FROM_ALL)
 
 message("=== Bind files together ===")
@@ -108,10 +113,17 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/others)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/shapes)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/src/external/glfw/include)
-set_target_properties(${CMAKE_PROJECT_NAME}
-    PROPERTIES
-    COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_43=1
-)
+if(APPLE)
+    set_target_properties(${CMAKE_PROJECT_NAME}
+        PROPERTIES
+        COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_33=1
+    )
+else()
+    set_target_properties(${CMAKE_PROJECT_NAME}
+        PROPERTIES
+        COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_43=1
+    )
+endif()
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${quickjs_sources_root})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
