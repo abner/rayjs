@@ -231,13 +231,13 @@ function main() {
     cb = structuredClone(att);
     cb.name='AudioMixedProcessor';
     //cb.args[0].type += ' &';
-    cb.args[0].sizeVars = [`frames*${config.defined['AUDIO_DEVICE_CHANNELS'].content.body}`];
+    cb.args[0].sizeVars = [`frames*${(config.defined['AUDIO_DEVICE_CHANNELS'] ?? {content:{body:2}}).content.body}`];
     modules['raylib'].callbacks.push(cb);
     modules['raymath']=new source_parser(fs.readFileSync("thirdparty/raylib/src/raymath.h", "utf8"),sourcefiles);
     modules['rcamera']=new source_parser(fs.readFileSync("thirdparty/raylib/src/rcamera.h", "utf8"),sourcefiles);
     modules['raygui']=new source_parser(fs.readFileSync("thirdparty/raygui/src/raygui.h", "utf8"),sourcefiles);
     modules['rlights']=new source_parser(fs.readFileSync("thirdparty/raylib/examples/shaders/rlights.h", "utf8"),sourcefiles);
-    modules['reasings']=new source_parser(fs.readFileSync("thirdparty/raylib/examples/others/reasings.h", "utf8"),sourcefiles);
+    modules['reasings']=new source_parser(fs.readFileSync("thirdparty/raylib/examples/shapes/reasings.h", "utf8"),sourcefiles);
     modules['rlgl']=new source_parser(fs.readFileSync("thirdparty/raylib/src/rlgl.h", "utf8"),sourcefiles);
     modules['rlightmapper']=new source_parser(fs.readFileSync("src/rlightmapper.h", "utf8"),sourcefiles);
     //gather shared code for rayjs_generated
@@ -402,19 +402,25 @@ function main() {
     att = modules['raylib'].getStruct("Music");//destructor: "UnloadMusicStream"
     att.props.copyFunction=false;
     att = att.fields.find(a=>a.name=='ctxData');att.binding.get=false;att.binding.set=false;//internal use only
+    att = modules['raylib'].getStruct("ModelSkeleton");
+    att.fields.find(a=>a.name=='bones').binding.sizeVars=['ptr.boneCount'];
+    att.fields.find(a=>a.name=='bindPose').type='Transform *'; // ModelAnimPose typedef
+    att.fields.find(a=>a.name=='bindPose').binding.sizeVars=['ptr.boneCount'];
     att = modules['raylib'].getStruct("Model");//destructor: "UnloadModel"
     att.fields.find(a=>a.name=='meshes').binding.sizeVars=['ptr.meshCount'];
     att.fields.find(a=>a.name=='meshMaterial').binding.sizeVars=['ptr.meshCount'];
     att.fields.find(a=>a.name=='materials').binding.sizeVars=['ptr.materialCount'];
-    att.fields.find(a=>a.name=='bones').binding.sizeVars=['ptr.boneCount'];
-    att.fields.find(a=>a.name=='bindPose').binding.sizeVars=['ptr.boneCount'];
+    att.fields.find(a=>a.name=='skeleton').binding.get=false;att.fields.find(a=>a.name=='skeleton').binding.set=false; // nested struct, accessed via boneCount/bones/bindPose getters
+    att.fields.find(a=>a.name=='currentPose').type='Transform *'; // ModelAnimPose typedef
+    att.fields.find(a=>a.name=='currentPose').binding.sizeVars=['ptr.skeleton.boneCount'];
+    att.fields.find(a=>a.name=='boneMatrices').binding.sizeVars=['ptr.skeleton.boneCount'];
     att = modules['raylib'].getFunction("LoadCodepoints");
     att.returnSizeVars=['count[0]'];
     att = modules['raylib'].getFunction("ComputeSHA256");
     att.returnSizeVars=[8];
     att = modules['raylib'].getStruct("ModelAnimation");
-    att.fields.find(a=>a.name=='bones').binding.sizeVars=['ptr.boneCount'];
-    att.fields.find(a=>a.name=='framePoses').binding.sizeVars=['ptr.frameCount','ptr.boneCount'];
+    att.fields.find(a=>a.name=='keyframePoses').type='Transform * *'; // ModelAnimPose* typedef
+    att.fields.find(a=>a.name=='keyframePoses').binding.sizeVars=['ptr.keyframeCount','ptr.boneCount'];
     att = modules['raylib'].getStruct("Mesh");//destructor: "UnloadMesh"
     att.fields.find(a=>a.name=='vertices').binding.sizeVars=['ptr.vertexCount*3'];
     att.fields.find(a=>a.name=='texcoords').binding.sizeVars=['ptr.vertexCount*2'];
@@ -425,9 +431,8 @@ function main() {
     att.fields.find(a=>a.name=='indices').binding.sizeVars=['ptr.vertexCount'];
     att.fields.find(a=>a.name=='animVertices').binding.sizeVars=['ptr.vertexCount*3'];
     att.fields.find(a=>a.name=='animNormals').binding.sizeVars=['ptr.vertexCount*3'];
-    att.fields.find(a=>a.name=='boneIds').binding.sizeVars=['ptr.vertexCount*4'];
+    att.fields.find(a=>a.name=='boneIndices').binding.sizeVars=['ptr.vertexCount*4'];
     att.fields.find(a=>a.name=='boneWeights').binding.sizeVars=['ptr.vertexCount*4'];
-    att.fields.find(a=>a.name=='boneMatrices').binding.sizeVars=['ptr.boneCount'];
     att.fields.find(a=>a.name=='vboId').binding.sizeVars=['MAX_MESH_VERTEX_BUFFERS'];
     att = modules['raylib'].getStruct("Shader");//destructor: "UnloadShader"
     att.fields.find(a=>a.name=='locs').binding.sizeVars=['RL_MAX_SHADER_LOCATIONS'];
@@ -438,7 +443,7 @@ function main() {
     //modules['raylib'].getStruct("RenderTexture");//destructor: "UnloadRenderTexture"
     //modules['raylib'].getStruct("MaterialMap");//destructor: "UnloadMaterialMap"
     att = modules['raylib'].getStruct("Material");
-    att.fields.find(a=>a.name=='maps').binding.sizeVars=[config.defined['MAX_MATERIAL_MAPS'].content.body];
+    att.fields.find(a=>a.name=='maps').binding.sizeVars=[(config.defined['MAX_MATERIAL_MAPS'] ?? {content:{body:12}}).content.body];
     att = modules['raylib'].getStruct("FilePathList");
     att.fields.find(a=>a.name=='paths').binding.sizeVars=["ptr.count"];
     att = modules['raylib'].getStruct("AutomationEventList");

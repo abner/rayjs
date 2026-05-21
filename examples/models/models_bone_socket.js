@@ -108,7 +108,7 @@ const BONE_SOCKET_HAND_L = 2;
         
         // Update model animation
         let anim = modelAnimations[animIndex];
-        animCurrentFrame = (animCurrentFrame + 1) % anim.frameCount;
+        animCurrentFrame = (animCurrentFrame + 1) % anim.keyframeCount;
         UpdateModelAnimation(characterModel, anim, animCurrentFrame);
         //----------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ const BONE_SOCKET_HAND_L = 2;
                 for (let i = 0; i < BONE_SOCKETS; i++) {
                     if (!showEquip[i]) continue;
 
-                    let transform = anim.framePoses[animCurrentFrame][boneSocketIndex[i]];
+                    let transform = anim.keyframePoses[animCurrentFrame][boneSocketIndex[i]];
                     let inRotation = characterModel.bindPose[boneSocketIndex[i]].rotation;
                     let outRotation = transform.rotation;
 

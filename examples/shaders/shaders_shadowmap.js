@@ -175,7 +175,7 @@ function DrawScene(cube, robot) {
         UpdateCamera(cam, CAMERA_ORBITAL);
 
         fc++;
-        fc %= (robotAnimations[0].frameCount);
+        fc %= (robotAnimations[0].keyframeCount);
         UpdateModelAnimation(robot, robotAnimations[0], fc);
 
         const cameraSpeed = 0.05;

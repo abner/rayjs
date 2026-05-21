@@ -66,7 +66,7 @@ import { InitWindow,Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel, 
 
         // Update model animation
         let anim = modelAnimations[animIndex];
-        animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
+        animCurrentFrame = (animCurrentFrame + 1)%anim.keyframeCount;
         UpdateModelAnimation(model, anim, animCurrentFrame);
         //----------------------------------------------------------------------------------
 

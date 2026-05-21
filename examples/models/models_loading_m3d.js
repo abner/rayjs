@@ -71,7 +71,7 @@ import { InitWindow,Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel, 
             if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_N)) {
                 animFrameCounter++;
 
-                if (animFrameCounter >= anims[animId].frameCount) animFrameCounter = 0;
+                if (animFrameCounter >= anims[animId].keyframeCount) animFrameCounter = 0;
 
                 UpdateModelAnimation(model, anims[animId], animFrameCounter);
                 animPlaying = true;
@@ -125,11 +125,11 @@ import { InitWindow,Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel, 
                             }
                         } else {
                             // Display the frame-pose skeleton
-                            DrawCube(anims[animId].framePoses[animFrameCounter][i].translation, 0.05, 0.05, 0.05, RED);
+                            DrawCube(anims[animId].keyframePoses[animFrameCounter][i].translation, 0.05, 0.05, 0.05, RED);
 
-                            if (anims[animId].bones[i].parent >= 0) {
-                                DrawLine3D(anims[animId].framePoses[animFrameCounter][i].translation,
-                                    anims[animId].framePoses[animFrameCounter][anims[animId].bones[i].parent].translation, RED);
+                            if (model.bones[i].parent >= 0) {
+                                DrawLine3D(anims[animId].keyframePoses[animFrameCounter][i].translation,
+                                    anims[animId].keyframePoses[animFrameCounter][model.bones[i].parent].translation, RED);
                             }
                         }
                     }

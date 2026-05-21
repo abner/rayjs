@@ -336,20 +336,18 @@ prototype: Model
 new(transform?: Matrix, meshCount?: number, materialCount?: number, meshes?: Mesh[], materials?: Material[], meshMaterial?: number[], boneCount?: number, bones?: BoneInfo[], bindPose?: Transform[]): Model
 }
 interface ModelAnimation {
-/** Number of bones */
+/** Number of bones (per pose) */
 boneCount: number,
-/** Number of animation frames */
-frameCount: number,
-/** Bones information (skeleton) */
-bones: BoneInfo[],
-/** Poses array by frame */
-framePoses: Transform[][],
+/** Number of animation key frames */
+keyframeCount: number,
+/** Animation sequence keyframe poses [keyframe][pose] */
+keyframePoses: Transform[][],
 /** Animation name */
 name: string,
 }
 var ModelAnimation: {
 prototype: ModelAnimation
-new(boneCount?: number, frameCount?: number, bones?: BoneInfo[], framePoses?: Transform[][], name?: string): ModelAnimation
+new(boneCount?: number, keyframeCount?: number, keyframePoses?: Transform[][], name?: string): ModelAnimation
 }
 interface Ray {
 /** Ray position (origin) */
@@ -1053,8 +1051,7 @@ function UnloadMaterial(material: Material): void/** Set texture for a material 
 function SetMaterialTexture(material: Material, mapType: number, texture: Texture2D): void/** Set material for a mesh */
 function SetModelMeshMaterial(model: Model, meshId: number, materialId: number): void/** Load model animations from file */
 function LoadModelAnimations(fileName: string, animCount: number | number[]): ModelAnimation[]/** Update model animation pose (CPU) */
-function UpdateModelAnimation(model: Model, anim: ModelAnimation, frame: number): void/** Update model animation mesh bone matrices (GPU skinning) */
-function UpdateModelAnimationBones(model: Model, anim: ModelAnimation, frame: number): void/** Unload animation data */
+function UpdateModelAnimation(model: Model, anim: ModelAnimation, frame: number): void/** Unload animation data */
 function UnloadModelAnimation(anim: ModelAnimation): void/** Unload animation array data */
 function UnloadModelAnimations(animations: ModelAnimation[], animCount: number): void/** Check model animation skeleton match */
 function IsModelAnimationValid(model: Model, anim: ModelAnimation): boolean/** Check collision between two spheres */

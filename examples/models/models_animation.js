@@ -67,7 +67,7 @@ import { InitWindow, Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel,
         if (IsKeyDown(KEY_SPACE)) {
             animFrameCounter++;
             UpdateModelAnimation(model, anims[0], animFrameCounter);
-            if (animFrameCounter >= anims[0].frameCount) animFrameCounter = 0;
+            if (animFrameCounter >= anims[0].keyframeCount) animFrameCounter = 0;
         }
         //----------------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ import { InitWindow, Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel,
                 DrawModelEx(model, position, new Vector3( 1, 0, 0 ), -90, new Vector3( 1, 1, 1 ), WHITE);
 
                 for (let i = 0; i < model.boneCount; i++) {
-                    DrawCube(anims[0].framePoses[animFrameCounter][i].translation, 0.2, 0.2, 0.2, RED);
+                    DrawCube(anims[0].keyframePoses[animFrameCounter][i].translation, 0.2, 0.2, 0.2, RED);
                 }
 
                 DrawGrid(10, 1);         // Draw a grid

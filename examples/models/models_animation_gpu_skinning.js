@@ -18,7 +18,7 @@
 ********************************************************************************************/
 
 import * as os from 'qjs:os';
-import { InitWindow,Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel, LoadShader, TextFormat, LoadModelAnimations, DisableCursor, SetTargetFPS, WindowShouldClose, UpdateCamera, CAMERA_THIRD_PERSON, IsKeyPressed, KEY_T, KEY_G, UpdateModelAnimationBones, BeginDrawing, ClearBackground, RAYWHITE, BeginMode3D, DrawMesh, DrawGrid, EndMode3D, DrawText, GRAY, EndDrawing, UnloadModelAnimations, UnloadModel, UnloadShader, CloseWindow } from 'rayjs:raylib';
+import { InitWindow,Camera3D as Camera, Vector3, CAMERA_PERSPECTIVE, LoadModel, LoadShader, TextFormat, LoadModelAnimations, DisableCursor, SetTargetFPS, WindowShouldClose, UpdateCamera, CAMERA_THIRD_PERSON, IsKeyPressed, KEY_T, KEY_G, UpdateModelAnimation, BeginDrawing, ClearBackground, RAYWHITE, BeginMode3D, DrawMesh, DrawGrid, EndMode3D, DrawText, GRAY, EndDrawing, UnloadModelAnimations, UnloadModel, UnloadShader, CloseWindow } from 'rayjs:raylib';
 import * as rm from 'rayjs:raymath';
 
 let GLSL_VERSION;
@@ -80,9 +80,9 @@ if(['Andriod','iOS'].includes(os.platform)){
 
         // Update model animation
         let anim = modelAnimations[animIndex];
-        animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
+        animCurrentFrame = (animCurrentFrame + 1)%anim.keyframeCount;
         characterModel.transform = rm.MatrixTranslate(position.x, position.y, position.z);
-        UpdateModelAnimationBones(characterModel, anim, animCurrentFrame);
+        UpdateModelAnimation(characterModel, anim, animCurrentFrame);
         //----------------------------------------------------------------------------------
 
         // Draw
