@@ -20,3 +20,6 @@ my_result.png
 node_modules/
 bindings/node_modules
 build_test/
+.cache/
+
+examples/**/*.zip

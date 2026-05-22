@@ -260,9 +260,9 @@ These should remain ignored.
 |---|---|---|---|---|---|
 | 1 | Simple callbacks (Friction/Restitution) | Register in `module.callbacks` | ✅ Done | 1h | medium |
 | 2 | b2World_CastMover (no callback) | Remove `ignore()`, test | ✅ Done | 0.5h | medium |
-| 3 | Per-call query/cast (OverlapAABB, CastRay, etc.) | Hand-written C helpers in `src/box2d_helpers.h` | Pending | 4h | HIGH |
-| 4 | Persistent callbacks (CustomFilter, PreSolve) | Hand-written C helpers | Pending | 2h | high |
-| 5 | userData (Set/Get × 4 entity types) | JS extension module `lib/box2d_userdata.js` | Pending | 1h | medium |
+| 3 | Per-call query/cast (OverlapAABB, CastRay, etc.) | Hand-written C helpers in `src/box2d_helpers.h` | ✅ Done | 4h | HIGH |
+| 4 | Persistent callbacks (CustomFilter, PreSolve) | Hand-written C helpers | ✅ Done | 2h | high |
+| 5 | userData (Set/Get × 4 entity types) | JS extension module `lib/box2d_userdata.js` | ✅ Done | 1h | medium |
 | 6 | Contact data output arrays | Hand-written C wrapper | Pending | 2h | medium |
 | 7 | b2DebugDraw | Hand-written bridge struct | Pending | 6h | low (debug only) |
 
@@ -320,7 +320,88 @@ modules['box2d'].callbacks.push({
 
 ---
 
-## Step-by-step: Category B (per-call query callbacks) — design
+## Step-by-step: Category B (per-call query callbacks) — ✅ complete
+
+Implemented in `src/box2d_helpers.h` (new file, included from `js_box2d.h` before `js_box2d_init`).
+
+**Note: `b2World_CollideShape` from the plan does not exist in the actual box2d API.** The index.js
+ignore entry for it is harmless but refers to a non-existent function. Five functions were
+implemented instead of six.
+
+**`src/box2d_helpers.h`** contains:
+- Three static trampolines: `js_b2OverlapResultFcn_trampoline`, `js_b2CastResultFcn_trampoline`,
+  `js_b2PlaneResultFcn_trampoline`
+- Helper `js_newb2TreeStats` to wrap a `b2TreeStats` return value
+- Five bridge functions: `js_b2World_OverlapAABB_bridge`, `js_b2World_OverlapShape_bridge`,
+  `js_b2World_CastRay_bridge`, `js_b2World_CastShape_bridge`, `js_b2World_CollideMover_bridge`
+
+**`src/modules/js_box2d.h`** edits (two sites):
+- `#include "../box2d_helpers.h"` inserted just before `js_box2d_init`
+- Five `JS_SetModuleExport` calls added at the top of `js_box2d_init` (after `SetModuleExportList`)
+- Five `JS_AddModuleExport` calls added in `js_init_module_box2d` before `return m`
+
+**Key implementation notes:**
+- `trampolineContext` is stack-allocated — safe because all these calls are synchronous
+- Use `JS_ToBool(ctx, result)` for bool return values (`JS_IsFalse` is not in quickjs-ng)
+- `b2ShapeProxy` and `b2Capsule` pointer args: get by value with `js_getb2ShapeProxy`/`js_getb2Capsule`,
+  then pass `&local` — safe because the call returns before the stack frame pops
+- `thread_id` field of `trampolineContext` is not set (only used in multi-threaded audio callbacks)
+
+## Step-by-step: Category E (userData) — ✅ complete
+
+Pure JS extension module at `lib/box2d_userdata.js` (+ `box2d_userdata.d.ts`). The cmake
+`gen_ext_modules` target picks up new `lib/*.js` files automatically, but CMake's `file(GLOB)`
+caches the directory listing — adding a new lib file requires re-running `cmake -S . -B build`
+to refresh the cache. Subsequent edits to the file are picked up by the normal build.
+
+**Naming:** kept the C-style underscore names (`b2World_SetUserData`, etc.) so the API is
+identical to box2d's C names for migration ease and consistency with the C bindings.
+
+**Key format:** `${prefix}|${world0 ?? 0}|${index1}|${generation}` — the type prefix (`w`/`b`/
+`s`/`j`) prevents collisions between different entity types that share index1 values. World
+IDs lack `world0` in the C struct, so `?? 0` keeps the key shape uniform.
+
+**Caveat:** entries are not auto-cleaned when entities are destroyed. Callers should pair
+`b2DestroyBody` etc. with `b2Body_DeleteUserData`, or call `b2ClearAllUserData()` between
+level loads. `b2GetUserDataCount()` exposes the current size for leak diagnostics.
+
+**Imports:** `import * as ud from "rayjs:ext:box2d_userdata"` (built-in, no file path needed).
+
+---
+
+## Step-by-step: Category C (persistent world callbacks) — ✅ complete
+
+Implemented in `src/box2d_helpers.h`, appended after the Category B section.
+
+**Key design difference from generated Friction/Restitution callbacks:** the generator stores
+a pointer to a stack-local `trampolineContext` in a static variable — `b2FrictionCallback_arr = &ctx_callback`
+where `ctx_callback` is on the setter's stack. That pointer dangles once the setter returns. The
+Friction/Restitution functions happen to work in practice because their callback type has no
+`void* context` and the user always calls the setter again before stepping in most game loops,
+but it's still UB.
+
+For Category C, the storage is a **static `trampolineContext` value** (not a pointer), so the
+struct itself lives for the program's lifetime:
+
+```c
+static trampolineContext js_b2CustomFilter_ctx;   // static value — lives forever
+static bool             js_b2CustomFilter_active = false;
+```
+
+The static address is passed as `void* context` to box2d's setter, and the trampoline reads
+through it. Since Box2D physics callbacks fire during `b2World_Step` on the JS thread, the
+trampolines can call `JS_Call` directly — no `js_postMessage` needed (unlike the audio callbacks
+which run on a separate thread).
+
+**PreSolve gotcha:** Box2D requires `shapeDef.enablePreSolveEvents = true` per-shape to opt
+into PreSolve callbacks. Without this flag, the callback is registered but never invoked.
+
+**Two new exports:** `b2World_SetCustomFilterCallback`, `b2World_SetPreSolveCallback`. Both
+accept a function (register) or `null`/`undefined` (unregister, freeing the JS function ref).
+
+---
+
+## Step-by-step: Category B (per-call query callbacks) — design (original)
 
 For `b2OverlapResultFcn` and `b2CastResultFcn`, generate two static trampolines in
 `src/box2d_helpers.h`. Each JS wrapper:

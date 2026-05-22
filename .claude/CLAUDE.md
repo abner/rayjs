@@ -18,7 +18,12 @@
   Box2D API coverage: classifies the 27 ignored functions into 8 categories (simple callbacks,
   per-call query callbacks, persistent world callbacks, userData, contact data arrays,
   b2DebugDraw, and internal-only items), with implementation strategy, effort estimate, and
-  priority ordering for each.
+  priority ordering for each. **Categories A–E complete**, F & G pending.
+
+- [`docs/box2d_examples_plan.md`](../docs/box2d_examples_plan.md) — Plan for six standalone
+  `examples/box2d/*.js` files that exercise the newly-bound Categories A–E APIs (mouse
+  picking, raycast vision, one-way platforms, team-based filtering, material friction,
+  kinematic mover). Implementation pending.
 
 ## Developer reference
 
