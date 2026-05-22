@@ -37,3 +37,11 @@
   the binary as `rayjs:ext:<name>` built-in modules. Covers the cmake generation pipeline
   (`cmake/gen_ext_modules.cmake`), runtime loader wiring in `src/rayjs_base.c` and
   `src/rayjs.c`, TypeScript declaration generation, and how to add a new extension module.
+
+- [`docs/tilemap_system.md`](../docs/tilemap_system.md) — Two-approach reference for
+  tile-based rendering with raylib: editor-authored `.tmj` maps via `rayjs:ext:tiled` (main,
+  used by `examples/tiled/tiled_map.js`) and procedural generation (appendix, from the
+  C++ `platformer-raylib` port). Covers the GID encoding scheme, the full `lib/tiled.js`
+  API surface, an annotated walkthrough of the example, and the shared `DrawTextureRec`
+  primitive. A styled HTML version with an interactive GID decoder is at
+  `docs/tilemap_system.html`.

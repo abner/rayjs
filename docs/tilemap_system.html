@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tilemap System — Two Approaches</title>
+<style>
+  :root {
+    --bg:         #0f1117;
+    --surface:    #1a1d27;
+    --surface2:   #22273a;
+    --border:     #2e3450;
+    --accent:     #5b8dee;
+    --accent2:    #43d9ad;
+    --accent3:    #f7c948;
+    --accent4:    #f76e6e;
+    --text:       #d4d8f0;
+    --text-dim:   #7a80a0;
+    --code-bg:    #141720;
+    --green:      #43d9ad;
+    --red:        #f76e6e;
+    --yellow:     #f7c948;
+    --blue:       #5b8dee;
+    --purple:     #b48ef7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── layout ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 280px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 100;
+  }
+  .sidebar-title {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-dim); padding: 0 20px 12px;
+  }
+  .sidebar-group {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent3); padding: 14px 20px 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .sidebar-group.appendix { color: var(--text-dim); }
+  .sidebar nav a {
+    display: block; padding: 6px 20px;
+    color: var(--text-dim); font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    color: var(--text); border-left-color: var(--accent);
+    background: var(--surface2); text-decoration: none;
+  }
+  .sidebar nav .sub { padding-left: 34px; font-size: 12px; }
+  main {
+    margin-left: 280px;
+    padding: 48px 56px;
+    max-width: 1200px;
+  }
+
+  /* ── typography ── */
+  h1 { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  h2 {
+    font-size: 22px; font-weight: 600; color: #fff;
+    margin: 56px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2.appendix-h { color: var(--accent3); }
+  h2.appendix-h::before { content: "Appendix · "; color: var(--text-dim); font-weight: 400; font-size: 14px; letter-spacing: .04em; }
+  h3 { font-size: 17px; font-weight: 600; color: var(--accent2); margin: 32px 0 12px; }
+  h4 { font-size: 14px; font-weight: 600; color: var(--accent3); margin: 20px 0 8px; }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 8px 0 12px 22px; }
+  li { margin-bottom: 4px; }
+
+  /* ── hero ── */
+  .hero {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1320 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 40px;
+  }
+  .hero .subtitle { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
+  .tag-row { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 3px 12px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .tag.main   { color: var(--accent2); border-color: var(--accent2); }
+  .tag.appendix { color: var(--accent3); border-color: var(--accent3); }
+
+  /* ── code ── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 12px 0 20px;
+    font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12.5px;
+    font-family: 'Fira Code', monospace;
+    color: var(--accent2);
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+
+  /* syntax highlights (manual) */
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .st  { color: #c3e88d; }
+  .nm  { color: #f78c6c; }
+  .op  { color: #89ddff; }
+  .tp  { color: #ffcb6b; }
+  .pn  { color: #b48ef7; }
+
+  /* ── tables ── */
+  .table-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: var(--surface2); color: var(--accent);
+    padding: 9px 14px; text-align: left;
+    border: 1px solid var(--border); font-weight: 600;
+  }
+  td {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--surface); }
+  td code { font-size: 11.5px; }
+
+  /* ── images ── */
+  .img-block {
+    margin: 20px 0 28px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+  .img-block img { display: block; max-width: 100%; height: auto; }
+  .img-caption {
+    padding: 8px 14px;
+    font-size: 12px; color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── callouts ── */
+  .callout {
+    border-radius: 8px; padding: 14px 18px;
+    margin: 16px 0; font-size: 14px;
+    border-left: 4px solid;
+  }
+  .callout.info  { background: #131c35; border-color: var(--blue);   }
+  .callout.tip   { background: #122b24; border-color: var(--green);  }
+  .callout.warn  { background: #2e200e; border-color: var(--yellow); }
+  .callout-title { font-weight: 700; margin-bottom: 4px; font-size: 12px;
+                   text-transform: uppercase; letter-spacing: .08em; }
+  .callout.info  .callout-title { color: var(--blue);   }
+  .callout.tip   .callout-title { color: var(--green);  }
+  .callout.warn  .callout-title { color: var(--yellow); }
+
+  /* ── existing interactive tile explorer (procedural / appendix A) ── */
+  #explorer {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0 28px;
+  }
+  #explorer h4 { margin-top: 0; }
+  .control-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+  .control-group label {
+    display: block; font-size: 12px; color: var(--text-dim);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em;
+  }
+  .control-group select, .control-group input[type="number"] {
+    background: var(--code-bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 12px; font-size: 14px; cursor: pointer;
+    font-family: monospace; min-width: 120px;
+  }
+  .tile-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 600px;
+  }
+  .tile-preview-item {
+    background: var(--code-bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: border-color .15s;
+  }
+  .tile-preview-item.active { border-color: var(--accent); }
+  .tile-preview-item canvas {
+    display: block; margin: 0 auto 6px;
+    image-rendering: pixelated;
+    border-radius: 4px;
+  }
+  .tile-preview-item .tile-label {
+    font-size: 11px; color: var(--text-dim);
+    font-family: monospace;
+  }
+  .tile-preview-item .tile-rect {
+    font-size: 10px; color: var(--accent3);
+    font-family: monospace;
+  }
+  #rect-formula {
+    margin-top: 16px; padding: 12px 16px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: monospace; font-size: 13px;
+    color: var(--accent2);
+    white-space: pre-wrap;
+  }
+
+  /* ── NEW: GID decoder widget (Tiled / main) ── */
+  #gid-decoder {
+    background: var(--surface2);
+    border: 1px solid var(--accent2);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0 28px;
+  }
+  #gid-decoder h4 { margin-top: 0; color: var(--accent2); }
+  .gid-controls {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    align-items: flex-end; margin-bottom: 18px;
+  }
+  .gid-flip-row { display: flex; gap: 14px; align-items: center; }
+  .gid-flip-row label {
+    font-size: 12px; color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .gid-flip-row input { cursor: pointer; }
+  .gid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .gid-formula {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: monospace; font-size: 12.5px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+  .gid-formula .label { color: var(--text-dim); }
+  .gid-formula .val   { color: var(--accent3); }
+  .gid-formula .flip  { color: var(--accent4); }
+  .gid-preview {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+  }
+  .gid-preview canvas {
+    display: block; margin: 0 auto 8px;
+    image-rendering: pixelated;
+    border-radius: 4px;
+    background: #000;
+  }
+  .gid-preview .gid-coord {
+    font-family: monospace; font-size: 11px; color: var(--accent3);
+  }
+  .gid-presets {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+  }
+  .gid-presets button {
+    background: var(--code-bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 10px; font-size: 11px; cursor: pointer;
+    font-family: monospace;
+    transition: all .15s;
+  }
+  .gid-presets button:hover {
+    border-color: var(--accent2); color: var(--accent2);
+  }
+  .gid-sheet-picker {
+    margin-top: 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    background: var(--code-bg);
+    overflow: auto;
+    max-height: 320px;
+  }
+  .gid-sheet-picker canvas {
+    display: block;
+    image-rendering: pixelated;
+    cursor: crosshair;
+  }
+  .gid-sheet-hint {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 6px; font-family: monospace;
+  }
+
+  /* ── pipeline diagram ── */
+  .pipeline {
+    display: flex; flex-direction: column; gap: 2px;
+    margin: 16px 0 24px;
+  }
+  .pipe-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .pipe-step .pipe-num {
+    background: var(--accent);
+    color: #000; font-weight: 700;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 12px;
+  }
+  .pipe-step .pipe-name { font-weight: 600; color: var(--accent2); }
+  .pipe-step .pipe-desc { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+
+  /* ── framework compat ── */
+  .compat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin: 16px 0 24px;
+  }
+  .compat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .compat-card .lang { font-weight: 700; color: var(--accent3); font-size: 13px; }
+  .compat-card .call { font-family: monospace; font-size: 11px; color: var(--accent2); margin-top: 6px; }
+
+  /* ── divider between main and appendix ── */
+  .section-divider {
+    margin: 80px 0 32px;
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    position: relative;
+  }
+  .section-divider::after {
+    content: "Appendix · Procedural approach";
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--bg); padding: 0 18px;
+    color: var(--accent3); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .14em;
+    font-weight: 700;
+  }
+
+  section { scroll-margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-title">Tilemap System</div>
+  <nav>
+    <a href="#overview">1. Overview</a>
+    <a href="#two-approaches">2. Two Approaches</a>
+    <a href="#drawtexturerec">3. The Core Primitive</a>
+    <a href="#spritesheets">4. The Spritesheets</a>
+  </nav>
+  <div class="sidebar-group">Tiled JSON · Main</div>
+  <nav>
+    <a href="#tmj-format">5. The .tmj File Format</a>
+    <a class="sub" href="#tmj-anatomy">5.1 Anatomy of map.tmj</a>
+    <a class="sub" href="#gid-explainer">5.2 GIDs</a>
+    <a class="sub" href="#layer-types">5.3 Layer Types</a>
+    <a href="#tiled-api">6. rayjs:ext:tiled API</a>
+    <a class="sub" href="#api-lifecycle">6.1 loadTiledMap</a>
+    <a class="sub" href="#api-draw">6.2 drawTiledMap</a>
+    <a class="sub" href="#api-update">6.3 updateTiledMap</a>
+    <a class="sub" href="#api-objects">6.4 getTiledObjects</a>
+    <a class="sub" href="#api-collide">6.5 checkCollisionTiledLayer</a>
+    <a href="#walkthrough">7. Example Walkthrough</a>
+    <a href="#sprite-reference">8. Sprite Reference</a>
+  </nav>
+  <div class="sidebar-group appendix">Procedural · Appendix</div>
+  <nav>
+    <a href="#appendix-theme">A. The Theme System</a>
+    <a class="sub" href="#theme-explorer-section">↳ Interactive Explorer</a>
+    <a href="#appendix-data">B. Data Structures</a>
+    <a href="#appendix-pipeline">C. Generation Pipeline</a>
+    <a href="#appendix-render">D. Rendering</a>
+    <a href="#appendix-choose">E. When to Choose</a>
+    <a href="#appendix-frameworks">F. Framework Equivalents</a>
+  </nav>
+</div>
+
+<main>
+
+<!-- HERO -->
+<section id="overview">
+<div class="hero">
+  <h1>Tilemap System — Two Approaches</h1>
+  <div class="subtitle">Tile-based rendering with raylib · editor-authored .tmj maps + procedural generation</div>
+  <div class="tag-row">
+    <span class="tag main">Tiled JSON (rayjs example)</span>
+    <span class="tag appendix">Procedural (C++ port)</span>
+    <span class="tag">Spritesheet / Texture Atlas</span>
+    <span class="tag">DrawTextureRec</span>
+    <span class="tag">GID encoding</span>
+  </div>
+</div>
+
+<h2>1. Overview — The Spritesheet Technique</h2>
+
+<p>A <strong>spritesheet</strong> (also called a <em>texture atlas</em> or <em>tilesheet</em>) packs many individual sprites into a single image arranged on a regular grid. Instead of loading hundreds of files, you load one texture and use <strong>source rectangles</strong> to cut out exactly the portion you need when drawing.</p>
+
+<pre><code><span class="cm">┌─────────────────────────────────────┐
+│  spritesheet.png                    │
+│  ┌──────┬──────┬──────┬──────┐      │
+│  │ tile │ tile │ tile │ tile │  row 0│
+│  ├──────┼──────┼──────┼──────┤      │
+│  │ tile │ tile │ tile │ tile │  row 1│
+│  └──────┴──────┴──────┴──────┘      │
+│   col0   col1   col2   col3         │
+└─────────────────────────────────────┘</span>
+
+<span class="cm">// To draw the tile at (col=2, row=1):</span>
+srcRect.x <span class="op">=</span> col <span class="op">*</span> tileSize  <span class="op">=</span> <span class="nm">2</span> <span class="op">*</span> <span class="nm">64</span> <span class="op">=</span> <span class="nm">128</span>
+srcRect.y <span class="op">=</span> row <span class="op">*</span> tileSize  <span class="op">=</span> <span class="nm">1</span> <span class="op">*</span> <span class="nm">64</span> <span class="op">=</span> <span class="nm">64</span>
+srcRect.w <span class="op">=</span> tileSize       <span class="op">=</span> <span class="nm">64</span>
+srcRect.h <span class="op">=</span> tileSize       <span class="op">=</span> <span class="nm">64</span></code></pre>
+
+<div class="callout tip">
+  <div class="callout-title">Why use a spritesheet?</div>
+  A spritesheet means a single GPU texture bind can render the entire world. Each tile draw is just a different <em>source rectangle</em> on the same texture — no switching textures, no file I/O per frame. On the CPU side, the coordinate math is just multiplication.
+</div>
+
+<p>The whole game world is a 2D grid of integers. Each integer identifies a tile in the spritesheet. The two approaches in this document differ in <strong>where those integers come from</strong>: hand-authored in an editor, or generated in code.</p>
+</section>
+
+<!-- TWO APPROACHES -->
+<section id="two-approaches">
+<h2>2. The Two Approaches at a Glance</h2>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Aspect</th><th>Tiled JSON (Main)</th><th>Procedural (Appendix)</th></tr>
+  <tr><td>Source of truth</td><td><code>.tmj</code> file from <a href="https://www.mapeditor.org/" target="_blank">Tiled</a></td><td>Algorithm in code</td></tr>
+  <tr><td>Tile identifier</td><td><strong>GID</strong> — flat int in <code>layer.data[]</code></td><td><code>(theme.layer, theme.material)</code> per cell</td></tr>
+  <tr><td>Variation strategy</td><td>Multiple <code>.tmj</code> files / tilesets</td><td>Swap a few theme ints</td></tr>
+  <tr><td>Object placement</td><td>Drag-and-drop → <code>objectgroup</code></td><td><code>placeObjects()</code> algorithm</td></tr>
+  <tr><td>Collision</td><td><code>checkCollisionTiledLayer(...)</code></td><td><code>tileMap[row][col].isBlock</code></td></tr>
+  <tr><td>Animated tiles</td><td>Built in via tileset <code>animation</code></td><td>Roll your own</td></tr>
+  <tr><td>Tile flip / rotation</td><td>Top 3 bits of GID, handled by the lib</td><td>Roll your own</td></tr>
+  <tr><td>Best for</td><td>Hand-crafted platformers, puzzles</td><td>Roguelikes, infinite worlds</td></tr>
+  <tr><td>Example in this repo</td><td><code>examples/tiled/tiled_map.js</code></td><td>C++ <code>platformer-raylib</code> (sibling project)</td></tr>
+</table>
+</div>
+
+<div class="callout info">
+  <div class="callout-title">Not exclusive</div>
+  The two approaches can be combined: editor-authored ground layer + procedurally-spawned decoration on top, or a Tiled-defined tileset paired with code-generated <code>data[]</code>. They share §3 and §4 entirely.
+</div>
+</section>
+
+<!-- DRAWTEXTUREREC -->
+<section id="drawtexturerec">
+<h2>3. The Core Primitive — DrawTextureRec</h2>
+
+<p>Every tile in <strong>both approaches</strong> is ultimately drawn with the same raylib function:</p>
+
+<pre><code><span class="kw">void</span> <span class="fn">DrawTextureRec</span>(
+    <span class="tp">Texture2D</span> texture,   <span class="cm">// the loaded spritesheet GPU texture</span>
+    <span class="tp">Rectangle</span> source,    <span class="cm">// region to cut from the sheet (in pixels)</span>
+    <span class="tp">Vector2</span>   position,  <span class="cm">// where to draw it in world/screen space</span>
+    <span class="tp">Color</span>     tint       <span class="cm">// colour multiplier — WHITE = no tint</span>
+);</code></pre>
+
+<p>In rayjs this is exposed verbatim from <code>rayjs:raylib</code>:</p>
+
+<pre><code><span class="kw">import</span> { DrawTextureRec, Rectangle, Vector2, WHITE } <span class="kw">from</span> <span class="st">"rayjs:raylib"</span>
+
+<span class="fn">DrawTextureRec</span>(
+  tileset.texture,
+  <span class="kw">new</span> <span class="tp">Rectangle</span>(srcX, srcY, tileW, tileH),
+  <span class="kw">new</span> <span class="tp">Vector2</span>(dstX, dstY),
+  WHITE,
+)</code></pre>
+
+<p>That single function backs the inner loop of <code>drawTiledMap</code> in <code>lib/tiled.js</code> (Tiled approach) and the inner loop of <code>drawTileMap</code> in <code>Platformer2D.cpp</code> (procedural approach). The difference is only in how <code>srcX</code>/<code>srcY</code> get computed: from a GID lookup, or from <code>theme.layer * tileSize</code> arithmetic.</p>
+</section>
+
+<!-- SPRITESHEETS -->
+<section id="spritesheets">
+<h2>4. The Spritesheets</h2>
+
+<p>The rayjs example and the C++ project share artwork from the same two-file family:</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>File</th><th>Tile size</th><th>Grid</th><th>Used by</th></tr>
+  <tr>
+    <td><code>examples/platformTilesheet.png</code></td>
+    <td><strong>64 × 64 px</strong></td>
+    <td>14 × 7</td>
+    <td>rayjs Tiled example (<code>txObjs</code> in C++)</td>
+  </tr>
+  <tr>
+    <td><code>platformTilesheetx2.png</code></td>
+    <td><strong>128 × 128 px</strong></td>
+    <td>14 × 7</td>
+    <td>C++ terrain (<code>txTiles</code>)</td>
+  </tr>
+</table>
+</div>
+
+<div class="callout info">
+  <div class="callout-title">Why two sizes?</div>
+  The C++ project renders at <code>camera.zoom = 0.5</code>, so the 128 px texels stay crisp at half scale. The rayjs example uses the 64 px sheet at native zoom (<code>zoom = 1</code>).
+</div>
+
+<h3>platformTilesheet.png — the sheet the Tiled example uses</h3>
+<div class="img-block">
+  <img src="assets/txObjs-annotated.png" alt="64 px sheet annotated">
+  <div class="img-caption">platformTilesheet.png — 64 px tile grid. This is the file referenced by <code>examples/tiled/resources/map.tmj</code>. Every tile in the map — ground, gems, platforms, door, key — is a 64×64 cut from this sheet.</div>
+</div>
+
+<h3>platformTilesheetx2.png — the C++ terrain sheet</h3>
+<div class="img-block">
+  <img src="assets/txTiles-annotated.png" alt="128 px sheet annotated">
+  <div class="img-caption">platformTilesheetx2.png — 128 px tile grid. Green = surface variants. Red = underground fill. Purple = GUI icons. The C++ procedural renderer reads only columns 0–3, rows 0–1 for terrain.</div>
+</div>
+</section>
+
+<!-- ────────── MAIN: TILED JSON ────────── -->
+
+<!-- .TMJ FORMAT -->
+<section id="tmj-format">
+<h2>5. The .tmj File Format</h2>
+
+<p>A <code>.tmj</code> file is plain JSON exported by the <a href="https://www.mapeditor.org/" target="_blank">Tiled</a> editor. It fully describes a level: map dimensions, layers (tile and object), tilesets, and per-tile metadata. The rayjs example loads one and renders it with <code>rayjs:ext:tiled</code>.</p>
+
+<section id="tmj-anatomy">
+<h3>5.1 Anatomy of <code>examples/tiled/resources/map.tmj</code></h3>
+
+<p>Here is the entire map file used by the rayjs example, annotated inline:</p>
+
+<pre><code>{
+  <span class="cm">// ── map header ─────────────────────────────────────────────</span>
+  <span class="st">"width"</span>:  <span class="nm">20</span>,            <span class="cm">// 20 tiles wide</span>
+  <span class="st">"height"</span>: <span class="nm">10</span>,            <span class="cm">// 10 tiles tall</span>
+  <span class="st">"tilewidth"</span>:  <span class="nm">64</span>,        <span class="cm">// each tile is 64×64 px in this map's grid</span>
+  <span class="st">"tileheight"</span>: <span class="nm">64</span>,
+  <span class="st">"orientation"</span>: <span class="st">"orthogonal"</span>,
+  <span class="st">"renderorder"</span>: <span class="st">"right-down"</span>,
+  <span class="st">"infinite"</span>: <span class="kw">false</span>,
+
+  <span class="cm">// ── layers (drawn in array order) ──────────────────────────</span>
+  <span class="st">"layers"</span>: [
+    {
+      <span class="cm">// Tile layer — a 20×10 flat array of GIDs</span>
+      <span class="st">"id"</span>:   <span class="nm">1</span>,
+      <span class="st">"name"</span>: <span class="st">"Ground"</span>,
+      <span class="st">"type"</span>: <span class="st">"tilelayer"</span>,
+      <span class="st">"width"</span>:  <span class="nm">20</span>,
+      <span class="st">"height"</span>: <span class="nm">10</span>,
+      <span class="st">"visible"</span>: <span class="kw">true</span>,
+      <span class="st">"opacity"</span>: <span class="nm">1</span>,
+      <span class="st">"x"</span>: <span class="nm">0</span>, <span class="st">"y"</span>: <span class="nm">0</span>,
+      <span class="st">"data"</span>: [
+        <span class="cm">// Row 0 — a few clouds and a small floating platform</span>
+        <span class="pn">3</span>, <span class="pn">12</span>,  <span class="pn">9</span>, <span class="pn">10</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="pn">8</span>,  <span class="pn">8</span>,  <span class="pn">8</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,
+        <span class="cm">// Rows 1–3 — empty sky</span>
+        <span class="nm">0</span>, <span class="nm">0</span>, ... <span class="nm">0</span>,
+        <span class="nm">0</span>, <span class="nm">0</span>, ... <span class="nm">0</span>,
+        <span class="nm">0</span>, <span class="nm">0</span>, ... <span class="nm">0</span>,
+        <span class="cm">// Row 4 — floating ledge</span>
+        <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="pn">2</span>,  <span class="pn">3</span>,  <span class="pn">4</span>,  <span class="nm">0</span>, ...
+        <span class="cm">// Row 5 — another floating ledge</span>
+        <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="nm">0</span>,  <span class="pn">2</span>,  <span class="pn">3</span>,  <span class="pn">4</span>, ...
+        <span class="cm">// Row 6 — empty</span>
+        <span class="nm">0</span>, <span class="nm">0</span>, ... <span class="nm">0</span>,
+        <span class="cm">// Row 7 — full ground row (surface caps)</span>
+        <span class="pn">1</span>,  <span class="pn">2</span>,  <span class="pn">3</span>,  <span class="pn">4</span>,  <span class="pn">5</span>,  <span class="pn">6</span>,  <span class="pn">7</span>,  <span class="pn">8</span>,  <span class="pn">9</span>, <span class="pn">10</span>, <span class="pn">11</span>, <span class="pn">12</span>,  <span class="pn">1</span>,  <span class="pn">2</span>,  <span class="pn">3</span>, ...
+        <span class="cm">// Row 8 — underground fill row 1</span>
+        <span class="pn">13</span>, <span class="pn">14</span>, <span class="pn">15</span>, <span class="pn">16</span>, <span class="pn">17</span>, <span class="pn">18</span>, <span class="pn">19</span>, <span class="pn">20</span>, <span class="pn">21</span>, <span class="pn">22</span>, <span class="pn">23</span>, <span class="pn">24</span>, ...
+        <span class="cm">// Row 9 — underground fill row 2 (bottom)</span>
+        <span class="pn">25</span>, <span class="pn">26</span>, <span class="pn">27</span>, <span class="pn">28</span>, <span class="pn">29</span>, <span class="pn">30</span>, <span class="pn">31</span>, <span class="pn">32</span>, <span class="pn">33</span>, <span class="pn">34</span>, <span class="pn">35</span>, <span class="pn">36</span>, ...
+      ]
+    },
+    {
+      <span class="cm">// Object layer — annotations with positions & types</span>
+      <span class="st">"id"</span>:   <span class="nm">2</span>,
+      <span class="st">"name"</span>: <span class="st">"Objects"</span>,
+      <span class="st">"type"</span>: <span class="st">"objectgroup"</span>,
+      <span class="st">"visible"</span>: <span class="kw">true</span>,
+      <span class="st">"opacity"</span>: <span class="nm">1</span>,
+      <span class="st">"draworder"</span>: <span class="st">"topdown"</span>,
+      <span class="st">"objects"</span>: [
+        {
+          <span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"name"</span>: <span class="st">"Player"</span>, <span class="st">"type"</span>: <span class="st">"spawn"</span>,
+          <span class="st">"x"</span>: <span class="nm">64</span>, <span class="st">"y"</span>: <span class="nm">320</span>,          <span class="cm">// pixel position in world space</span>
+          <span class="st">"width"</span>: <span class="nm">64</span>, <span class="st">"height"</span>: <span class="nm">64</span>,
+          <span class="st">"rotation"</span>: <span class="nm">0</span>, <span class="st">"visible"</span>: <span class="kw">true</span>
+        },
+        {
+          <span class="st">"id"</span>: <span class="nm">2</span>, <span class="st">"name"</span>: <span class="st">"Coin"</span>, <span class="st">"type"</span>: <span class="st">"pickup"</span>,
+          <span class="st">"x"</span>: <span class="nm">320</span>, <span class="st">"y"</span>: <span class="nm">192</span>,
+          <span class="st">"width"</span>: <span class="nm">64</span>, <span class="st">"height"</span>: <span class="nm">64</span>,
+          <span class="st">"rotation"</span>: <span class="nm">0</span>, <span class="st">"visible"</span>: <span class="kw">true</span>
+        }
+      ]
+    }
+  ],
+
+  <span class="cm">// ── tilesets used by the map ───────────────────────────────</span>
+  <span class="st">"tilesets"</span>: [
+    {
+      <span class="st">"firstgid"</span>:   <span class="nm">1</span>,        <span class="cm">// GIDs in data[] are offset by this value</span>
+      <span class="st">"name"</span>:       <span class="st">"platformTilesheet"</span>,
+      <span class="st">"image"</span>:      <span class="st">"../../../examples/platformTilesheet.png"</span>,
+      <span class="st">"imagewidth"</span>: <span class="nm">896</span>,
+      <span class="st">"imageheight"</span>: <span class="nm">448</span>,
+      <span class="st">"tilewidth"</span>:  <span class="nm">64</span>,       <span class="cm">// size of one tile in the source image</span>
+      <span class="st">"tileheight"</span>: <span class="nm">64</span>,
+      <span class="st">"columns"</span>:    <span class="nm">12</span>,       <span class="cm">// tiles per row to use from the image</span>
+      <span class="st">"tilecount"</span>:  <span class="nm">60</span>,       <span class="cm">// 12 cols × 5 rows = 60 tiles indexed</span>
+      <span class="st">"margin"</span>:     <span class="nm">0</span>,
+      <span class="st">"spacing"</span>:    <span class="nm">0</span>
+    }
+  ]
+}</code></pre>
+
+<p>A few things worth noticing:</p>
+
+<ul>
+  <li><strong><code>data[]</code> is row-major.</strong> The cell at <code>(col, row)</code> lives at <code>data[row * width + col]</code>.</li>
+  <li><strong><code>0</code> means empty.</strong> Any other value is a GID (see §5.2).</li>
+  <li><strong>Image dimensions can exceed the tileset's indexable region.</strong> The image is 896×448 (14×7 tiles) but the tileset is configured with <code>columns: 12</code> and <code>tilecount: 60</code>, so it exposes only the first 12 cols × 5 rows.</li>
+  <li><strong>Object positions are in pixels</strong>, not tile units. <code>x: 64, y: 320</code> means the Player spawn is one tile from the left and five tiles down.</li>
+</ul>
+</section>
+
+<section id="gid-explainer">
+<h3>5.2 GIDs — How an Integer Encodes (Tileset, Col, Row, Flip)</h3>
+
+<p>Each entry in <code>data[]</code> is a <strong>GID</strong> (global tile ID) — a 32-bit integer that packs four pieces of information:</p>
+
+<pre><code> 31 30 29 28          0
+┌──┬──┬──┬──────────────┐
+│ H│ V│ D│  tile gid    │
+└──┴──┴──┴──────────────┘
+  └──┬──┘   └──────┬────┘
+  flip bits        29-bit tile identifier</code></pre>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Bit</th><th>Mask</th><th>Meaning</th></tr>
+  <tr><td>31</td><td><code>0x80000000</code></td><td><code>FLIP_H</code> — horizontal flip</td></tr>
+  <tr><td>30</td><td><code>0x40000000</code></td><td><code>FLIP_V</code> — vertical flip</td></tr>
+  <tr><td>29</td><td><code>0x20000000</code></td><td><code>FLIP_D</code> — diagonal (combined with H/V encodes 90° rotations)</td></tr>
+</table>
+</div>
+
+<h4>Resolving a GID to a source rectangle</h4>
+
+<pre><code>gid     <span class="op">=</span> rawGid <span class="op">&amp;</span> <span class="nm">0x1FFFFFFF</span>          <span class="cm">// strip flip bits</span>
+ts      <span class="op">=</span> tileset whose firstgid is the highest value ≤ gid
+localId <span class="op">=</span> gid <span class="op">-</span> ts.firstgid              <span class="cm">// 0-based index within that tileset</span>
+col     <span class="op">=</span> localId <span class="op">%</span>  ts.columns
+row     <span class="op">=</span> <span class="fn">floor</span>(localId <span class="op">/</span> ts.columns)
+srcX    <span class="op">=</span> ts.margin <span class="op">+</span> col <span class="op">*</span> (ts.tilewidth  <span class="op">+</span> ts.spacing)
+srcY    <span class="op">=</span> ts.margin <span class="op">+</span> row <span class="op">*</span> (ts.tileheight <span class="op">+</span> ts.spacing)</code></pre>
+
+<p>This is exactly what <code>_drawTileLayer</code> does in <code>lib/tiled.js</code> (lines 290–294).</p>
+
+<!-- INTERACTIVE GID DECODER -->
+<div id="gid-decoder">
+  <h4>🔢 Interactive — type a GID, see it decoded</h4>
+  <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 14px;">
+    Using the example map's tileset: <code>firstgid=1, columns=12, tilewidth=64, tileheight=64, margin=0, spacing=0</code>.
+    Click any tile on the spritesheet below, type a GID, or toggle flip bits.
+  </p>
+
+  <div class="gid-controls">
+    <div class="control-group">
+      <label>Raw GID</label>
+      <input type="number" id="gid-input" value="1" min="0" max="2147483647">
+    </div>
+    <div class="control-group">
+      <label>Flip bits</label>
+      <div class="gid-flip-row">
+        <label><input type="checkbox" id="gid-flip-h"> H</label>
+        <label><input type="checkbox" id="gid-flip-v"> V</label>
+        <label><input type="checkbox" id="gid-flip-d"> D</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="gid-presets">
+    <button data-gid="1">GID 1</button>
+    <button data-gid="12">GID 12</button>
+    <button data-gid="13">GID 13</button>
+    <button data-gid="36">GID 36</button>
+    <button data-gid="2684354561">H+D · GID 1</button>
+    <button data-gid="0">empty (0)</button>
+  </div>
+
+  <div class="gid-grid" style="margin-top: 18px;">
+    <div class="gid-formula" id="gid-formula">…</div>
+    <div class="gid-preview">
+      <canvas id="gid-canvas" width="128" height="128"></canvas>
+      <div class="gid-coord" id="gid-coord">srcX = 0, srcY = 0</div>
+    </div>
+  </div>
+
+  <div class="gid-sheet-picker">
+    <canvas id="gid-sheet-canvas"></canvas>
+    <div class="gid-sheet-hint">Click any tile in the highlighted 12×5 region to load its GID.</div>
+  </div>
+</div>
+
+<h4>Worked examples (using the map's tileset)</h4>
+<div class="table-wrap">
+<table>
+  <tr><th>Raw GID</th><th>Strip flip</th><th>localId</th><th>col</th><th>row</th><th>srcX</th><th>srcY</th></tr>
+  <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+  <tr><td>12</td><td>12</td><td>11</td><td>11</td><td>0</td><td>704</td><td>0</td></tr>
+  <tr><td>13</td><td>13</td><td>12</td><td>0</td><td>1</td><td>0</td><td>64</td></tr>
+  <tr><td>36</td><td>36</td><td>35</td><td>11</td><td>2</td><td>704</td><td>128</td></tr>
+  <tr><td><code>0xA0000001</code> (H+D flipped GID 1)</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0 + flip applied at draw</td></tr>
+</table>
+</div>
+
+<div class="callout warn">
+  <div class="callout-title"><code>columns</code> controls the wrap, not the image width</div>
+  <code>columns</code> is the number of tiles in a row of the tileset, which the lookup math divides by. It is <em>not</em> necessarily <code>imagewidth / tilewidth</code>. In the example, <code>columns=12</code> but the image is 14 tiles wide; only the first 12 are addressable. If you ever see "the wrong tile is being drawn at the edges," check that <code>columns</code> matches what you think.
+</div>
+</section>
+
+<section id="layer-types">
+<h3>5.3 Layer Types</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th><code>type</code></th><th>What it is</th><th>rayjs:ext:tiled behaviour</th></tr>
+  <tr><td><code>tilelayer</code></td><td>2D array of GIDs</td><td>Drawn by <code>drawTiledMap</code>; collidable via <code>checkCollisionTiledLayer</code></td></tr>
+  <tr><td><code>objectgroup</code></td><td>List of named objects with positions, types, custom properties</td><td><strong>Not auto-drawn</strong>; access via <code>getTiledObjects(map, "Name")</code></td></tr>
+  <tr><td><code>group</code></td><td>Nested layers with shared offset/opacity</td><td>Recursively walked by <code>drawTiledMap</code></td></tr>
+  <tr><td><code>imagelayer</code></td><td>Single image at an offset</td><td><strong>Not auto-drawn</strong>; you read it from <code>map.layers</code> and draw it yourself</td></tr>
+</table>
+</div>
+
+<p>Object groups are how the rayjs example knows where to spawn the player and where to place the coin — see §7.</p>
+</section>
+</section>
+
+<!-- rayjs:ext:tiled API -->
+<section id="tiled-api">
+<h2>6. The rayjs:ext:tiled API</h2>
+
+<p>The full TypeScript surface is in <code>lib/tiled.d.ts</code>. The implementation is <code>lib/tiled.js</code>, embedded into the <code>rayjs</code> binary as <code>rayjs:ext:tiled</code> via the ext-modules system.</p>
+
+<section id="api-lifecycle">
+<h3>6.1 Lifecycle — <code>loadTiledMap</code> / <code>unloadTiledMap</code></h3>
+
+<pre><code><span class="kw">import</span> { loadTiledMap, unloadTiledMap } <span class="kw">from</span> <span class="st">"rayjs:ext:tiled"</span>
+
+<span class="kw">const</span> map <span class="op">=</span> <span class="fn">loadTiledMap</span>(<span class="st">"resources/map.tmj"</span>)
+<span class="cm">// ... use the map ...</span>
+<span class="fn">unloadTiledMap</span>(map)</code></pre>
+
+<p><code>loadTiledMap</code> reads the <code>.tmj</code>, resolves external tilesets (<code>.tsj</code>) relative to the map file, and <strong>uploads each tileset image to GPU memory</strong> via <code>LoadTexture</code>. Pair it with <code>unloadTiledMap</code> before you close the window.</p>
+
+<div class="callout warn">
+  <div class="callout-title">Tile encoding requirement</div>
+  Base64 and compressed tile data are <strong>not supported</strong>. In Tiled's <em>File → Save As → Map Properties</em> set Tile Layer Format to <strong>CSV</strong> or <strong>plain array</strong>.
+</div>
+</section>
+
+<section id="api-draw">
+<h3>6.2 <code>drawTiledMap</code> — What It Does</h3>
+
+<pre><code><span class="kw">import</span> { drawTiledMap } <span class="kw">from</span> <span class="st">"rayjs:ext:tiled"</span>
+<span class="fn">drawTiledMap</span>(map, <span class="nm">0</span>, <span class="nm">0</span>, WHITE)</code></pre>
+
+<p>Internally it walks visible <code>tilelayer</code> and <code>group</code> layers and, for each non-empty cell, runs the GID-to-source-rect math from §5.2 then calls <code>DrawTextureRec</code> (or <code>DrawTexturePro</code> when flip bits require it). This is the <strong>exact same primitive as the procedural approach in Appendix D</strong> — only the lookup differs.</p>
+
+<p>A tightened excerpt of the inner loop, from <code>lib/tiled.js:272-302</code>:</p>
+
+<pre><code><span class="kw">for</span> (<span class="kw">let</span> row <span class="op">=</span> <span class="nm">0</span>; row <span class="op">&lt;</span> lh; row<span class="op">++</span>) {
+  <span class="kw">for</span> (<span class="kw">let</span> col <span class="op">=</span> <span class="nm">0</span>; col <span class="op">&lt;</span> lw; col<span class="op">++</span>) {
+    <span class="kw">const</span> rawGid <span class="op">=</span> data[row <span class="op">*</span> lw <span class="op">+</span> col]
+    <span class="kw">if</span> (<span class="op">!</span>rawGid) <span class="kw">continue</span>                   <span class="cm">// 0 = empty</span>
+
+    <span class="kw">const</span> gid <span class="op">=</span> rawGid <span class="op">&amp;</span> GID_MASK
+    <span class="kw">const</span> ts  <span class="op">=</span> <span class="fn">_tilesetForGid</span>(map.tilesets, gid)
+    <span class="kw">let</span>   localId <span class="op">=</span> gid <span class="op">-</span> ts.firstgid
+
+    <span class="cm">// Animated tiles substitute their current frame's local id.</span>
+    <span class="kw">const</span> anim <span class="op">=</span> map._animState[gid]
+    <span class="kw">if</span> (anim) {
+      <span class="kw">const</span> frames <span class="op">=</span> ts.animations[localId]
+      <span class="kw">if</span> (frames) localId <span class="op">=</span> frames[anim.frameIndex].tileid
+    }
+
+    <span class="kw">const</span> srcCol <span class="op">=</span> localId <span class="op">%</span> ts.columns
+    <span class="kw">const</span> srcRow <span class="op">=</span> <span class="tp">Math</span>.<span class="fn">floor</span>(localId <span class="op">/</span> ts.columns)
+    <span class="kw">const</span> srcX   <span class="op">=</span> ts.margin <span class="op">+</span> srcCol <span class="op">*</span> (ts.tilewidth  <span class="op">+</span> ts.spacing)
+    <span class="kw">const</span> srcY   <span class="op">=</span> ts.margin <span class="op">+</span> srcRow <span class="op">*</span> (ts.tileheight <span class="op">+</span> ts.spacing)
+
+    <span class="fn">_drawTile</span>(ts, srcX, srcY,
+              map.tilewidth, map.tileheight,
+              posX <span class="op">+</span> col <span class="op">*</span> map.tilewidth,
+              posY <span class="op">+</span> row <span class="op">*</span> map.tileheight,
+              rawGid, tint)              <span class="cm">// rawGid passed so flip bits apply</span>
+  }
+}</code></pre>
+
+<p>Object groups and image layers are intentionally <strong>not</strong> drawn — you decide how to render those (typically: not at all for spawn markers; manually with your own sprite for pickups that are part of gameplay).</p>
+</section>
+
+<section id="api-update">
+<h3>6.3 <code>updateTiledMap</code> — Animated Tiles</h3>
+
+<p>If any tile in any tileset has an <code>animation</code> array (set in Tiled's <em>Tile Animation Editor</em>), the loader builds an animation timer for it. Call once per frame <strong>before</strong> <code>drawTiledMap</code>:</p>
+
+<pre><code><span class="fn">updateTiledMap</span>(map, <span class="fn">GetFrameTime</span>())   <span class="cm">// dt in seconds</span></code></pre>
+
+<p><code>drawTiledMap</code> then substitutes the current frame's local tile id when it encounters an animated GID — see the <code>anim</code> block in the §6.2 snippet.</p>
+</section>
+
+<section id="api-objects">
+<h3>6.4 <code>getTiledObjects</code> — Spawn Points and Pickups</h3>
+
+<pre><code><span class="kw">const</span> objs <span class="op">=</span> <span class="fn">getTiledObjects</span>(map, <span class="st">"Objects"</span>)
+<span class="kw">const</span> spawn <span class="op">=</span> objs.<span class="fn">find</span>(o <span class="op">=&gt;</span> o.type <span class="op">===</span> <span class="st">"spawn"</span>)
+<span class="kw">const</span> coins <span class="op">=</span> objs.<span class="fn">filter</span>(o <span class="op">=&gt;</span> o.type <span class="op">===</span> <span class="st">"pickup"</span>)</code></pre>
+
+<p>Returns the raw <code>TiledObject[]</code> from a named <code>objectgroup</code>. Each carries <code>name</code>, <code>type</code> (the custom type string set in Tiled), <code>x</code>, <code>y</code>, <code>width</code>, <code>height</code>, <code>rotation</code>, <code>visible</code>, optionally <code>gid</code> (for tile objects), <code>point</code>, <code>ellipse</code>, <code>polygon</code>, <code>polyline</code>, and <code>properties</code>. This is your bridge from level design to gameplay code.</p>
+</section>
+
+<section id="api-collide">
+<h3>6.5 <code>checkCollisionTiledLayer</code> — AABB Resolution</h3>
+
+<pre><code><span class="kw">const</span> hit <span class="op">=</span> <span class="fn">checkCollisionTiledLayer</span>(map, <span class="st">"Ground"</span>, playerRect)
+<span class="kw">if</span> (hit.hit) {
+  <span class="cm">// hit.tileX, hit.tileY  — grid coordinates of the colliding tile</span>
+  <span class="cm">// hit.tileRect          — world-space Rectangle of that tile</span>
+}</code></pre>
+
+<p>Returns <code>{ hit: false }</code> if the rect overlaps nothing, otherwise the <strong>first colliding tile in top-left raster order</strong> with its world-space <code>tileRect</code>. The example uses this with a swept approach (move on one axis, resolve, move on the other axis, resolve) — see §7.</p>
+
+<p>Two related helpers exist for object layers:</p>
+
+<ul>
+  <li><code>checkCollisionTiledObjects(map, "Objects", rect)</code> — returns the first colliding <code>TiledObject</code> (supports rectangle, ellipse-as-AABB, and polygon).</li>
+  <li><code>getTiledCollisionRects(map, "Objects")</code> — returns all rectangle objects as <code>Rectangle[]</code>, useful for pre-computing a static collision list once at load time.</li>
+</ul>
+</section>
+</section>
+
+<!-- WALKTHROUGH -->
+<section id="walkthrough">
+<h2>7. Walkthrough — <code>examples/tiled/tiled_map.js</code></h2>
+
+<p>The full example is ~130 lines. Here's what each phase does, with file:line references.</p>
+
+<h3>7.1 Setup and load</h3>
+<p>Lines 1–32:</p>
+<pre><code><span class="kw">import</span> { loadTiledMap, updateTiledMap, drawTiledMap, unloadTiledMap,
+         getTiledObjects, checkCollisionTiledLayer } <span class="kw">from</span> <span class="st">"rayjs:ext:tiled"</span>
+
+<span class="fn">InitWindow</span>(SCREEN_W, SCREEN_H, <span class="st">"rayjs - Tiled map"</span>)
+<span class="fn">SetTargetFPS</span>(<span class="nm">60</span>)
+
+<span class="kw">const</span> map  <span class="op">=</span> <span class="fn">loadTiledMap</span>(<span class="st">"resources/map.tmj"</span>)
+<span class="kw">const</span> mapW <span class="op">=</span> map.width  <span class="op">*</span> map.tilewidth     <span class="cm">// 20 * 64 = 1280 px</span>
+<span class="kw">const</span> mapH <span class="op">=</span> map.height <span class="op">*</span> map.tileheight    <span class="cm">// 10 * 64 =  640 px</span></code></pre>
+
+<h3>7.2 Find the spawn point</h3>
+<p>Lines 36–38:</p>
+<pre><code><span class="kw">const</span> spawn <span class="op">=</span> <span class="fn">getTiledObjects</span>(map, <span class="st">"Objects"</span>).<span class="fn">find</span>(o <span class="op">=&gt;</span> o.type <span class="op">===</span> <span class="st">"spawn"</span>)
+<span class="kw">let</span> playerX <span class="op">=</span> spawn <span class="op">?</span> spawn.x <span class="op">:</span> <span class="nm">64</span>
+<span class="kw">let</span> playerY <span class="op">=</span> spawn <span class="op">?</span> spawn.y <span class="op">:</span> mapH <span class="op">-</span> map.tileheight <span class="op">*</span> <span class="nm">3</span> <span class="op">-</span> PH</code></pre>
+
+<p>The <code>.find(o =&gt; o.type === "spawn")</code> locates the Player marker from the editor (the one with <code>"type": "spawn"</code> in §5.1). This is the pattern for "wire editor metadata into gameplay" — set a custom <code>Type</code> string in Tiled, query it by string in code.</p>
+
+<h3>7.3 Player sprite from the tileset</h3>
+<p>Lines 23–27:</p>
+<pre><code><span class="kw">const</span> PLAYER_SRC <span class="op">=</span> <span class="kw">new</span> <span class="tp">Rectangle</span>(<span class="nm">448</span>, <span class="nm">320</span>, <span class="nm">64</span>, <span class="nm">128</span>)   <span class="cm">// col 7, row 5, 64×128 region</span></code></pre>
+
+<p>The player isn't a tile in the map — it's a sprite drawn directly from the tileset texture (<code>map.tilesets[0].texture</code>) with a custom source rect. The lib exposing tilesets means you can reuse the same texture for non-tilemap sprites without loading a second image.</p>
+
+<h3>7.4 Per-frame loop — input</h3>
+<p>Lines 50–74:</p>
+<pre><code><span class="kw">const</span> dt <span class="op">=</span> <span class="fn">GetFrameTime</span>()
+
+<span class="kw">let</span> moveX <span class="op">=</span> <span class="nm">0</span>
+<span class="kw">if</span> (<span class="fn">IsKeyDown</span>(KEY_LEFT))  moveX <span class="op">=</span> <span class="op">-</span>PLAYER_SPEED
+<span class="kw">if</span> (<span class="fn">IsKeyDown</span>(KEY_RIGHT)) moveX <span class="op">=</span>  PLAYER_SPEED
+
+<span class="kw">const</span> jumpHeld      <span class="op">=</span> <span class="fn">IsKeyDown</span>(KEY_UP) <span class="op">||</span> <span class="fn">IsKeyDown</span>(KEY_SPACE)
+<span class="kw">const</span> jumpTriggered <span class="op">=</span> jumpHeld <span class="op">&amp;&amp;</span> <span class="op">!</span>jumpKeyDown
+jumpKeyDown <span class="op">=</span> jumpHeld
+jumpBuffer  <span class="op">=</span> <span class="tp">Math</span>.<span class="fn">max</span>(<span class="nm">0</span>, jumpBuffer <span class="op">-</span> dt)
+<span class="kw">if</span> (jumpTriggered) jumpBuffer <span class="op">=</span> <span class="nm">0.12</span>        <span class="cm">// 120 ms jump buffer</span></code></pre>
+
+<p>The 120 ms jump buffer makes the controls feel responsive: pressing jump just before landing fires it on landing instead of dropping the input.</p>
+
+<h3>7.5 Per-frame loop — swept collision</h3>
+<p>Lines 61–101:</p>
+<pre><code><span class="cm">// X axis first, then Y. Each axis uses an inset rect to avoid corner-sticking.</span>
+playerX <span class="op">+=</span> moveX <span class="op">*</span> dt
+<span class="kw">const</span> rxRect <span class="op">=</span> <span class="kw">new</span> <span class="tp">Rectangle</span>(playerX, playerY <span class="op">+</span> <span class="nm">2</span>, PW, PH <span class="op">-</span> <span class="nm">4</span>)
+<span class="kw">const</span> hx <span class="op">=</span> <span class="fn">checkCollisionTiledLayer</span>(map, <span class="st">"Ground"</span>, rxRect)
+<span class="kw">if</span> (hx.hit) {
+  <span class="kw">if</span> (moveX <span class="op">&gt;</span> <span class="nm">0</span>) playerX <span class="op">=</span> hx.tileRect.x <span class="op">-</span> PW
+  <span class="kw">else</span>           playerX <span class="op">=</span> hx.tileRect.x <span class="op">+</span> hx.tileRect.width
+}
+
+velY    <span class="op">+=</span> GRAVITY <span class="op">*</span> dt
+playerY <span class="op">+=</span> velY <span class="op">*</span> dt
+<span class="kw">const</span> ryRect <span class="op">=</span> <span class="kw">new</span> <span class="tp">Rectangle</span>(playerX <span class="op">+</span> <span class="nm">2</span>, playerY, PW <span class="op">-</span> <span class="nm">4</span>, PH)
+<span class="kw">const</span> hy <span class="op">=</span> <span class="fn">checkCollisionTiledLayer</span>(map, <span class="st">"Ground"</span>, ryRect)
+<span class="kw">if</span> (hy.hit) {
+  <span class="kw">if</span> (velY <span class="op">&gt;=</span> <span class="nm">0</span>) {
+    playerY  <span class="op">=</span> hy.tileRect.y <span class="op">-</span> PH      <span class="cm">// landing</span>
+    velY     <span class="op">=</span> <span class="nm">0</span>
+    onGround <span class="op">=</span> <span class="kw">true</span>
+  } <span class="kw">else</span> {
+    playerY <span class="op">=</span> hy.tileRect.y <span class="op">+</span> hy.tileRect.height   <span class="cm">// ceiling</span>
+    velY    <span class="op">=</span> <span class="nm">0</span>
+  }
+}</code></pre>
+
+<div class="callout tip">
+  <div class="callout-title">Two important details</div>
+  <ul>
+    <li><strong>Swept (separate axis) resolution.</strong> Move on one axis, check, snap. Then the other. Resolving X and Y together causes well-known "stuck in a corner" bugs.</li>
+    <li><strong>Inset rects.</strong> The X check uses <code>(playerY + 2, height - 4)</code>; the Y check uses <code>(playerX + 2, width - 4)</code>. The 2 px inset on each side prevents the rect's corner from catching on the edge of a tile when the player is flush with a surface.</li>
+  </ul>
+  <code>hit.tileRect</code> makes snapping trivial: it's the world-space rectangle of the colliding tile, so <code>tileRect.x - PW</code> is exactly where the player's left edge has to land.
+</div>
+
+<h3>7.6 Per-frame loop — draw</h3>
+<p>Lines 106–127:</p>
+<pre><code><span class="fn">updateTiledMap</span>(map, dt)                         <span class="cm">// advance animated tiles</span>
+
+<span class="fn">BeginDrawing</span>()
+  <span class="fn">ClearBackground</span>(<span class="cm">/* map.backgroundcolor → Color */</span>)
+
+  <span class="fn">BeginMode2D</span>(camera)
+    <span class="fn">drawTiledMap</span>(map, <span class="nm">0</span>, <span class="nm">0</span>, WHITE)
+    <span class="fn">DrawTextureRec</span>(map.tilesets[<span class="nm">0</span>].texture, PLAYER_SRC,
+                   <span class="kw">new</span> <span class="tp">Vector2</span>(playerX, playerY), WHITE)
+  <span class="fn">EndMode2D</span>()
+
+  <span class="fn">DrawFPS</span>(<span class="nm">8</span>, <span class="nm">8</span>)
+  <span class="fn">DrawText</span>(...)
+<span class="fn">EndDrawing</span>()</code></pre>
+
+<h3>7.7 Cleanup</h3>
+<p>Lines 130–131:</p>
+<pre><code><span class="fn">unloadTiledMap</span>(map)
+<span class="fn">CloseWindow</span>()</code></pre>
+
+<p><code>unloadTiledMap</code> calls <code>UnloadTexture</code> on every tileset's GPU texture. Forgetting this leaks GPU memory until the process exits.</p>
+</section>
+
+<!-- SPRITE REFERENCE -->
+<section id="sprite-reference">
+<h2>8. Object Sprite Reference</h2>
+
+<p>Coordinates are <code>(col, row)</code> on the 64 px grid of <code>platformTilesheet.png</code>. The Tiled map and the C++ project share these positions.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Sprite</th><th>Col</th><th>Row</th><th>Size</th><th>Notes</th></tr>
+  <tr><td>Spike</td><td>0</td><td>5</td><td>64×64</td><td>Damages player</td></tr>
+  <tr><td>Grass decoration</td><td>2</td><td>5</td><td>64×64</td><td>Cosmetic</td></tr>
+  <tr><td>Gem (blue)</td><td>7</td><td>3</td><td>64×64</td><td>Collectable</td></tr>
+  <tr><td>Gem (yellow)</td><td>8</td><td>3</td><td>64×64</td><td>Collectable</td></tr>
+  <tr><td>Gem (green)</td><td>9</td><td>3</td><td>64×64</td><td>Collectable</td></tr>
+  <tr><td>Gem (orange)</td><td>10</td><td>3</td><td>64×64</td><td>Collectable</td></tr>
+  <tr><td>Platform style A</td><td>3</td><td>3</td><td>64×64</td><td>Floating platform</td></tr>
+  <tr><td>Platform style B</td><td>3</td><td>4</td><td>64×64</td><td>Floating platform</td></tr>
+  <tr><td>Key (world)</td><td>9</td><td>4</td><td>64×64</td><td>Pick-up</td></tr>
+  <tr><td>Door (locked)</td><td>8</td><td>5</td><td>64×128</td><td>Spans rows 5–6</td></tr>
+  <tr><td>Door (open)</td><td>5</td><td>5</td><td>64×128</td><td>Spans rows 5–6</td></tr>
+  <tr><td>Checkpoint flag</td><td>12</td><td>5</td><td>64×64</td><td>Respawn marker</td></tr>
+  <tr><td>Player (tall)</td><td>7</td><td>5</td><td>64×128</td><td>Used by rayjs example as <code>PLAYER_SRC</code></td></tr>
+</table>
+</div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ────────── APPENDIX: PROCEDURAL ────────── -->
+
+<section id="appendix-theme">
+<h2 class="appendix-h">A. The Theme System</h2>
+
+<p>The companion C++ <code>platformer-raylib</code> project generates its world from a random seed each session instead of loading a <code>.tmj</code> file. It uses <strong>two integers per cell</strong> (<code>material</code>, <code>layer</code>/<code>base</code>) rather than a single GID. Otherwise it shares §3 (the <code>DrawTextureRec</code> primitive) and §4 (spritesheets, on the <code>x2</code> variant) entirely.</p>
+
+<p><code>setNewTheme()</code> randomizes three integers per level:</p>
+
+<pre><code><span class="kw">void</span> <span class="tp">Game</span><span class="op">::</span><span class="fn">setNewTheme</span>(<span class="kw">void</span>) {
+    theme.material <span class="op">=</span> <span class="fn">GetRandomValue</span>(<span class="nm">0</span>, <span class="nm">1</span>);  <span class="cm">// row 0=grass/dirt, 1=stone/ice</span>
+    theme.layer    <span class="op">=</span> <span class="fn">GetRandomValue</span>(<span class="nm">0</span>, <span class="nm">2</span>);  <span class="cm">// col 0/1/2 = surface variant</span>
+    theme.base     <span class="op">=</span> <span class="nm">3</span>;                     <span class="cm">// col 3 = underground fill (fixed)</span>
+}</code></pre>
+
+<p>Render-time formula:</p>
+
+<pre><code>srcRect.x <span class="op">=</span> tileSize <span class="op">*</span> tile.id        <span class="cm">← column: theme.layer (0/1/2) or theme.base (3)</span>
+srcRect.y <span class="op">=</span> tileSize <span class="op">*</span> theme.material  <span class="cm">← row:    0 (grass) or 1 (stone)</span>
+srcRect.w <span class="op">=</span> tileSize                   <span class="cm">← always 128</span>
+srcRect.h <span class="op">=</span> tileSize                   <span class="cm">← always 128</span></code></pre>
+
+<div class="img-block">
+  <img src="assets/tile-lookup-diagram.png" alt="Tile lookup diagram">
+  <div class="img-caption">The 2×4 region of the tilesheet actually used for terrain. Compare with §5.2: same shape (column × tileSize, row × tileSize) but inputs come from theme variables instead of a GID lookup.</div>
+</div>
+
+<section id="theme-explorer-section">
+<h3>Interactive Theme Explorer</h3>
+
+<div id="explorer">
+  <h4>Try it — change the theme and see the source rect change</h4>
+  <div class="control-row">
+    <div class="control-group">
+      <label>theme.material (row)</label>
+      <select id="sel-material">
+        <option value="0">0 — grass/dirt</option>
+        <option value="1">1 — stone/ice</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>theme.layer (surface col)</label>
+      <select id="sel-layer">
+        <option value="0">0 — style A</option>
+        <option value="1">1 — style B</option>
+        <option value="2">2 — style C</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>theme.base</label>
+      <select id="sel-base" disabled>
+        <option value="3">3 — underground (fixed)</option>
+      </select>
+    </div>
+  </div>
+  <div class="tile-preview-grid" id="tile-previews"></div>
+  <div id="rect-formula">Loading tilesheet…</div>
+</div>
+</section>
+</section>
+
+<section id="appendix-data">
+<h2 class="appendix-h">B. Data Structures</h2>
+
+<pre><code><span class="cm">// game/src/Platformer2D.h</span>
+
+<span class="kw">typedef struct</span> <span class="tp">Tile</span> {
+    <span class="kw">int</span>   id;       <span class="cm">// which column to draw (set at render time, not stored)</span>
+    <span class="kw">bool</span>  isBlock;  <span class="cm">// solid or empty (air)</span>
+    <span class="kw">float</span> x, y;     <span class="cm">// world-space pixel position</span>
+} <span class="tp">Tile</span>;
+
+<span class="kw">typedef struct</span> <span class="tp">Sprite</span> {
+    <span class="tp">Rectangle</span> frame;
+    <span class="kw">bool</span>      checkPoint, collidable, collectable, visible;
+    <span class="kw">float</span>     width, height, x, y;
+} <span class="tp">Sprite</span>;
+
+<span class="kw">typedef struct</span> <span class="tp">Theme</span> {
+    <span class="kw">int</span> material;  <span class="cm">// row    (0 or 1)</span>
+    <span class="kw">int</span> layer;     <span class="cm">// surface col (0, 1, or 2)</span>
+    <span class="kw">int</span> base;      <span class="cm">// underground col (always 3)</span>
+} <span class="tp">Theme</span>;
+
+<span class="kw">const float</span> tileSize <span class="op">=</span> <span class="nm">128.0f</span>;
+<span class="kw">const float</span> objSize  <span class="op">=</span> <span class="nm">64.0f</span>;
+<span class="kw">const int</span>   totalRow       <span class="op">=</span> <span class="nm">7</span>;
+<span class="kw">const int</span>   totalColumn    <span class="op">=</span> <span class="nm">20</span>;
+<span class="kw">const int</span>   totalObjects   <span class="op">=</span> <span class="nm">50</span>;
+<span class="kw">const int</span>   totalPlatforms <span class="op">=</span> <span class="nm">30</span>;
+
+<span class="tp">Tile</span>   tileMap[totalRow][totalColumn];
+<span class="tp">Sprite</span> objects[totalObjects];
+<span class="tp">Sprite</span> platforms[totalPlatforms];</code></pre>
+
+<div class="callout info">
+  <div class="callout-title">Object Pools</div>
+  <code>objects[]</code> and <code>platforms[]</code> are fixed-size arrays allocated once. Each new level resets <code>visible</code> and reassigns <code>x</code>, <code>y</code>, <code>frame</code> — no heap allocation during play.
+</div>
+</section>
+
+<section id="appendix-pipeline">
+<h2 class="appendix-h">C. Level Generation Pipeline</h2>
+
+<p><code>makeLevel()</code> calls five functions in order:</p>
+
+<div class="pipeline">
+  <div class="pipe-step">
+    <div class="pipe-num">1</div>
+    <div>
+      <div class="pipe-name">generateTileMap()</div>
+      <div class="pipe-desc">Fills tileMap[][] with isBlock booleans and world-space x/y coordinates.</div>
+    </div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">2</div>
+    <div>
+      <div class="pipe-name">generateObjects()</div>
+      <div class="pipe-desc">Assigns a random visual type (spike / grass / gem) and source frame to each of 50 object slots.</div>
+    </div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">3</div>
+    <div>
+      <div class="pipe-name">generatePlatforms()</div>
+      <div class="pipe-desc">Assigns a random visual style (A or B) to each of 30 platform slots.</div>
+    </div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">4</div>
+    <div>
+      <div class="pipe-name">placeObjects()</div>
+      <div class="pipe-desc">Walks tileMap, finds exposed surface tiles, assigns world positions. Also injects checkpoint / key / door at x thresholds.</div>
+    </div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">5</div>
+    <div>
+      <div class="pipe-name">placePlatforms()</div>
+      <div class="pipe-desc">Walks tileMap, finds suitable floating positions above exposed tiles, places platforms with 50% chance.</div>
+    </div>
+  </div>
+</div>
+
+<h3>C.1 generateTileMap — the logical grid</h3>
+
+<pre><code><span class="kw">int</span> groundLevel <span class="op">=</span> <span class="nm">3</span>;  <span class="cm">// rows 0-2 are always open sky</span>
+
+<span class="kw">for</span> (<span class="kw">int</span> x <span class="op">=</span> <span class="nm">0</span>; x <span class="op">&lt;</span> totalColumn; x<span class="op">++</span>) {
+    pGround <span class="op">=</span> (x <span class="op">&gt;</span> <span class="nm">3</span> <span class="op">&amp;&amp;</span> x <span class="op">!=</span> totalColumn<span class="op">-</span><span class="nm">1</span>) <span class="op">?</span> <span class="fn">GetRandomValue</span>(<span class="nm">0</span>,<span class="nm">3</span>) <span class="op">:</span> <span class="nm">1</span>;
+    pHill   <span class="op">=</span> <span class="fn">GetRandomValue</span>(<span class="nm">0</span>, <span class="nm">2</span>);
+
+    <span class="kw">for</span> (<span class="kw">int</span> y <span class="op">=</span> <span class="nm">0</span>; y <span class="op">&lt;</span> totalRow; y<span class="op">++</span>) {
+        <span class="kw">if</span> ((y <span class="op">&lt;</span> groundLevel) <span class="op">||</span> (pGround <span class="op">==</span> <span class="nm">0</span> <span class="op">&amp;&amp;</span> tileMap[y][x<span class="op">-</span><span class="nm">1</span>].isBlock))
+            tileMap[y][x].isBlock <span class="op">=</span> <span class="kw">false</span>;
+        <span class="kw">else if</span> ((y <span class="op">==</span> groundLevel) <span class="op">&amp;&amp;</span> (pHill <span class="op">==</span> <span class="nm">0</span>))
+            tileMap[y][x].isBlock <span class="op">=</span> <span class="kw">false</span>;
+        <span class="kw">else</span> {
+            tileMap[y][x].isBlock <span class="op">=</span> <span class="kw">true</span>;
+            pGround <span class="op">=</span> <span class="nm">1</span>;
+        }
+    }
+}</code></pre>
+
+<div class="img-block">
+  <img src="assets/tilemap-sample.png" alt="Sample generated tilemap">
+  <div class="img-caption">A deterministic sample (seed 42) showing the full 7×20 grid. Green id=0 = surface tiles. Red id=3 = underground fill.</div>
+</div>
+
+<h3>C.2 generateObjects · generatePlatforms · placeObjects · placePlatforms</h3>
+
+<ul>
+  <li><strong>generateObjects:</strong> 1/11 spike, 2/11 grass, 8/11 gem (one of 4 colours).</li>
+  <li><strong>generatePlatforms:</strong> two visual styles, col 3 row 3 or row 4.</li>
+  <li><strong>placeObjects:</strong> any block tile with air above qualifies. Position is on top, on a random half. Injects checkpoint (<code>x ≥ totalColumn/3</code>), key (<code>x ≥ totalColumn/2</code>), door (last column).</li>
+  <li><strong>placePlatforms:</strong> block with air above, not near edges, neither diagonal-above is a block, 50% chance.</li>
+</ul>
+</section>
+
+<section id="appendix-render">
+<h2 class="appendix-h">D. Rendering the Procedural Map</h2>
+
+<pre><code><span class="kw">void</span> <span class="tp">Game</span><span class="op">::</span><span class="fn">drawTileMap</span>(<span class="kw">void</span>) {
+    <span class="tp">Rectangle</span> srcRect <span class="op">=</span> { <span class="nm">0</span>, theme.material <span class="op">*</span> tileSize, tileSize, tileSize };
+
+    <span class="kw">for</span> (<span class="kw">int</span> y <span class="op">=</span> <span class="nm">0</span>; y <span class="op">&lt;</span> totalRow; y<span class="op">++</span>) {
+        <span class="kw">for</span> (<span class="kw">int</span> x <span class="op">=</span> <span class="nm">0</span>; x <span class="op">&lt;</span> totalColumn; x<span class="op">++</span>) {
+            <span class="kw">if</span> (<span class="op">!</span>tileMap[y][x].isBlock) <span class="kw">continue</span>;
+
+            tileMap[y][x].id <span class="op">=</span> (y <span class="op">&gt;</span> <span class="nm">0</span> <span class="op">&amp;&amp;</span> tileMap[y<span class="op">-</span><span class="nm">1</span>][x].isBlock)
+                                 <span class="op">?</span> theme.base     <span class="cm">// block above → underground</span>
+                                 <span class="op">:</span> theme.layer;   <span class="cm">// no block above → surface</span>
+            srcRect.x <span class="op">=</span> tileSize <span class="op">*</span> tileMap[y][x].id;
+
+            <span class="fn">DrawTextureRec</span>(txTiles, srcRect,
+                <span class="tp">Vector2</span>{ tileMap[y][x].x, tileMap[y][x].y }, WHITE);
+        }
+    }
+}</code></pre>
+
+<div class="callout warn">
+  <div class="callout-title">id is computed at render time, not stored</div>
+  <code>tile.id</code> is assigned fresh each frame inside <code>drawTileMap()</code>. Changing <code>theme.layer</code> or <code>theme.material</code> instantly repaints the entire world with no regeneration — flip a variable and the next draw call uses new source rectangles. This is the "live theme swap" capability that the Tiled approach gives up in exchange for hand-authored layouts.
+</div>
+
+<p>Camera: <code>camera.zoom = 0.5</code>, so a 128 px tile renders as 64 screen px. Smooth follow uses a distance-proportional speed with a minimum threshold. HUD is drawn after <code>EndMode2D()</code> so it sits in screen space.</p>
+</section>
+
+<section id="appendix-choose">
+<h2 class="appendix-h">E. When to Choose Procedural vs Tiled</h2>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Use procedural when…</th><th>Use Tiled when…</th></tr>
+  <tr><td>Levels are random per run (roguelikes)</td><td>Levels are hand-crafted, named, finite</td></tr>
+  <tr><td>You need infinite-scrolling worlds</td><td>Each level fits in a single map</td></tr>
+  <tr><td>The variation rules are simple and code-friendly</td><td>The variation is artistic, not mechanical</td></tr>
+  <tr><td>You have no designer / non-engineer collaborators</td><td>You have designers who want to author levels</td></tr>
+  <tr><td>Visual style is uniform across the world</td><td>You need rich per-tile metadata (properties, animations)</td></tr>
+</table>
+</div>
+
+<p>You can also <strong>combine them</strong>: editor-authored ground layer + procedurally-spawned decoration on top, or a fixed Tiled tileset paired with code-generated <code>data[]</code>.</p>
+</section>
+
+<section id="appendix-frameworks">
+<h2 class="appendix-h">F. Framework Equivalents for DrawTextureRec</h2>
+
+<p>The portability of this technique is the whole point — once you have these two capabilities (load a texture, blit a sub-rect), every approach in this document is the same code with different inputs.</p>
+
+<div class="compat-grid">
+  <div class="compat-card">
+    <div class="lang">SDL2 (C/C++)</div>
+    <div class="call">SDL_RenderCopy(renderer, texture, &amp;srcRect, &amp;dstRect)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">SFML (C++)</div>
+    <div class="call">sprite.setTextureRect(sf::IntRect{x,y,w,h});<br>window.draw(sprite)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">Pygame (Python)</div>
+    <div class="call">screen.blit(sheet, (dst_x, dst_y), (src_x, src_y, w, h))</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">Love2D (Lua)</div>
+    <div class="call">local q = love.graphics.newQuad(sx,sy,sw,sh, iw,ih)<br>love.graphics.draw(sheet, q, dx, dy)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">HTML5 Canvas (JS)</div>
+    <div class="call">ctx.drawImage(sheet, sx, sy, sw, sh, dx, dy, dw, dh)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">Godot (GDScript)</div>
+    <div class="call">draw_texture_rect_region(tex, dst_rect, src_rect)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">Unity (C#)</div>
+    <div class="call">Graphics.DrawTexture(dstRect, tex, srcRect, 0,0,0,0)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">MonoGame / XNA (C#)</div>
+    <div class="call">spriteBatch.Draw(tex, dstPos, srcRect, Color.White)</div>
+  </div>
+  <div class="compat-card">
+    <div class="lang">Raylib (any lang)</div>
+    <div class="call">DrawTextureRec(texture, srcRect, position, WHITE)</div>
+  </div>
+  <div class="compat-card" style="border-color: var(--accent2);">
+    <div class="lang">rayjs (this project)</div>
+    <div class="call">DrawTextureRec(texture, srcRect, position, WHITE)</div>
+  </div>
+</div>
+</section>
+
+</main>
+
+<!-- ============================================ -->
+<!-- INTERACTIVE WIDGETS -->
+<!-- ============================================ -->
+<script>
+// ─────────────────────────────────────────────
+// Widget 1: Theme explorer (procedural, Appendix A)
+// ─────────────────────────────────────────────
+(function() {
+  const TILE_SIZE = 128;
+  const sheet = new Image();
+  sheet.src = 'assets/platformTilesheetx2.png';
+
+  const PREVIEW_SIZE = 96;
+  const tiles = [
+    { label: 'Surface A', roleKey: 'layer', col: 0 },
+    { label: 'Surface B', roleKey: 'layer', col: 1 },
+    { label: 'Surface C', roleKey: 'layer', col: 2 },
+    { label: 'Underground fill', roleKey: 'base', col: 3 },
+  ];
+
+  const previewGrid = document.getElementById('tile-previews');
+  const formula    = document.getElementById('rect-formula');
+  const selMat     = document.getElementById('sel-material');
+  const selLayer   = document.getElementById('sel-layer');
+  if (!previewGrid) return;
+
+  const canvases = tiles.map((t, i) => {
+    const item = document.createElement('div');
+    item.className = 'tile-preview-item' + (i < 3 ? ' active' : '');
+    const canvas = document.createElement('canvas');
+    canvas.width  = PREVIEW_SIZE;
+    canvas.height = PREVIEW_SIZE;
+    const labelEl = document.createElement('div');
+    labelEl.className = 'tile-label';
+    labelEl.textContent = t.label;
+    const rectEl = document.createElement('div');
+    rectEl.className = 'tile-rect';
+    item.append(canvas, labelEl, rectEl);
+    previewGrid.appendChild(item);
+    return { canvas, rectEl, item, ...t };
+  });
+
+  function update() {
+    const material = parseInt(selMat.value);
+    const layer    = parseInt(selLayer.value);
+    const base     = 3;
+
+    canvases.forEach((t, i) => {
+      const col = t.col;
+      const sx  = col * TILE_SIZE;
+      const sy  = material * TILE_SIZE;
+      const ctx = t.canvas.getContext('2d');
+      ctx.clearRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
+      if (sheet.complete) {
+        ctx.drawImage(sheet, sx, sy, TILE_SIZE, TILE_SIZE, 0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
+      }
+      t.rectEl.textContent = `x=${sx}  y=${sy}  w=${TILE_SIZE}  h=${TILE_SIZE}`;
+      t.item.classList.toggle('active', i < 3 ? col === layer : true);
+    });
+
+    const surfaceId = layer;
+    formula.innerHTML =
+      `<span style="color:#f7c948">// drawTileMap — per-tile source rect calculation</span>\n` +
+      `srcRect.x = tileSize * <span style="color:#f76e6e">tile.id</span>      ` +
+        `<span style="color:#546e7a">// surface → ${surfaceId} * 128 = ${surfaceId*128}px  |  underground → ${base} * 128 = ${base*128}px</span>\n` +
+      `srcRect.y = tileSize * <span style="color:#82aaff">theme.material</span>  ` +
+        `<span style="color:#546e7a">// ${material} * 128 = ${material*128}px  (row ${material})</span>\n` +
+      `srcRect.w = tileSize                  <span style="color:#546e7a">// 128</span>\n` +
+      `srcRect.h = tileSize                  <span style="color:#546e7a">// 128</span>`;
+  }
+
+  sheet.onload = update;
+  selMat.addEventListener('change', update);
+  selLayer.addEventListener('change', update);
+})();
+
+// ─────────────────────────────────────────────
+// Widget 2: GID decoder (Tiled, §5.2)
+// ─────────────────────────────────────────────
+(function() {
+  const FIRSTGID  = 1;
+  const COLUMNS   = 12;
+  const ROWS      = 5;          // tilecount / columns = 60 / 12
+  const TILE_W    = 64;
+  const TILE_H    = 64;
+  const MARGIN    = 0;
+  const SPACING   = 0;
+  const SHEET_W   = 896;        // image width  (14 cols on file, but we use 12)
+  const SHEET_H   = 448;        // image height (7 rows on file, but we use 5)
+  const FLIP_H    = 0x80000000;
+  const FLIP_V    = 0x40000000;
+  const FLIP_D    = 0x20000000;
+  const GID_MASK  = 0x1FFFFFFF;
+
+  const $ = id => document.getElementById(id);
+  const gidInput = $('gid-input');
+  const flipH    = $('gid-flip-h');
+  const flipV    = $('gid-flip-v');
+  const flipD    = $('gid-flip-d');
+  const formula  = $('gid-formula');
+  const coord    = $('gid-coord');
+  const canvas   = $('gid-canvas');
+  const sheetCanvas = $('gid-sheet-canvas');
+  if (!gidInput) return;
+
+  const sheet = new Image();
+  sheet.src = 'assets/platformTilesheet.png';
+
+  // Set up sheet picker. Scale down for display.
+  const PICKER_SCALE = 0.75;
+  sheetCanvas.width  = SHEET_W * PICKER_SCALE;
+  sheetCanvas.height = SHEET_H * PICKER_SCALE;
+
+  function drawSheetPicker() {
+    const ctx = sheetCanvas.getContext('2d');
+    ctx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
+    if (sheet.complete) {
+      ctx.drawImage(sheet, 0, 0, sheetCanvas.width, sheetCanvas.height);
+    }
+    // Overlay highlighting the indexable 12×5 region.
+    ctx.strokeStyle = '#43d9ad';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, COLUMNS * TILE_W * PICKER_SCALE, ROWS * TILE_H * PICKER_SCALE);
+    // Dim the unreachable region.
+    ctx.fillStyle = 'rgba(15, 17, 23, 0.6)';
+    ctx.fillRect(COLUMNS * TILE_W * PICKER_SCALE, 0,
+                 sheetCanvas.width - COLUMNS * TILE_W * PICKER_SCALE, sheetCanvas.height);
+    ctx.fillRect(0, ROWS * TILE_H * PICKER_SCALE,
+                 COLUMNS * TILE_W * PICKER_SCALE,
+                 sheetCanvas.height - ROWS * TILE_H * PICKER_SCALE);
+    // Highlight currently selected tile.
+    const raw = parseInt(gidInput.value) || 0;
+    const gid = raw & GID_MASK;
+    if (gid >= FIRSTGID) {
+      const localId = gid - FIRSTGID;
+      if (localId < COLUMNS * ROWS) {
+        const col = localId % COLUMNS;
+        const row = Math.floor(localId / COLUMNS);
+        ctx.strokeStyle = '#f7c948';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(col * TILE_W * PICKER_SCALE, row * TILE_H * PICKER_SCALE,
+                       TILE_W * PICKER_SCALE, TILE_H * PICKER_SCALE);
+      }
+    }
+  }
+
+  function decode() {
+    const raw = (parseInt(gidInput.value) | 0) >>> 0;   // force uint32
+
+    // Apply flip-bit checkboxes onto the displayed raw value (don't overwrite if user typed a flipped value).
+    let display = raw;
+    if (flipH.checked) display = (display | FLIP_H) >>> 0;
+    if (flipV.checked) display = (display | FLIP_V) >>> 0;
+    if (flipD.checked) display = (display | FLIP_D) >>> 0;
+
+    const gid = (display & GID_MASK) >>> 0;
+    const hasH = (display & FLIP_H) !== 0;
+    const hasV = (display & FLIP_V) !== 0;
+    const hasD = (display & FLIP_D) !== 0;
+
+    // Sync the flip checkboxes back from the actual decoded bits (in case user typed e.g. 0xA0000001).
+    flipH.checked = hasH;
+    flipV.checked = hasV;
+    flipD.checked = hasD;
+
+    if (gid === 0) {
+      formula.innerHTML =
+        `<span class="label">raw GID:</span> <span class="val">${display}</span>\n` +
+        `<span class="label">decoded:</span> <span class="val">empty cell (GID 0 = no tile)</span>`;
+      coord.textContent = '— no tile —';
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#22273a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#7a80a0';
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('empty', canvas.width/2, canvas.height/2 + 4);
+      drawSheetPicker();
+      return;
+    }
+
+    const localId = gid - FIRSTGID;
+    const col     = localId % COLUMNS;
+    const row     = Math.floor(localId / COLUMNS);
+    const srcX    = MARGIN + col * (TILE_W + SPACING);
+    const srcY    = MARGIN + row * (TILE_H + SPACING);
+    const outOfRange = localId < 0 || localId >= COLUMNS * ROWS;
+
+    const flipDesc = (hasH || hasV || hasD)
+      ? [hasH && 'H', hasV && 'V', hasD && 'D'].filter(Boolean).join('+')
+      : 'none';
+
+    formula.innerHTML =
+      `<span class="label">raw GID:</span>      <span class="val">${display}</span>  ` +
+        `<span class="label">(hex 0x${display.toString(16).toUpperCase().padStart(8,'0')})</span>\n` +
+      `<span class="label">flip bits:</span>    <span class="flip">${flipDesc}</span>\n` +
+      `<span class="label">gid =</span> raw &amp; 0x1FFFFFFF = <span class="val">${gid}</span>\n` +
+      `<span class="label">localId =</span> gid - firstgid = ${gid} - ${FIRSTGID} = <span class="val">${localId}</span>\n` +
+      `<span class="label">col =</span> ${localId} % ${COLUMNS} = <span class="val">${col}</span>\n` +
+      `<span class="label">row =</span> floor(${localId} / ${COLUMNS}) = <span class="val">${row}</span>\n` +
+      `<span class="label">srcX =</span> ${MARGIN} + ${col} * (${TILE_W} + ${SPACING}) = <span class="val">${srcX}</span>\n` +
+      `<span class="label">srcY =</span> ${MARGIN} + ${row} * (${TILE_H} + ${SPACING}) = <span class="val">${srcY}</span>` +
+      (outOfRange
+        ? `\n\n<span class="flip">⚠ localId ${localId} is outside the tileset's ${COLUMNS}×${ROWS}=${COLUMNS*ROWS} indexable range.</span>`
+        : '');
+
+    coord.textContent = `(col ${col}, row ${row})  →  srcX=${srcX}, srcY=${srcY}`;
+
+    // Draw the tile to the preview canvas (and apply flip via transform).
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = false;
+    if (!outOfRange && sheet.complete) {
+      // Center transform on canvas
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      // Flip-D = transpose (90° rotate + horizontal flip)
+      if (hasD) {
+        ctx.rotate(Math.PI / 2);
+        ctx.scale(1, -1);
+      }
+      if (hasH) ctx.scale(-1, 1);
+      if (hasV) ctx.scale(1, -1);
+      ctx.drawImage(sheet,
+        srcX, srcY, TILE_W, TILE_H,
+        -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+    } else {
+      ctx.fillStyle = '#22273a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f76e6e';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('out of range', canvas.width/2, canvas.height/2 + 4);
+    }
+    ctx.restore();
+
+    drawSheetPicker();
+  }
+
+  // Wire up events
+  gidInput.addEventListener('input', decode);
+  [flipH, flipV, flipD].forEach(el => el.addEventListener('change', decode));
+
+  // Preset buttons
+  document.querySelectorAll('.gid-presets button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const raw = parseInt(btn.dataset.gid) >>> 0;
+      gidInput.value = raw;
+      flipH.checked = (raw & FLIP_H) !== 0;
+      flipV.checked = (raw & FLIP_V) !== 0;
+      flipD.checked = (raw & FLIP_D) !== 0;
+      // Strip flip bits from input field for clarity
+      gidInput.value = raw & GID_MASK;
+      decode();
+    });
+  });
+
+  // Click-on-sheet to pick a GID
+  sheetCanvas.addEventListener('click', (e) => {
+    const rect = sheetCanvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / PICKER_SCALE;
+    const y = (e.clientY - rect.top)  / PICKER_SCALE;
+    const col = Math.floor(x / TILE_W);
+    const row = Math.floor(y / TILE_H);
+    if (col < 0 || col >= COLUMNS || row < 0 || row >= ROWS) return;
+    const localId = row * COLUMNS + col;
+    const gid = localId + FIRSTGID;
+    gidInput.value = gid;
+    decode();
+  });
+
+  sheet.onload = decode;
+  decode();
+})();
+
+// ─────────────────────────────────────────────
+// Sidebar active-section highlighting (shared)
+// ─────────────────────────────────────────────
+(function() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('.sidebar nav a');
+  const observer  = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+})();
+</script>
+</body>
+</html>
