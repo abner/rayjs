@@ -14221,6 +14221,68 @@
 		JS_SetClassProto(ctx,js_b2ContactData_class_id,proto);
 		return 0;
 	}
+	static trampolineContext * b2FrictionCallback_arr=NULL;
+	
+	static float callback_b2FrictionCallback(float frictionA,int userMaterialIdA,float frictionB,int userMaterialIdB){
+		JSValue func1;
+		bool error=(bool)0;
+		trampolineContext tctx=*b2FrictionCallback_arr;
+		JSContext * ctx=tctx.ctx;
+		JSValue js0=JS_NewFloat64(ctx,((double)frictionA));
+		JSValue js1=JS_NewInt32(ctx,(int32_t)((long)userMaterialIdA));
+		JSValue js2=JS_NewFloat64(ctx,((double)frictionB));
+		JSValue js3=JS_NewInt32(ctx,(int32_t)((long)userMaterialIdB));
+		JSValue argv[4]={
+			js0,
+			js1,
+			js2,
+			js3
+		};
+		JS_DupContext(ctx);
+		JS_DupValue(ctx,(JSValueConst)tctx.func_obj);
+		JSValue js_ret=JS_Call(ctx,(JSValueConst)tctx.func_obj,(JSValueConst)JS_UNDEFINED,(int)4,(JSValueConst  *)argv);
+		JS_FreeValue(ctx,tctx.func_obj);
+		JS_FreeContext(ctx);
+		JS_FreeValue(ctx,argv[0]);
+		JS_FreeValue(ctx,argv[1]);
+		JS_FreeValue(ctx,argv[2]);
+		JS_FreeValue(ctx,argv[3]);
+		float resp=js_getfloat(ctx,js_ret,&error);
+		if(error==1)return 0.0f;
+		JS_FreeValue(ctx,js_ret);
+		return resp;
+	}
+	static trampolineContext * b2RestitutionCallback_arr=NULL;
+	
+	static float callback_b2RestitutionCallback(float restitutionA,int userMaterialIdA,float restitutionB,int userMaterialIdB){
+		JSValue func1;
+		bool error=(bool)0;
+		trampolineContext tctx=*b2RestitutionCallback_arr;
+		JSContext * ctx=tctx.ctx;
+		JSValue js0=JS_NewFloat64(ctx,((double)restitutionA));
+		JSValue js1=JS_NewInt32(ctx,(int32_t)((long)userMaterialIdA));
+		JSValue js2=JS_NewFloat64(ctx,((double)restitutionB));
+		JSValue js3=JS_NewInt32(ctx,(int32_t)((long)userMaterialIdB));
+		JSValue argv[4]={
+			js0,
+			js1,
+			js2,
+			js3
+		};
+		JS_DupContext(ctx);
+		JS_DupValue(ctx,(JSValueConst)tctx.func_obj);
+		JSValue js_ret=JS_Call(ctx,(JSValueConst)tctx.func_obj,(JSValueConst)JS_UNDEFINED,(int)4,(JSValueConst  *)argv);
+		JS_FreeValue(ctx,tctx.func_obj);
+		JS_FreeContext(ctx);
+		JS_FreeValue(ctx,argv[0]);
+		JS_FreeValue(ctx,argv[1]);
+		JS_FreeValue(ctx,argv[2]);
+		JS_FreeValue(ctx,argv[3]);
+		float resp=js_getfloat(ctx,js_ret,&error);
+		if(error==1)return 0.0f;
+		JS_FreeValue(ctx,js_ret);
+		return resp;
+	}
 	
 	static JSValue js_b2Version_constructor(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		if(argc==0){
@@ -19400,6 +19462,22 @@
 		return ret;
 	}
 	
+	static JSValue js_b2World_CastMover(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		b2WorldId worldId=js_getb2WorldId(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		b2Capsule * mover=js_getb2Capsule_arr(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		b2Vec2 translation=js_getb2Vec2(ctx,argv[2],&error);
+		if(error==1)return JS_EXCEPTION;
+		b2QueryFilter filter=js_getb2QueryFilter(ctx,argv[3],&error);
+		if(error==1)return JS_EXCEPTION;
+		float returnVal=b2World_CastMover(worldId,(const b2Capsule  *)mover,translation,filter);
+		JSValue ret=JS_NewFloat64(ctx,((double)returnVal));
+		memoryClear(ctx);
+		return ret;
+	}
+	
 	static JSValue js_b2World_EnableSleeping(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
 		b2WorldId worldId=js_getb2WorldId(ctx,argv[0],&error);
@@ -19595,6 +19673,68 @@
 		JSValue ret=JS_NewObjectClass(ctx,js_b2Counters_class_id);
 		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
+	}
+	
+	static JSValue js_b2World_SetFrictionCallback(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		b2WorldId worldId=js_getb2WorldId(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		void * callback;
+		trampolineContext ctx_callback;
+		ctx_callback.ctx=ctx;
+		ctx_callback.func_obj=argv[1];
+		if(JS_IsUndefined(argv[1])||JS_IsNull(argv[1])){
+			JS_FreeValue(b2FrictionCallback_arr[0].ctx,b2FrictionCallback_arr[0].func_obj);
+			JS_FreeContext(b2FrictionCallback_arr[0].ctx);
+			b2FrictionCallback_arr =NULL;
+		}else if(JS_IsFunction(ctx,(JSValueConst)argv[1])==1){
+			if(b2FrictionCallback_arr!=NULL){
+				JS_FreeValue(b2FrictionCallback_arr[0].ctx,b2FrictionCallback_arr[0].func_obj);
+				JS_FreeContext(b2FrictionCallback_arr[0].ctx);
+			}
+			b2FrictionCallback_arr =&ctx_callback;
+		}else{
+			return JS_EXCEPTION;
+		}
+		if(b2FrictionCallback_arr==NULL){
+			callback =NULL;
+		}else{
+			callback =callback_b2FrictionCallback;
+		}
+		JS_DupValue(ctx,(JSValueConst)argv[1]);
+		b2World_SetFrictionCallback(worldId,callback);
+		return JS_UNDEFINED;
+	}
+	
+	static JSValue js_b2World_SetRestitutionCallback(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		b2WorldId worldId=js_getb2WorldId(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		void * callback;
+		trampolineContext ctx_callback;
+		ctx_callback.ctx=ctx;
+		ctx_callback.func_obj=argv[1];
+		if(JS_IsUndefined(argv[1])||JS_IsNull(argv[1])){
+			JS_FreeValue(b2RestitutionCallback_arr[0].ctx,b2RestitutionCallback_arr[0].func_obj);
+			JS_FreeContext(b2RestitutionCallback_arr[0].ctx);
+			b2RestitutionCallback_arr =NULL;
+		}else if(JS_IsFunction(ctx,(JSValueConst)argv[1])==1){
+			if(b2RestitutionCallback_arr!=NULL){
+				JS_FreeValue(b2RestitutionCallback_arr[0].ctx,b2RestitutionCallback_arr[0].func_obj);
+				JS_FreeContext(b2RestitutionCallback_arr[0].ctx);
+			}
+			b2RestitutionCallback_arr =&ctx_callback;
+		}else{
+			return JS_EXCEPTION;
+		}
+		if(b2RestitutionCallback_arr==NULL){
+			callback =NULL;
+		}else{
+			callback =callback_b2RestitutionCallback;
+		}
+		JS_DupValue(ctx,(JSValueConst)argv[1]);
+		b2World_SetRestitutionCallback(worldId,callback);
+		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_b2World_DumpMemoryStats(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
@@ -22581,6 +22721,7 @@
 		JS_CFUNC_DEF("b2World_GetSensorEvents",1,js_b2World_GetSensorEvents),
 		JS_CFUNC_DEF("b2World_GetContactEvents",1,js_b2World_GetContactEvents),
 		JS_CFUNC_DEF("b2World_CastRayClosest",4,js_b2World_CastRayClosest),
+		JS_CFUNC_DEF("b2World_CastMover",4,js_b2World_CastMover),
 		JS_CFUNC_DEF("b2World_EnableSleeping",2,js_b2World_EnableSleeping),
 		JS_CFUNC_DEF("b2World_IsSleepingEnabled",1,js_b2World_IsSleepingEnabled),
 		JS_CFUNC_DEF("b2World_EnableContinuous",2,js_b2World_EnableContinuous),
@@ -22600,6 +22741,8 @@
 		JS_CFUNC_DEF("b2World_GetAwakeBodyCount",1,js_b2World_GetAwakeBodyCount),
 		JS_CFUNC_DEF("b2World_GetProfile",1,js_b2World_GetProfile),
 		JS_CFUNC_DEF("b2World_GetCounters",1,js_b2World_GetCounters),
+		JS_CFUNC_DEF("b2World_SetFrictionCallback",2,js_b2World_SetFrictionCallback),
+		JS_CFUNC_DEF("b2World_SetRestitutionCallback",2,js_b2World_SetRestitutionCallback),
 		JS_CFUNC_DEF("b2World_DumpMemoryStats",1,js_b2World_DumpMemoryStats),
 		JS_CFUNC_DEF("b2World_RebuildStaticTree",1,js_b2World_RebuildStaticTree),
 		JS_CFUNC_DEF("b2World_EnableSpeculative",2,js_b2World_EnableSpeculative),

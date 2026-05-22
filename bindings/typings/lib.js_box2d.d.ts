@@ -800,6 +800,10 @@ var b2ContactData: {
 prototype: b2ContactData
 new(shapeIdA?: b2ShapeId, shapeIdB?: b2ShapeId, manifold?: b2Manifold): b2ContactData
 }
+/** / @ingroup world */
+type b2FrictionCallback = (arg_frictionA:number,arg_userMaterialIdA:number,arg_frictionB:number,arg_userMaterialIdB:number)=>number;
+/** / @ingroup world */
+type b2RestitutionCallback = (arg_restitutionA:number,arg_userMaterialIdA:number,arg_restitutionB:number,arg_userMaterialIdB:number)=>number;
 /** / @return the total bytes allocated by Box2D */
 function b2GetByteCount(): number/** / Get the current version of Box2D */
 function b2GetVersion(): b2Version/** / Get the absolute number of system ticks. The value is platform specific. */
@@ -972,7 +976,8 @@ function b2World_Step(worldId: b2WorldId, timeStep: number, subStepCount: number
 function b2World_GetBodyEvents(worldId: b2WorldId): b2BodyEvents/** / Get sensor events for the current time step. The event data is transient. Do not store a reference to this data. */
 function b2World_GetSensorEvents(worldId: b2WorldId): b2SensorEvents/** / Get contact events for this current time step. The event data is transient. Do not store a reference to this data. */
 function b2World_GetContactEvents(worldId: b2WorldId): b2ContactEvents/** / This is less general than b2World_CastRay() and does not allow for custom filtering. */
-function b2World_CastRayClosest(worldId: b2WorldId, origin: b2Vec2, translation: b2Vec2, filter: b2QueryFilter): b2RayResult/** / @see b2WorldDef */
+function b2World_CastRayClosest(worldId: b2WorldId, origin: b2Vec2, translation: b2Vec2, filter: b2QueryFilter): b2RayResult/** / clipping. */
+function b2World_CastMover(worldId: b2WorldId, mover: b2Capsule[], translation: b2Vec2, filter: b2QueryFilter): number/** / @see b2WorldDef */
 function b2World_EnableSleeping(worldId: b2WorldId, flag: boolean): void/** / Is body sleeping enabled? */
 function b2World_IsSleepingEnabled(worldId: b2WorldId): boolean/** / @see b2WorldDef */
 function b2World_EnableContinuous(worldId: b2WorldId, flag: boolean): void/** / Is continuous collision enabled? */
@@ -991,7 +996,9 @@ function b2World_EnableWarmStarting(worldId: b2WorldId, flag: boolean): void/** 
 function b2World_IsWarmStartingEnabled(worldId: b2WorldId): boolean/** / Get the number of awake bodies. */
 function b2World_GetAwakeBodyCount(worldId: b2WorldId): number/** / Get the current world performance profile */
 function b2World_GetProfile(worldId: b2WorldId): b2Profile/** / Get world counters and sizes */
-function b2World_GetCounters(worldId: b2WorldId): b2Counters/** / Dump memory stats to box2d_memory.txt */
+function b2World_GetCounters(worldId: b2WorldId): b2Counters/** / Set the friction callback. Passing NULL resets to default. */
+function b2World_SetFrictionCallback(worldId: b2WorldId, callback: b2FrictionCallback): void/** / Set the restitution callback. Passing NULL resets to default. */
+function b2World_SetRestitutionCallback(worldId: b2WorldId, callback: b2RestitutionCallback): void/** / Dump memory stats to box2d_memory.txt */
 function b2World_DumpMemoryStats(worldId: b2WorldId): void/** / This is for internal testing */
 function b2World_RebuildStaticTree(worldId: b2WorldId): void/** / This is for internal testing */
 function b2World_EnableSpeculative(worldId: b2WorldId, flag: boolean): void/** / @warning This function is locked during callbacks. */

@@ -256,23 +256,32 @@ These should remain ignored.
 
 ## Priority order and effort estimate
 
-| Priority | Item | Strategy | Effort | Value |
-|---|---|---|---|---|
-| 1 | Simple callbacks (Friction/Restitution) | Register in `module.callbacks` | 1h | medium |
-| 2 | b2World_CastMover (no callback) | Remove `ignore()`, test | 0.5h | medium |
-| 3 | Per-call query/cast (OverlapAABB, CastRay, etc.) | Hand-written C helpers in `src/box2d_helpers.h` | 4h | HIGH |
-| 4 | Persistent callbacks (CustomFilter, PreSolve) | Hand-written C helpers | 2h | high |
-| 5 | userData (Set/Get × 4 entity types) | JS extension module `lib/box2d_userdata.js` | 1h | medium |
-| 6 | Contact data output arrays | Hand-written C wrapper | 2h | medium |
-| 7 | b2DebugDraw | Hand-written bridge struct | 6h | low (debug only) |
+| Priority | Item | Strategy | Status | Effort | Value |
+|---|---|---|---|---|---|
+| 1 | Simple callbacks (Friction/Restitution) | Register in `module.callbacks` | ✅ Done | 1h | medium |
+| 2 | b2World_CastMover (no callback) | Remove `ignore()`, test | ✅ Done | 0.5h | medium |
+| 3 | Per-call query/cast (OverlapAABB, CastRay, etc.) | Hand-written C helpers in `src/box2d_helpers.h` | Pending | 4h | HIGH |
+| 4 | Persistent callbacks (CustomFilter, PreSolve) | Hand-written C helpers | Pending | 2h | high |
+| 5 | userData (Set/Get × 4 entity types) | JS extension module `lib/box2d_userdata.js` | Pending | 1h | medium |
+| 6 | Contact data output arrays | Hand-written C wrapper | Pending | 2h | medium |
+| 7 | b2DebugDraw | Hand-written bridge struct | Pending | 6h | low (debug only) |
 
 ---
 
-## Step-by-step: Category A (simple callbacks) — full walkthrough
+## Step-by-step: Category A (simple callbacks) — ✅ complete
 
-This is the easiest unblock and demonstrates the generator path.
+Implemented. Notes on what was actually needed vs. the original plan:
 
-**File: `bindings/src/index.js`** — add after existing `modules['raylib'].callbacks.push(...)` lines:
+**Additional generator fix required** (not anticipated in the plan):
+
+The `addCallback` loop in `index.js` and the mode detection in `raylib-header.js:addApiFunction`
+both used `simpleregex` at `pos=0` to find `set`/`attach`/`detach` in function names. This
+works for raylib (functions start with `Set`/`Attach`/`Detach`) but silently fails for box2d
+(`b2World_SetFrictionCallback` has an `b2World_` prefix). Both sites were changed to
+`String.includes()`, which scans the full name. This fix is general — it benefits any future
+module with prefixed naming.
+
+**`bindings/src/index.js`** — callback registration block added before the ignore section:
 
 ```js
 // Register b2FrictionCallback and b2RestitutionCallback as bindable callback types

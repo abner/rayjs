@@ -1097,6 +1097,34 @@ function main() {
     modules['raylib'].ignore('bool');
 
     // Box2D customizations
+    // Register friction/restitution callback types — defined as plain function typedefs
+    // (not *ptr form), so source_parser doesn't pick them up automatically.
+    modules['box2d'].callbacks.push({
+        name: 'b2FrictionCallback',
+        returnType: 'float',
+        args: [
+            {name:'frictionA', type:'float'},
+            {name:'userMaterialIdA', type:'int'},
+            {name:'frictionB', type:'float'},
+            {name:'userMaterialIdB', type:'int'},
+        ],
+        binding: {},
+    });
+    modules['box2d'].callbacks.push({
+        name: 'b2RestitutionCallback',
+        returnType: 'float',
+        args: [
+            {name:'restitutionA', type:'float'},
+            {name:'userMaterialIdA', type:'int'},
+            {name:'restitutionB', type:'float'},
+            {name:'userMaterialIdB', type:'int'},
+        ],
+        binding: {},
+    });
+    // Reassign arg types so the generator's Set-function detection matches the callback names
+    modules['box2d'].getFunction('b2World_SetFrictionCallback').args[1].type = 'b2FrictionCallback';
+    modules['box2d'].getFunction('b2World_SetRestitutionCallback').args[1].type = 'b2RestitutionCallback';
+
     // Ignore low-level alloc/assert hooks (not useful from JS)
     modules['box2d'].ignore("b2SetAllocator");
     modules['box2d'].ignore("b2SetAssertFcn");
@@ -1180,7 +1208,6 @@ function main() {
     modules['box2d'].ignore("b2World_OverlapShape");
     modules['box2d'].ignore("b2World_CastRay");
     modules['box2d'].ignore("b2World_CastShape");
-    modules['box2d'].ignore("b2World_CastMover");
     modules['box2d'].ignore("b2World_CollideShape");
     modules['box2d'].ignore("b2World_SetCustomFilterCallback");
     modules['box2d'].ignore("b2World_SetPreSolveCallback");
@@ -1205,9 +1232,6 @@ function main() {
     modules['box2d'].ignore("b2Joint_GetUserData");
     // b2World_CollideMover uses callback
     modules['box2d'].ignore("b2World_CollideMover");
-    // Friction/restitution callbacks are C function pointers — not callable from JS
-    modules['box2d'].ignore("b2World_SetFrictionCallback");
-    modules['box2d'].ignore("b2World_SetRestitutionCallback");
 
     for(let key in modules){
         const module=modules[key];
@@ -1271,9 +1295,10 @@ function main() {
             let param=fn.args.find(param=>callbacks.includes(param.type));
             if(param!==undefined){
                 let callback=module.callbacks.find(a=>a.name==param.type);
-                let capture=[];
-                const attachmode=simpleregex(fn.name.toLowerCase(),['os','set','os','attach'],0,capture);
-                capture=capture.join('');
+                const nameL=fn.name.toLowerCase();
+                let capture='';
+                if(nameL.includes('attach'))capture='attach';
+                else if(nameL.includes('set'))capture='set';
                 if(capture=='')return;
                 module.gen.addCallback("callback_"+callback.name,param.type,callback,capture=='attach',callback.binding.threaded==true);
             }

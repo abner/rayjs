@@ -416,9 +416,11 @@ export class RayJsHeader {
                     }
                     if(typeProperties!=undefined&&typeProperties.subtype=='function'){
                         fun.declare('void *',param.name);
-                        let capture=[];
-                        simpleregex(api.name.toLowerCase(),['os','detach','os','attach','os','set'],0,capture);
-                        let mode=capture.find(a=>a!='');//mode==[set|attach|detach]
+                        const nameL=api.name.toLowerCase();
+                        let mode;
+                        if(nameL.includes('detach'))mode='detach';
+                        else if(nameL.includes('attach'))mode='attach';
+                        else if(nameL.includes('set'))mode='set';
                         jsToCallback(fun,typeProperties,param.name,"argv[" + i + "]",mode,param.binding);
                     }else{
                         if(param.binding.typeCast!=undefined){

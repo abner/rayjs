@@ -85,10 +85,23 @@ These were discovered while integrating Box2D and are now fixed in `bindings/src
 
 ## What's still ignored (API coverage gaps)
 
-27 functions and 2 structs are currently ignored. See
+18 functions and 2 structs are currently ignored (down from 27 at initial integration). See
 [`docs/box2d_api_coverage_plan.md`](box2d_api_coverage_plan.md) for the full classification
-and implementation plan. Priority items:
+and implementation plan.
 
-- Simple callbacks with no `void*` context (`b2FrictionCallback`, `b2RestitutionCallback`) — ~1h
+### Unblocked since initial integration
+
+| Function | How |
+|---|---|
+| `b2World_SetFrictionCallback` | Registered `b2FrictionCallback` as a callback type; fixed generator `includes()`-based set/attach detection |
+| `b2World_SetRestitutionCallback` | Same fix |
+| `b2World_CastMover` | Removed erroneous `ignore()` — no callbacks involved, just a `const b2Capsule*` pointer arg |
+
+The generator fix (`String.includes()` replacing positional `simpleregex` in `index.js` and
+`raylib-header.js`) is general — it unblocks any future module with prefixed function names.
+
+### Remaining priority items
+
 - Per-call query/cast callbacks (`b2World_OverlapAABB`, `b2World_CastRay`, etc.) — ~4h, highest gameplay value
 - Persistent world callbacks (`b2World_SetCustomFilterCallback`, `b2World_SetPreSolveCallback`) — ~2h
+- userData (Set/Get × 4 entity types) — ~1h, pure JS extension module
