@@ -152,6 +152,35 @@ CloseWindow()
 
 To check which functions are ignored see the `box2d` customization block in `bindings/src/index.js`.
 
+### UserData helper (`rayjs:ext:box2d_userdata`)
+
+Box2D's native `userData` slot is a raw C `void*` pointer and is unsafe to expose directly to JS. The bundled extension module `rayjs:ext:box2d_userdata` provides a safe JS-side replacement that attaches arbitrary JS values to bodies / shapes by id:
+
+| Function | Description |
+|---|---|
+| `b2Body_SetUserData(bodyId, value)` | Attach any JS value to a body |
+| `b2Body_GetUserData(bodyId)` | Read it back (returns `undefined` if unset) |
+| `b2Body_DeleteUserData(bodyId)` | Remove the entry (call when destroying a body) |
+| `b2Shape_SetUserData` / `b2Shape_GetUserData` / `b2Shape_DeleteUserData` | Same, for shapes |
+| `b2ClearAllUserData()` | Drop the entire JS-side table — call after `b2DestroyWorld` to avoid leaks across resets |
+
+Used by most of the examples below to tag bodies/shapes (team, colour, sensor type, top-edge y, …) that callbacks then read back.
+
+### Examples
+
+All examples live in `examples/box2d/` and run with `./rayjs examples/box2d/<file>.js`. Each one is intentionally focused on a single Box2D feature so the relevant API surface is easy to lift into your own project.
+
+| Example | What it demonstrates | Key Box2D APIs |
+|---|---|---|
+| **`hello_physics.js`** | Minimal "one ball, one ground" sanity demo. World setup, dynamic vs static body, restitution on the surface material, the fixed-timestep loop. | `b2CreateWorld`, `b2CreateBody`, `b2CreateCircleShape`, `b2CreatePolygonShape`, `b2MakeBox`, `b2DefaultShapeDef.material.restitution`, `b2World_Step`, `b2Body_GetPosition` |
+| **`box2d_mouse_picking.js`** | Click-and-drag picking: cursor → world coords → tiny AABB overlap query to find the body under the mouse, then teleport it. Each body carries a colour tag via userData. | `b2World_OverlapAABB` (per-call query callback), `b2AABB`, `b2DefaultQueryFilter`, `b2Body_SetTransform`, `b2Shape_GetBody`, `rayjs:ext:box2d_userdata` |
+| **`box2d_raycast_vision.js`** | Top-down stealth scene: a guard sweeps a 6 m vision ray ±60°. Walls occlude line-of-sight; when the ray's first hit is the player, an alert overlay fires. Demonstrates closest-hit semantics via cast-callback return values (`-1` skip, `0` stop, `fraction` clip, `1` continue). | `b2World_CastRay` (per-call query callback with fraction return), `b2DefaultQueryFilter`, `b2Shape_GetBody`, `rayjs:ext:box2d_userdata` |
+| **`box2d_one_way_platforms.js`** | Three stacked horizontal platforms that the player jumps *through* from below and lands on from above. Implemented in a pre-solve callback that returns `false` to cancel contacts when the player approaches a platform from underneath. | `b2World_SetPreSolveCallback` (persistent world callback), `shapeDef.enablePreSolveEvents`, `rayjs:ext:box2d_userdata` (stores each platform's top-edge y for the callback) |
+| **`box2d_team_bullets.js`** | RED vs BLUE clusters. Press SPACE to fire bullets; a custom filter rejects same-team collisions so bullets pass through teammates. Box2D evaluates the filter once per pair and caches the result. | `b2World_SetCustomFilterCallback` (persistent world callback), `b2DestroyBody`, `b2Shape_GetBody`, `rayjs:ext:box2d_userdata` (team tag per body) |
+| **`box2d_material_friction.js`** | Tilted ramp with ICE / WOOD / RUBBER segments (different `userMaterialId` per surface material). Three balls roll down at once and clearly slide, brake, or bounce based on a JS-side material-pair table looked up inside the friction & restitution callbacks. | `b2World_SetFrictionCallback`, `b2World_SetRestitutionCallback` (persistent world callbacks), `b2DefaultSurfaceMaterial`, `b2MakeOffsetBox`, `b2Rot` |
+| **`box2d_character_mover.js`** | Kinematic capsule character controller — the player is *not* a Box2D body. Each frame: cast the capsule along the desired translation to find the safe fraction, then walk the contact planes and project remaining velocity onto each one for clean wall/slope sliding. The Box2D v3 recommended pattern, free of the "snag on slope" / "fall through corner" failure modes of dynamic-body characters. | `b2World_CastMover`, `b2World_CollideMover`, `b2Capsule`, `b2DefaultQueryFilter` |
+| **`platformer_scarfy.js`** | Full small platformer: static collision world built from a Tiled tile layer, a fixed-rotation dynamic body driven by velocity overwrite (not forces), grounded-check via a short downward ray, and coin pickup via per-step sensor events. Also shows dynamic crates rendered using each body's `b2Rot`. Companion to `examples/tiled/tiled_map.js` (same map, manual AABB physics). | `b2World_CastRay`, `b2World_GetSensorEvents`, `b2StoreShapeId`, `b2Body_GetRotation`, `b2Body_GetLinearVelocity`, `b2Body_SetLinearVelocity`, fixed-rotation body |
+
 ## Built-in Extension Modules (`rayjs:ext:*`)
 
 Rayjs embeds a set of JavaScript modules directly into the binary. They are available via the `rayjs:ext:<name>` import specifier — no relative path, no external files needed at runtime.
