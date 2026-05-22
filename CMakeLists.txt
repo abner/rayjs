@@ -104,9 +104,38 @@ else()
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib EXCLUDE_FROM_ALL)
 
+message("=== Generate embedded lib/*.js modules ===")
+set(JS_EXT_MODULES_H "${CMAKE_CURRENT_SOURCE_DIR}/src/js_ext_modules.h")
+set(JS_EXT_TYPINGS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings/typings")
+file(GLOB LIB_JS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.js")
+file(GLOB LIB_DTS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.d.ts")
+
+# Generate at configure time so the header and typings exist before compilation.
+execute_process(
+    COMMAND ${CMAKE_COMMAND}
+        -DLIB_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lib"
+        -DOUTPUT_FILE="${JS_EXT_MODULES_H}"
+        -DTYPINGS_DIR="${JS_EXT_TYPINGS_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake"
+)
+
 message("=== Bind files together ===")
 file(GLOB files src/*.c)
 add_executable(${CMAKE_PROJECT_NAME} ${files})
+
+# Re-generate when any lib/*.js or lib/*.d.ts file changes.
+add_custom_command(
+    OUTPUT ${JS_EXT_MODULES_H}
+    COMMAND ${CMAKE_COMMAND}
+        -DLIB_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lib"
+        -DOUTPUT_FILE="${JS_EXT_MODULES_H}"
+        -DTYPINGS_DIR="${JS_EXT_TYPINGS_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake"
+    DEPENDS ${LIB_JS_FILES} ${LIB_DTS_FILES}
+    COMMENT "Re-embedding lib/*.js into src/js_ext_modules.h and updating typings"
+)
+add_custom_target(gen_ext_modules DEPENDS ${JS_EXT_MODULES_H})
+add_dependencies(${CMAKE_PROJECT_NAME} gen_ext_modules)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raygui/src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/shaders)

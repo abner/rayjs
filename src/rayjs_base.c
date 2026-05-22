@@ -1,4 +1,33 @@
 #include "rayjs_base.h"
+#include "js_ext_modules.h"
+
+static JSModuleDef *js_ext_module_loader(JSContext *ctx, const char *module_name) {
+    const char *name = module_name + 10; /* skip "rayjs:ext:" */
+    for (const JsExtEntry *e = js_ext_table; e->name; e++) {
+        if (strcmp(e->name, name) == 0) {
+            JSValue val = JS_Eval(ctx, (const char *)e->src, e->size,
+                                  module_name,
+                                  JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
+            if (JS_IsException(val)) return NULL;
+            if (js_module_set_import_meta(ctx, val, false, false) < 0) {
+                JS_FreeValue(ctx, val);
+                return NULL;
+            }
+            JSModuleDef *m = JS_VALUE_GET_PTR(val);
+            JS_FreeValue(ctx, val);
+            return m;
+        }
+    }
+    JS_ThrowReferenceError(ctx, "rayjs:ext module not found: %s", name);
+    return NULL;
+}
+
+static JSModuleDef *rayjs_module_loader(JSContext *ctx, const char *module_name,
+                                         void *opaque, JSValueConst attributes) {
+    if (strncmp(module_name, "rayjs:ext:", 10) == 0)
+        return js_ext_module_loader(ctx, module_name);
+    return js_module_loader(ctx, module_name, opaque, attributes);
+}
 
 static JSValue js_gc(JSContext *ctx, JSValue this_val,int argc, JSValue *argv){
     JS_RunGC(JS_GetRuntime(ctx));

@@ -109,6 +109,7 @@ static int app_update_quickjs(JSContext *ctx);
 
 /* also used to initialize the worker context */
 static JSContext *JS_NewCustomContext(JSRuntime *rt);
+static JSModuleDef *rayjs_module_loader(JSContext *ctx, const char *module_name, void *opaque, JSValueConst attributes);
 static JSValue copyFunction(JSContext *from_ctx, JSContext *to_ctx, JSValue fn);
 static void memoryStore(void * clearfunc, void * memoryptr);
 static void memoryClear(JSContext * ctx);

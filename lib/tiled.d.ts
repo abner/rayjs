@@ -1,0 +1,156 @@
+import type { Color, Texture2D, Rectangle } from "rayjs:raylib"
+
+// ---------------------------------------------------------------------------
+// Tiled JSON data types (mirrors the .tmj / .json file structure)
+// ---------------------------------------------------------------------------
+
+export interface TiledProperty {
+  name: string
+  type: "string" | "int" | "float" | "bool" | "color" | "file" | "object"
+  value: string | number | boolean
+}
+
+export interface TiledFrame {
+  tileid: number
+  /** Frame duration in milliseconds. */
+  duration: number
+}
+
+export interface TiledObject {
+  id: number
+  name: string
+  /** Custom type string set in Tiled. */
+  type: string
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
+  visible: boolean
+  /** Present on tile objects. */
+  gid?: number
+  ellipse?: boolean
+  point?: boolean
+  polygon?: { x: number; y: number }[]
+  polyline?: { x: number; y: number }[]
+  properties?: TiledProperty[]
+}
+
+export interface TiledLayer {
+  id: number
+  name: string
+  type: "tilelayer" | "objectgroup" | "imagelayer" | "group"
+  visible: boolean
+  opacity: number
+  offsetx?: number
+  offsety?: number
+  properties?: TiledProperty[]
+  /** tilelayer: flat array of GIDs (0 = empty). */
+  data?: number[]
+  width?: number
+  height?: number
+  /** objectgroup: list of objects. */
+  objects?: TiledObject[]
+  /** group: child layers. */
+  layers?: TiledLayer[]
+}
+
+/** Internal tileset with loaded GPU texture. Not meant to be mutated. */
+export interface TiledTileset {
+  readonly firstgid: number
+  readonly name: string
+  readonly tilewidth: number
+  readonly tileheight: number
+  readonly spacing: number
+  readonly margin: number
+  readonly columns: number
+  readonly texture: Texture2D
+}
+
+export interface TiledMap {
+  readonly width: number
+  readonly height: number
+  readonly tilewidth: number
+  readonly tileheight: number
+  readonly orientation: string
+  readonly renderorder: string
+  readonly backgroundcolor: string | null
+  readonly layers: TiledLayer[]
+  readonly tilesets: TiledTileset[]
+  /** @internal Animation state — do not read or mutate directly. */
+  readonly _animState: Record<number, { frameIndex: number; elapsed: number }>
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Load a Tiled map from a `.tmj` or `.json` file.
+ * External tilesets (`.tsj` files) are resolved relative to the map file.
+ * Tileset textures are loaded into GPU memory — call `unloadTiledMap` when done.
+ *
+ * @throws if the file cannot be read or parsed.
+ * @throws if a tile layer uses base64 or compressed encoding (use CSV/plain in Tiled).
+ */
+export function loadTiledMap(path: string): TiledMap
+
+/**
+ * Advance animated tile timers.
+ * Call once per frame **before** `drawTiledMap`, passing `GetFrameTime()`.
+ */
+export function updateTiledMap(map: TiledMap, dt: number): void
+
+/**
+ * Draw all visible tile layers at world position `(posX, posY)`.
+ * Object groups and image layers are not drawn automatically.
+ */
+export function drawTiledMap(map: TiledMap, posX: number, posY: number, tint: Color): void
+
+/** Unload all tileset textures from GPU memory. */
+export function unloadTiledMap(map: TiledMap): void
+
+/**
+ * Find a layer by name, searching recursively through group layers.
+ * Returns `null` if no layer with that name exists.
+ */
+export function getTiledLayer(map: TiledMap, name: string): TiledLayer | null
+
+/**
+ * Return the objects from a named `objectgroup` layer.
+ * Returns an empty array if the layer does not exist or is not an object group.
+ */
+export function getTiledObjects(map: TiledMap, layerName: string): TiledObject[]
+
+// ---------------------------------------------------------------------------
+// Collision
+// ---------------------------------------------------------------------------
+
+export type TileHit =
+  | { hit: false }
+  | { hit: true; tileX: number; tileY: number; tileRect: Rectangle }
+
+/**
+ * Check if `rect` overlaps any non-empty tile in a tile layer.
+ *
+ * Returns the first colliding tile in top-left raster order, with its
+ * world-space `tileRect` for overlap resolution:
+ * - Landing  (velY > 0): `playerY = tileRect.y - playerHeight`
+ * - Ceiling  (velY < 0): `playerY = tileRect.y + tileRect.height`
+ * - Right wall (velX > 0): `playerX = tileRect.x - playerWidth`
+ * - Left wall  (velX < 0): `playerX = tileRect.x + tileRect.width`
+ */
+export function checkCollisionTiledLayer(map: TiledMap, layerName: string, rect: Rectangle): TileHit
+
+/**
+ * Check if `rect` overlaps any object in a named `objectgroup` layer.
+ * Supports rectangle, ellipse (as AABB), and polygon objects.
+ * Returns the first colliding `TiledObject`, or `null`.
+ */
+export function checkCollisionTiledObjects(map: TiledMap, layerName: string, rect: Rectangle): TiledObject | null
+
+/**
+ * Return all rectangle objects from a named `objectgroup` as `Rectangle[]`.
+ * Useful for pre-computing a static collision list once at load time.
+ */
+export function getTiledCollisionRects(map: TiledMap, layerName: string): Rectangle[]

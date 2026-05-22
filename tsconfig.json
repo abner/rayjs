@@ -15,6 +15,6 @@
     "noImplicitAny": false
   },
   "include": [
-    "./bindings/typings",",./bindings/src", "./examples"
+    "./bindings/typings", "./bindings/src", "./examples", "./lib"
   ]
 }
