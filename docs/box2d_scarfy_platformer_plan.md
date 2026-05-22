@@ -59,7 +59,8 @@ JS-facing names with no native-side changes required.
 | Asset | Path | Notes |
 |---|---|---|
 | Boy spritesheet (source) | `examples/box2d/boy.webp` | 256×256, 4×4 grid of 64×64 frames. Row 0 idle/down, **row 1 walk left**, **row 2 walk right**, row 3 walk up. Only rows 1 and 2 are used. |
-| Boy spritesheet (loaded) | `examples/box2d/boy.png` | **512×512** — `boy.webp` decoded then **2x upscaled with nearest-neighbour** so frames are 128×128. raylib's built-in image loader doesn't include WebP, hence the PNG step; the 2x is for pixel-art crispness at the in-game render size. Regenerate with: `sips -s format png boy.webp --out boy_tmp.png && ffmpeg -i boy_tmp.png -vf "scale=iw*2:ih*2:flags=neighbor" -update 1 -frames:v 1 -y boy.png && rm boy_tmp.png`. Nearest-neighbour is intentional — AI upscalers (ESRGAN, waifu2x) tend to blur pixel art by softening its hard edges. |
+| Boy spritesheet (small) | `examples/box2d/boy.png` | 256×256, 64-per-frame. Direct PNG of `boy.webp`. Loaded by the `small` size profile so the 64×64 render is 1:1 with source — no downscaling. Regenerate: `sips -s format png boy.webp --out boy.png`. |
+| Boy spritesheet (large) | `examples/box2d/boy_scaled_2x.png` | 512×512, 128-per-frame. A separate 2x upscale of `boy.webp` (user-supplied). Loaded by the `large` size profile so the 96×96 render comes from a denser source than the small file would give. raylib's default point filter keeps the 128→96 downscale crisp. |
 | Platform tilesheet | `examples/platformTilesheet.png` | 896×448, 12×7 grid of 64×64 tiles. Loaded transitively via the tileset entry in `map.tmj`; this example reuses it for the world background but not for crates. |
 | Tiled map | `examples/tiled/resources/map.tmj` | 20×10 tiles, 64 px each → 1280×640 world. `Ground` tile layer is solid; `Objects` layer has a `spawn` and a `pickup` (the coin). Reused **verbatim**. |
 
@@ -243,10 +244,14 @@ crate below — see "Implementation findings" §6.
 ### Size toggle (1 / 2 keys)
 
 The four constants that control "how big is the player" — sprite render width
-and height, collider half-width and half-height — are bundled into two
-profiles, `SIZES.small` and `SIZES.large`. A module-level `let currentSize`
-picks the active one (defaults to `large`). Every reference site reads
-`currentSize.spriteW / spriteH / halfW / halfH` instead of a fixed constant:
+and height, collider half-width and half-height — plus the source **texture
+and its frame dimensions** are bundled into two profiles, `SIZES.small` and
+`SIZES.large`. A module-level `let currentSize` picks the active one (defaults
+to `large`). Each profile points at a different PNG (`boy.png` for small,
+`boy_scaled_2x.png` for large) so the source-to-render ratio stays close to
+1:1 — small renders at 1:1, large downscales 128→96 with point filtering.
+Every reference site reads `currentSize.tex / frameW / frameH / spriteW /
+spriteH / halfW / halfH` instead of fixed constants:
 
 - player shape creation (`b2MakeBox(currentSize.halfW, currentSize.halfH)`),
 - ground-detection ray origin (`pos.y - currentSize.halfH + 0.05`),
@@ -263,11 +268,9 @@ mid-jump, pushing a crate); the alternative — destroy just the player and
 re-spawn — would be slightly more efficient but introduces a small race with
 in-flight contacts on the destroyed shape.
 
-The source PNG is 128 px per frame regardless of profile; raylib downscales
-to 64 or 96 with point filtering (raylib's default for `LoadTexture`), so
-both sizes stay crisp. Switching profiles mid-air would put the larger
-collider in the same world position, occasionally overlapping geometry — the
-rebuild-from-spawn behaviour sidesteps that.
+Switching profiles mid-air would put the larger collider in the same world
+position, occasionally overlapping geometry — the rebuild-from-spawn
+behaviour sidesteps that.
 
 ### Crates (dynamic boxes)
 
@@ -375,7 +378,8 @@ examples/
 ├── box2d/
 │   ├── hello_physics.js          (existing — minimal)
 │   ├── boy.webp                  (player spritesheet — source)
-│   ├── boy.png                   (PNG copy — what actually loads)
+│   ├── boy.png                   (256×256 PNG — loaded by small profile)
+│   ├── boy_scaled_2x.png         (512×512 PNG — loaded by large profile)
 │   └── platformer_scarfy.js      (this example)
 ├── platformTilesheet.png         (existing — reused as-is)
 └── tiled/

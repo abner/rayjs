@@ -57,17 +57,6 @@ import {
 const SCREEN_W       = 1280
 const SCREEN_H       = 640
 const PPM            = 64        // 1 tile = 1 metre; keeps Tiled ↔ Box2D math trivial
-// Two player-size profiles, switchable at runtime with the 1 / 2 keys.
-// Each profile pairs a rendered sprite size with a matching collider so the
-// AABB still tracks the visible character inside the frame. Switching emits
-// a world rebuild (same path as R-reset) so the new collider takes effect.
-// Source frames are 128×128; raylib's default point filter keeps the downscale
-// crisp at any integer-ish render size.
-const SIZES = {
-  small: { spriteW: 64, spriteH: 64, halfW: 0.25, halfH: 0.35 },
-  large: { spriteW: 96, spriteH: 96, halfW: 0.40, halfH: 0.55 },
-}
-let currentSize = SIZES.large
 const PLAYER_SPEED   = 6         // m/s
 const JUMP_VEL       = 11        // m/s, positive = up (Box2D Y is up)
 const GRAVITY_Y      = -25       // m/s² — punchier than default −10 for sprite-scale worlds
@@ -87,11 +76,31 @@ InitWindow(SCREEN_W, SCREEN_H, "rayjs - Box2D platformer (Boy + Tiled)")
 SetTargetFPS(60)
 
 // boy.webp is the source asset; raylib's built-in image loader doesn't include
-// WebP (needs libwebp as an extra dependency), so we load a PNG copy of the
-// same sheet — regenerate with: sips -s format png boy.webp --out boy.png
-const boyTex  = LoadTexture("./boy.png")
-const FRAME_W = boyTex.width  / 4    // 4 columns
-const FRAME_H = boyTex.height / 4    // 4 rows
+// WebP (libwebp would be an extra dependency), so we load PNG copies instead.
+// Two PNGs at different resolutions so each size profile uses a 1:1-ish source:
+//   small (64 px sprite) ← boy.png         (256×256, 64-per-frame)
+//   large (96 px sprite) ← boy_scaled_2x.png (512×512, 128-per-frame)
+// Regenerate boy.png: sips -s format png boy.webp --out boy.png
+// boy_scaled_2x.png is the user-supplied 2x upscale.
+const boyTexSmall = LoadTexture("./boy.png")
+const boyTexLarge = LoadTexture("./boy_scaled_2x.png")
+
+// Two player-size profiles, switchable at runtime with the 1 / 2 keys. Each
+// profile pairs a sprite size and matching collider with the texture whose
+// frame dimensions cleanly match the target render size, so neither profile
+// needs aggressive downscaling. Switching emits a world rebuild (same path as
+// R-reset) so the new collider takes effect.
+const SIZES = {
+  small: {
+    tex: boyTexSmall, frameW: boyTexSmall.width / 4, frameH: boyTexSmall.height / 4,
+    spriteW: 64, spriteH: 64, halfW: 0.25, halfH: 0.35,
+  },
+  large: {
+    tex: boyTexLarge, frameW: boyTexLarge.width / 4, frameH: boyTexLarge.height / 4,
+    spriteW: 96, spriteH: 96, halfW: 0.40, halfH: 0.55,
+  },
+}
+let currentSize = SIZES.large
 
 const map        = loadTiledMap("../tiled/resources/map.tmj")
 const WORLD_W_M  = map.width                  // 20
@@ -363,13 +372,13 @@ while (!WindowShouldClose()) {
       const py = mToScreenY(pos.y)
       const feetScreenY = mToScreenY(pos.y - currentSize.halfH)
       const src = new Rectangle(
-        animFrame * FRAME_W,
-        (facingLeft ? ROW_LEFT : ROW_RIGHT) * FRAME_H,
-        FRAME_W,
-        FRAME_H,
+        animFrame * currentSize.frameW,
+        (facingLeft ? ROW_LEFT : ROW_RIGHT) * currentSize.frameH,
+        currentSize.frameW,
+        currentSize.frameH,
       )
       DrawTexturePro(
-        boyTex, src,
+        currentSize.tex, src,
         new Rectangle(px, feetScreenY, currentSize.spriteW, currentSize.spriteH),
         new Vector2(currentSize.spriteW / 2, currentSize.spriteH),   // origin = bottom-centre
         0, WHITE,
@@ -406,5 +415,6 @@ while (!WindowShouldClose()) {
 
 b2DestroyWorld(state.worldId)
 unloadTiledMap(map)
-UnloadTexture(boyTex)
+UnloadTexture(boyTexSmall)
+UnloadTexture(boyTexLarge)
 CloseWindow()
