@@ -75,6 +75,7 @@ The following raylib APIs are supported so far (with a few exceptions):
 - rlights
 - raygui
 - reasings
+- box2d (via `rayjs:box2d` — see below)
 
 Similar to including a header in C and for your convenience, all types/functions are provided globally. They are additionally available in a module called 'raylib'
 
@@ -82,7 +83,74 @@ To check which API functions are not available (yet) check `/bindings/src/index.
 
 ## Additional APIs
 
-Rayjs comes with bindings to [lightmapper.h](https://github.com/ands/lightmapper/tree/master). See below for more information.
+Rayjs comes with bindings to [lightmapper.h](https://github.com/ands/lightmapper/tree/master) and [Box2D v3](https://box2d.org/). See below for more information.
+
+## Box2D physics (`rayjs:box2d`)
+
+Rayjs includes the full [Box2D v3](https://box2d.org/) 2D physics engine as the built-in module `rayjs:box2d`. The entire public C API is available from JavaScript with no extra files or installation.
+
+### Quick start
+
+```javascript
+import { InitWindow, BeginDrawing, EndDrawing, ClearBackground, CloseWindow,
+         WindowShouldClose, DrawCircleV, DrawRectangle, Vector2,
+         BLACK, WHITE, DARKGRAY } from "rayjs:raylib"
+import { b2CreateWorld, b2DefaultWorldDef, b2CreateBody, b2DefaultBodyDef,
+         b2_dynamicBody, b2CreateCircleShape, b2CreatePolygonShape,
+         b2DefaultShapeDef, b2Body_GetPosition, b2World_Step, b2DestroyWorld,
+         b2Circle, b2Vec2, b2MakeBox } from "rayjs:box2d"
+
+const SCALE = 30  // pixels per metre
+const GROUND_PX = 550
+
+InitWindow(800, 600, "Box2D demo")
+
+const worldId = b2CreateWorld(b2DefaultWorldDef())
+
+// Static ground
+const groundId = b2CreateBody(worldId, b2DefaultBodyDef())
+b2CreatePolygonShape(groundId, b2DefaultShapeDef(), b2MakeBox(400 / SCALE, 0.5))
+
+// Dynamic bouncing ball
+const bodyDef = b2DefaultBodyDef()
+bodyDef.type = b2_dynamicBody
+bodyDef.position = new b2Vec2(0, 10)
+const bodyId = b2CreateBody(worldId, bodyDef)
+
+const circle = new b2Circle()
+circle.radius = 0.5
+const shapeDef = b2DefaultShapeDef()
+shapeDef.material.restitution = 0.75  // bouncy
+b2CreateCircleShape(bodyId, shapeDef, circle)
+
+while (!WindowShouldClose()) {
+    b2World_Step(worldId, 1 / 60, 4)
+    const pos = b2Body_GetPosition(bodyId)
+    BeginDrawing()
+    ClearBackground(BLACK)
+    DrawRectangle(0, GROUND_PX, 800, 20, DARKGRAY)
+    DrawCircleV(new Vector2(400 + pos.x * SCALE, GROUND_PX - pos.y * SCALE), circle.radius * SCALE, WHITE)
+    EndDrawing()
+}
+
+b2DestroyWorld(worldId)
+CloseWindow()
+```
+
+```
+./rayjs examples/box2d/hello_physics.js
+```
+
+### API notes
+
+- **Enum values** are exported individually — use `b2_dynamicBody`, `b2_staticBody`, `b2_kinematicBody` directly (not `b2BodyType.b2_dynamicBody`).
+- **Struct position fields** require a struct instance: `bodyDef.position = new b2Vec2(x, y)`, not a plain `{x, y}` object.
+- **Restitution** (bounciness) lives on the shape's surface material, not on the shape def itself: `shapeDef.material.restitution = 0.8`.
+- **Nested struct fields** (like `material` above) return a live proxy — mutations write back to the parent struct directly.
+- **Coordinate system**: Box2D uses Y-up (positive Y is up). Raylib uses Y-down (positive Y is down the screen). Flip the Y axis when converting to screen coordinates.
+- **`b2Default*` factories** (`b2DefaultWorldDef`, `b2DefaultBodyDef`, `b2DefaultShapeDef`) initialize structs with safe defaults and should always be used instead of constructing structs manually.
+
+To check which functions are ignored see the `box2d` customization block in `bindings/src/index.js`.
 
 ## Built-in Extension Modules (`rayjs:ext:*`)
 
