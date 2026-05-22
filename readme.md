@@ -84,6 +84,122 @@ To check which API functions are not available (yet) check `/bindings/src/index.
 
 Rayjs comes with bindings to [lightmapper.h](https://github.com/ands/lightmapper/tree/master). See below for more information.
 
+## Built-in Extension Modules (`rayjs:ext:*`)
+
+Rayjs embeds a set of JavaScript modules directly into the binary. They are available via the `rayjs:ext:<name>` import specifier — no relative path, no external files needed at runtime.
+
+### `rayjs:ext:tiled` — Tiled map loader, renderer & collision
+
+Loads and renders maps created with the [Tiled map editor](https://www.mapeditor.org/) (`.tmj` / `.json` format). Includes tile-layer collision and object-group helpers suitable for platformers and top-down games.
+
+#### Tiled export requirements
+
+Open your map in Tiled and set the following before exporting:
+
+| Setting | Required value |
+|---|---|
+| File → Export As | `.tmj` or `.json` |
+| Map → Tile Layer Format | **CSV** or **XML** (not Base64) |
+| Compression | **None** |
+
+#### Quick start
+
+```javascript
+import {
+  loadTiledMap, updateTiledMap, drawTiledMap, unloadTiledMap,
+} from "rayjs:ext:tiled"
+
+InitWindow(1280, 640, "My game")
+SetTargetFPS(60)
+
+const map = loadTiledMap("resources/map.tmj")
+
+while (!WindowShouldClose()) {
+  updateTiledMap(map, GetFrameTime())   // advance tile animations
+
+  BeginDrawing()
+    ClearBackground(RAYWHITE)
+    drawTiledMap(map, 0, 0, WHITE)
+  EndDrawing()
+}
+
+unloadTiledMap(map)
+CloseWindow()
+```
+
+See `examples/tiled/tiled_map.js` for a full platformer example with physics, a scrolling camera, and tile collision.
+
+#### API reference
+
+| Function | Description |
+|---|---|
+| `loadTiledMap(path)` | Parse map file, load all tileset textures into GPU memory |
+| `updateTiledMap(map, dt)` | Advance animated tile timers — call once per frame before drawing |
+| `drawTiledMap(map, posX, posY, tint)` | Draw all visible tile layers; object groups are skipped |
+| `unloadTiledMap(map)` | Free all tileset textures from GPU memory |
+| `getTiledLayer(map, name)` | Find a layer by name (recursive through group layers) |
+| `getTiledObjects(map, layerName)` | Return objects from a named `objectgroup` layer |
+| `checkCollisionTiledLayer(map, layerName, rect)` | AABB check against non-empty tiles; returns `{ hit, tileX, tileY, tileRect }` |
+| `checkCollisionTiledObjects(map, layerName, rect)` | Check `rect` against objects (rectangle, ellipse, polygon); returns the hit object or `null` |
+| `getTiledCollisionRects(map, layerName)` | Return all rectangle objects as `Rectangle[]` for pre-computed static collision |
+
+Type declarations are available for IDE auto-complete — see the [Auto-Complete](#auto-complete--intellisense) section.
+
+#### Collision example
+
+```javascript
+import { checkCollisionTiledLayer } from "rayjs:ext:tiled"
+
+// Move X, resolve, then move Y, resolve (split-axis platformer pattern).
+playerX += velX * dt
+const hx = checkCollisionTiledLayer(map, "Ground", new Rectangle(playerX, playerY + 2, PW, PH - 4))
+if (hx.hit) {
+  playerX = velX > 0 ? hx.tileRect.x - PW : hx.tileRect.x + hx.tileRect.width
+  velX = 0
+}
+
+velY    += GRAVITY * dt
+playerY += velY * dt
+const hy = checkCollisionTiledLayer(map, "Ground", new Rectangle(playerX + 2, playerY, PW - 4, PH))
+if (hy.hit) {
+  playerY  = velY >= 0 ? hy.tileRect.y - PH : hy.tileRect.y + hy.tileRect.height
+  velY     = 0
+  onGround = velY >= 0
+}
+```
+
+The 2 px inset on the perpendicular axis (`playerY + 2` for X checks, `playerX + 2` for Y checks) prevents the player from catching on tile corners when sliding along a wall or floor.
+
+---
+
+### Adding a new extension module
+
+1. **Create `lib/<name>.js`** — a standard ES module. Import raylib via `rayjs:raylib` and std utilities via `qjs:std` / `qjs:os` as needed:
+
+   ```javascript
+   // lib/mymodule.js
+   import { DrawText } from "rayjs:raylib"
+
+   export function hello() {
+     DrawText("Hello from mymodule!", 10, 10, 20, WHITE)
+   }
+   ```
+
+2. **Optionally create `lib/<name>.d.ts`** — TypeScript declarations for IDE auto-complete. The build system wraps them in `declare module "rayjs:ext:<name>" { … }` automatically.
+
+3. **Re-run CMake** (or just rebuild). The script `cmake/gen_ext_modules.cmake` scans `lib/*.js` at configure time and on every rebuild, embeds each file into `src/js_ext_modules.h`, and generates the matching `.d.ts` in `bindings/typings/`. No manual registration is needed.
+
+4. **Import in your game**:
+
+   ```javascript
+   import { hello } from "rayjs:ext:mymodule"
+   hello()
+   ```
+
+The module name is the file stem: `lib/mymodule.js` → `rayjs:ext:mymodule`.
+
+
+
 ## Auto-Complete / Intellisense
 
 rayjs comes with full auto-complete support in the form of the definitions file `lib.raylib.d.ts`. These will work with Typescript and Javascript. In order to use them with Javascript you should create a Typescript configuration file in the project root (even if you are not using Typescript) called `tsconfig.json` with the following configuration

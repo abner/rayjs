@@ -17,7 +17,7 @@ import {
 const SCREEN_W     = 1280
 const SCREEN_H     = 640
 const PLAYER_SPEED = 220   // px/s horizontal
-const JUMP_VEL     = -480  // px/s initial jump
+const JUMP_VEL     = -620  // px/s initial jump
 const GRAVITY      = 900   // px/s²
 
 // 3rd tall sprite (64×128) from row 6 of the image.
@@ -36,8 +36,10 @@ const mapH = map.height * map.tileheight
 const spawn = getTiledObjects(map, "Objects").find(o => o.type === "spawn")
 let playerX  = spawn ? spawn.x : 64
 let playerY  = spawn ? spawn.y : mapH - map.tileheight * 3 - PH
-let velY     = 0
-let onGround = false
+let velY         = 0
+let onGround     = false
+let jumpKeyDown  = false
+let jumpBuffer   = 0     // seconds remaining; fires jump when player lands
 
 const camera = new Camera2D(
   new Vector2(SCREEN_W / 2, SCREEN_H / 2),
@@ -65,9 +67,15 @@ while (!WindowShouldClose()) {
   }
 
   // --- Jump ---
-  if ((IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_SPACE)) && onGround) {
+  const jumpHeld = IsKeyDown(KEY_UP) || IsKeyDown(KEY_SPACE)
+  const jumpTriggered = jumpHeld && !jumpKeyDown
+  jumpKeyDown = jumpHeld
+  jumpBuffer = Math.max(0, jumpBuffer - dt)
+  if (jumpTriggered) jumpBuffer = 0.12          // 120 ms window
+  if (jumpBuffer > 0 && onGround) {
     velY = JUMP_VEL
     onGround = false
+    jumpBuffer = 0
   }
 
   // --- Gravity + vertical movement ---
