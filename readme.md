@@ -185,7 +185,16 @@ The 2 px inset on the perpendicular axis (`playerY + 2` for X checks, `playerX +
    }
    ```
 
-2. **Optionally create `lib/<name>.d.ts`** — TypeScript declarations for IDE auto-complete. The build system wraps them in `declare module "rayjs:ext:<name>" { … }` automatically.
+2. **Optionally create `lib/<name>.d.ts`** — TypeScript declarations for IDE auto-complete. Write the declarations as plain exports (no `declare module` wrapper needed):
+
+   ```typescript
+   // lib/mymodule.d.ts
+   export function hello(): void
+   ```
+
+   At configure time and on every rebuild, `cmake/gen_ext_modules.cmake` reads `lib/<name>.d.ts`, wraps it in `declare module "rayjs:ext:<name>" { … }`, and writes the result to `bindings/typings/lib.js_ext_<name>.d.ts`. That file is picked up by the TypeScript language server automatically (it is already on the `tsconfig.json` include path).
+
+   If you later delete `lib/<name>.js`, the corresponding `bindings/typings/lib.js_ext_<name>.d.ts` is removed by the same script so stale declarations do not accumulate.
 
 3. **Re-run CMake** (or just rebuild). The script `cmake/gen_ext_modules.cmake` scans `lib/*.js` at configure time and on every rebuild, embeds each file into `src/js_ext_modules.h`, and generates the matching `.d.ts` in `bindings/typings/`. No manual registration is needed.
 
