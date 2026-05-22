@@ -13,15 +13,15 @@
 	static float * js_getfloat_arr3nc(JSContext * ctx,JSValue src,bool * error){
 		float * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
+			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
 			ret =(float  *)jsc_malloc(ctx,(size_t)size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,(size_t)size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -30,11 +30,11 @@
 			size_ret =(int64_t)3;
 			ret =(float  *)jsc_malloc(ctx,size_ret*sizeof(float));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsNumber(src0)){
 					double double_reti;
-					JS_ToFloat64(ctx,&double_reti,src0);
+					JS_ToFloat64(ctx,&double_reti,(JSValueConst)src0);
 					ret[i] =((float)double_reti);
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type float *");
@@ -43,11 +43,11 @@
 				}
 			}
 			memoryStore(jsc_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==JS_CLASS_FLOAT32_ARRAY){
+		}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_FLOAT32_ARRAY){
 			size_t offset_ret;
 			size_t size_ret;
-			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,src,&offset_ret,&size_ret,NULL);
-			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,&size_ret,da_ret);
+			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret,&size_ret,NULL);
+			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,&size_ret,(JSValueConst)da_ret);
 			ret =(float  *)jsc_malloc(ctx,size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -65,8 +65,8 @@
 	
 	static float3 js_getfloat3(JSContext * ctx,JSValue src,bool * error){
 		float3 ret;
-		if(JS_GetClassID(src)==js_float3_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_float3_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_float3_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_float3_class_id);
 			ret =*(float3 *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type float3");
@@ -79,15 +79,15 @@
 	static float * js_getfloat_arr16nc(JSContext * ctx,JSValue src,bool * error){
 		float * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
+			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
 			ret =(float  *)jsc_malloc(ctx,(size_t)size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,(size_t)size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -96,11 +96,11 @@
 			size_ret =(int64_t)16;
 			ret =(float  *)jsc_malloc(ctx,size_ret*sizeof(float));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsNumber(src0)){
 					double double_reti;
-					JS_ToFloat64(ctx,&double_reti,src0);
+					JS_ToFloat64(ctx,&double_reti,(JSValueConst)src0);
 					ret[i] =((float)double_reti);
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type float *");
@@ -109,11 +109,11 @@
 				}
 			}
 			memoryStore(jsc_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==JS_CLASS_FLOAT32_ARRAY){
+		}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_FLOAT32_ARRAY){
 			size_t offset_ret;
 			size_t size_ret;
-			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,src,&offset_ret,&size_ret,NULL);
-			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,&size_ret,da_ret);
+			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret,&size_ret,NULL);
+			float * js_ret=(float  *)JS_GetArrayBuffer(ctx,&size_ret,(JSValueConst)da_ret);
 			ret =(float  *)jsc_malloc(ctx,size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -131,8 +131,8 @@
 	
 	static float16 js_getfloat16(JSContext * ctx,JSValue src,bool * error){
 		float16 ret;
-		if(JS_GetClassID(src)==js_float16_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_float16_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_float16_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_float16_class_id);
 			ret =*(float16 *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type float16");
@@ -164,10 +164,10 @@
 		Quaternion * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)4;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_GetClassID(src0)==js_Vector4_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_Vector4_class_id);
+			if(JS_GetClassID((JSValueConst)src0)==js_Vector4_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_Vector4_class_id);
 				ret =(Quaternion  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Quaternion *");
@@ -182,11 +182,11 @@
 			for(int i=0;i<size_ret;i++){
 				float * tmp_obj=(float  *)ret;
 				for(int i0=0;i0<4;i0++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i+i0);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i+i0);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsNumber(src0)){
 						double double_tmp_objii0;
-						JS_ToFloat64(ctx,&double_tmp_objii0,src0);
+						JS_ToFloat64(ctx,&double_tmp_objii0,(JSValueConst)src0);
 						tmp_obj[i+i0] =((float)double_tmp_objii0);
 					}else{
 						JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Quaternion *");
@@ -197,10 +197,10 @@
 				i +=3;
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_Vector4_class_id){
+		}else if(JS_GetClassID((JSValueConst)src)==js_Vector4_class_id){
 			isptr[0]=(bool)true;
-			if(JS_GetClassID(src)==js_Vector4_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_Vector4_class_id);
+			if(JS_GetClassID((JSValueConst)src)==js_Vector4_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_Vector4_class_id);
 				ret =(Quaternion  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type Quaternion *");
@@ -216,7 +216,7 @@
 	}
 	
 	static void js_float3_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_float3_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_float3_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
@@ -226,10 +226,10 @@
 		for(int i=0;i<3;i++){
 			float src0=ptr[0].v[i];
 			JSValue ret1=JS_NewFloat64(ctx,((double)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -303,7 +303,7 @@
 	}
 	
 	static JSValue js_float3_get_v(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_float3_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_float3_class_id);
 		float3 * ptr=(float3  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -317,7 +317,7 @@
 	
 	static JSValue js_float3_set_v(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_float3_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_float3_class_id);
 		float3 * ptr=(float3  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float * value=js_getfloat_arr3nc(ctx,v,&error);
@@ -337,13 +337,13 @@
 		JSClassDef js_float3_def={ .class_name = "float3", .finalizer = js_float3_finalizer };
 		JS_NewClass(rt,js_float3_class_id,(const JSClassDef  *)&js_float3_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_float3_proto_funcs,(int)countof(js_float3_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_float3_proto_funcs,(int)countof(js_float3_proto_funcs));
 		JS_SetClassProto(ctx,js_float3_class_id,proto);
 		return 0;
 	}
 	
 	static void js_float16_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_float16_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_float16_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
@@ -353,10 +353,10 @@
 		for(int i=0;i<16;i++){
 			float src0=ptr[0].v[i];
 			JSValue ret1=JS_NewFloat64(ctx,((double)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -430,7 +430,7 @@
 	}
 	
 	static JSValue js_float16_get_v(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_float16_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_float16_class_id);
 		float16 * ptr=(float16  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -444,7 +444,7 @@
 	
 	static JSValue js_float16_set_v(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_float16_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_float16_class_id);
 		float16 * ptr=(float16  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float * value=js_getfloat_arr16nc(ctx,v,&error);
@@ -464,7 +464,7 @@
 		JSClassDef js_float16_def={ .class_name = "float16", .finalizer = js_float16_finalizer };
 		JS_NewClass(rt,js_float16_class_id,(const JSClassDef  *)&js_float16_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_float16_proto_funcs,(int)countof(js_float16_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_float16_proto_funcs,(int)countof(js_float16_proto_funcs));
 		JS_SetClassProto(ctx,js_float16_class_id,proto);
 		return 0;
 	}
@@ -473,13 +473,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(float3));
 			JSValue _return=JS_NewObjectClass(ctx,js_float3_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		float3 _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_float3_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_float3_class_id){
 			float3 ptr=js_getfloat3(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =ptr;
@@ -494,7 +494,7 @@
 		float3 * _returnptr=((float3 *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_float3_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -503,13 +503,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(float16));
 			JSValue _return=JS_NewObjectClass(ctx,js_float16_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		float16 _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_float16_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_float16_class_id){
 			float16 ptr=js_getfloat16(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =ptr;
@@ -524,7 +524,7 @@
 		float16 * _returnptr=((float16 *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_float16_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -615,7 +615,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -625,7 +625,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -640,7 +640,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -655,7 +655,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -670,7 +670,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -685,7 +685,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -784,7 +784,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -799,7 +799,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -812,7 +812,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -827,7 +827,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -840,7 +840,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -855,7 +855,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -872,7 +872,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -887,7 +887,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -902,7 +902,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -917,7 +917,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -932,7 +932,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -949,7 +949,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -962,7 +962,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -979,7 +979,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -996,7 +996,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1024,7 +1024,7 @@
 		Vector2 * ptr2_ret=((Vector2 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector2_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1034,7 +1034,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1044,7 +1044,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1059,7 +1059,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1074,7 +1074,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1089,7 +1089,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1104,7 +1104,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1119,7 +1119,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1134,7 +1134,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1149,7 +1149,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1162,7 +1162,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1237,7 +1237,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1252,7 +1252,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1265,7 +1265,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1280,7 +1280,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1295,7 +1295,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1313,16 +1313,16 @@
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=v1[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		if(v2_isptr==0){
 			opaqueShadow * ptr_src=create_shadow_with_data(sizeof(Vector3));
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=v2[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[1],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[1],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -1338,7 +1338,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1353,7 +1353,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1370,7 +1370,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1387,7 +1387,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1404,7 +1404,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1425,7 +1425,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1440,7 +1440,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1455,7 +1455,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1470,7 +1470,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1489,7 +1489,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1506,7 +1506,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1519,7 +1519,7 @@
 		float3 * ptr2_ret=((float3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_float3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1532,7 +1532,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1549,7 +1549,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1566,7 +1566,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1594,7 +1594,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1604,7 +1604,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1614,7 +1614,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1629,7 +1629,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1644,7 +1644,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1659,7 +1659,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1674,7 +1674,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1740,7 +1740,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1755,7 +1755,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1768,7 +1768,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1783,7 +1783,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1796,7 +1796,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1811,7 +1811,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1826,7 +1826,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1843,7 +1843,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1860,7 +1860,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1873,7 +1873,7 @@
 		Vector4 * ptr2_ret=((Vector4 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1915,7 +1915,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1928,7 +1928,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1938,7 +1938,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1953,7 +1953,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1968,7 +1968,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1983,7 +1983,22 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
+		return ret;
+	}
+	
+	static JSValue js_MatrixMultiplyValue(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		Matrix left=js_getMatrix(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		float value=js_getfloat(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		Matrix returnVal=MatrixMultiplyValue(left,value);
+		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Matrix));
+		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
+		ptr2_ret[0]=returnVal;
+		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2000,7 +2015,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2015,7 +2030,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2028,7 +2043,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2041,7 +2056,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2054,7 +2069,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2067,7 +2082,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2080,7 +2095,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2097,7 +2112,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2120,7 +2135,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2139,7 +2154,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2162,7 +2177,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2179,7 +2194,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2192,7 +2207,7 @@
 		float16 * ptr2_ret=((float16 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_float16_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2207,7 +2222,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2222,7 +2237,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2237,7 +2252,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2252,7 +2267,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2262,7 +2277,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2284,7 +2299,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2297,7 +2312,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2312,7 +2327,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2327,7 +2342,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2342,7 +2357,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2359,7 +2374,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2376,7 +2391,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2393,7 +2408,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2414,7 +2429,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2429,7 +2444,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2442,7 +2457,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2455,7 +2470,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2470,7 +2485,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2499,7 +2514,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2512,7 +2527,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2527,7 +2542,7 @@
 		Quaternion * ptr2_ret=((Quaternion *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector4_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2555,7 +2570,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2578,24 +2593,24 @@
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=translation[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[1],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[1],(uint32_t)0,src);
 		}
 		if(rotation_isptr==0){
 			opaqueShadow * ptr_src=create_shadow_with_data(sizeof(Quaternion));
 			Quaternion * ptr2_src=((Quaternion *)(ptr_src+1));
 			ptr2_src[0]=rotation[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector4_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		if(scale_isptr==0){
 			opaqueShadow * ptr_src=create_shadow_with_data(sizeof(Vector3));
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=scale[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		memoryClear(ctx);
 		return JS_UNDEFINED;
@@ -2707,6 +2722,7 @@
 		JS_CFUNC_DEF("MatrixAdd",2,js_MatrixAdd),
 		JS_CFUNC_DEF("MatrixSubtract",2,js_MatrixSubtract),
 		JS_CFUNC_DEF("MatrixMultiply",2,js_MatrixMultiply),
+		JS_CFUNC_DEF("MatrixMultiplyValue",2,js_MatrixMultiplyValue),
 		JS_CFUNC_DEF("MatrixTranslate",3,js_MatrixTranslate),
 		JS_CFUNC_DEF("MatrixRotate",2,js_MatrixRotate),
 		JS_CFUNC_DEF("MatrixRotateX",1,js_MatrixRotateX),

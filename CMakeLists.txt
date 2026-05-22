@@ -104,6 +104,9 @@ else()
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib EXCLUDE_FROM_ALL)
 
+message("=== Configure Box2D ===")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/box2d EXCLUDE_FROM_ALL)
+
 message("=== Generate embedded lib/*.js modules ===")
 set(JS_EXT_MODULES_H "${CMAKE_CURRENT_SOURCE_DIR}/src/js_ext_modules.h")
 set(JS_EXT_TYPINGS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings/typings")
@@ -159,5 +162,5 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc/include)
 
 set(RAYJS_LINK_LIBRARIES "quickjs" "mimalloc-static")
-set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "raylib" "lightmapper")
+set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "raylib" "lightmapper" "box2d")
 target_link_libraries(${CMAKE_PROJECT_NAME} ${RAYJS_LINK_LIBRARIES})

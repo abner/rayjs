@@ -83,25 +83,25 @@ function Vector3CubicHermite(v1: Vector3, tangent1: Vector3, v2: Vector3, tangen
 function Vector3Reflect(v: Vector3, normal: Vector3): Vector3/** Get min value for each pair of components */
 function Vector3Min(v1: Vector3, v2: Vector3): Vector3/** Get max value for each pair of components */
 function Vector3Max(v1: Vector3, v2: Vector3): Vector3/** NOTE: Assumes P is on the plane of the triangle */
-function Vector3Barycenter(p: Vector3, a: Vector3, b: Vector3, c: Vector3): Vector3/** NOTE: We are avoiding calling other raymath functions despite available */
+function Vector3Barycenter(p: Vector3, a: Vector3, b: Vector3, c: Vector3): Vector3/** NOTE: Self-contained function, no other raymath functions are called */
 function Vector3Unproject(source: Vector3, projection: Matrix, view: Matrix): Vector3/** Get Vector3 as float array */
 function Vector3ToFloatV(v: Vector3): float3/** Invert the given vector */
 function Vector3Invert(v: Vector3): Vector3/** min and max values specified by the given vectors */
 function Vector3Clamp(v: Vector3, min: Vector3, max: Vector3): Vector3/** Clamp the magnitude of the vector between two values */
 function Vector3ClampValue(v: Vector3, min: number, max: number): Vector3/** Check whether two given vectors are almost equal */
 function Vector3Equals(p: Vector3, q: Vector3): number/** to the refractive index of the medium on the other side of the surface */
-function Vector3Refract(v: Vector3, n: Vector3, r: number): Vector3/**  */
-function Vector4Zero(): Vector4/**  */
-function Vector4One(): Vector4/**  */
-function Vector4Add(v1: Vector4, v2: Vector4): Vector4/**  */
-function Vector4AddValue(v: Vector4, add: number): Vector4/**  */
-function Vector4Subtract(v1: Vector4, v2: Vector4): Vector4/**  */
-function Vector4SubtractValue(v: Vector4, add: number): Vector4/**  */
-function Vector4Length(v: Vector4): number/**  */
-function Vector4LengthSqr(v: Vector4): number/**  */
+function Vector3Refract(v: Vector3, n: Vector3, r: number): Vector3/** Get  vector zero */
+function Vector4Zero(): Vector4/** Get vector one */
+function Vector4One(): Vector4/** Add two vectors */
+function Vector4Add(v1: Vector4, v2: Vector4): Vector4/** Add value to vector components */
+function Vector4AddValue(v: Vector4, add: number): Vector4/** Substract vectors */
+function Vector4Subtract(v1: Vector4, v2: Vector4): Vector4/** Substract value from vector components */
+function Vector4SubtractValue(v: Vector4, add: number): Vector4/** Vector length */
+function Vector4Length(v: Vector4): number/** Vector square length */
+function Vector4LengthSqr(v: Vector4): number/** Vectors dot product */
 function Vector4DotProduct(v1: Vector4, v2: Vector4): number/** Calculate distance between two vectors */
 function Vector4Distance(v1: Vector4, v2: Vector4): number/** Calculate square distance between two vectors */
-function Vector4DistanceSqr(v1: Vector4, v2: Vector4): number/**  */
+function Vector4DistanceSqr(v1: Vector4, v2: Vector4): number/** Scale vector components by value (multiply) */
 function Vector4Scale(v: Vector4, scale: number): Vector4/** Multiply vector by vector */
 function Vector4Multiply(v1: Vector4, v2: Vector4): Vector4/** Negate vector */
 function Vector4Negate(v: Vector4): Vector4/** Divide vector by vector */
@@ -120,7 +120,8 @@ function MatrixInvert(mat: Matrix): Matrix/** Get identity matrix */
 function MatrixIdentity(): Matrix/** Add two matrices */
 function MatrixAdd(left: Matrix, right: Matrix): Matrix/** Subtract two matrices (left - right) */
 function MatrixSubtract(left: Matrix, right: Matrix): Matrix/** NOTE: When multiplying matrices... the order matters! */
-function MatrixMultiply(left: Matrix, right: Matrix): Matrix/** Get translation matrix */
+function MatrixMultiply(left: Matrix, right: Matrix): Matrix/** Multiply matrix components by value */
+function MatrixMultiplyValue(left: Matrix, value: number): Matrix/** Get translation matrix */
 function MatrixTranslate(x: number, y: number, z: number): Matrix/** NOTE: Angle should be provided in radians */
 function MatrixRotate(axis: Vector3, angle: number): Matrix/** NOTE: Angle must be provided in radians */
 function MatrixRotateX(angle: number): Matrix/** NOTE: Angle must be provided in radians */

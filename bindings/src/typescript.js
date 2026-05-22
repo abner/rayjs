@@ -44,19 +44,22 @@ export class TypeScriptDeclaration {
         if(lookups!=undefined){
             let variable=lookups.variables[type];
             if(variable){
-                //custom type
-                let sourceModule=lookups.includegen.tokenList.find(a=>a.type=='include'&&a.text.vars.find(b=>b.name==type)!=undefined).text.name;
-                let moduletypingName;
-                for(let key in lookups.modules){
-                    const module=lookups.modules[key];
-                    if(module.gen.c_source==sourceModule){
-                        moduletypingName='rayjs:'+module.gen.name;
-                        break;
+                //custom type — find which included module it came from for TS import
+                let includeToken=lookups.includegen.tokenList.find(a=>a.type=='include'&&a.text.vars.find(b=>b.name==type)!=undefined);
+                if(includeToken){
+                    let sourceModule=includeToken.text.name;
+                    let moduletypingName;
+                    for(let key in lookups.modules){
+                        const module=lookups.modules[key];
+                        if(module.gen.c_source==sourceModule){
+                            moduletypingName='rayjs:'+module.gen.name;
+                            break;
+                        }
                     }
-                }
-                if(moduletypingName != this.module.name){
-                    if(this.includeList[moduletypingName]==undefined)this.includeList[moduletypingName]={};
-                    this.includeList[moduletypingName][type]=true;
+                    if(moduletypingName != this.module.name){
+                        if(this.includeList[moduletypingName]==undefined)this.includeList[moduletypingName]={};
+                        this.includeList[moduletypingName][type]=true;
+                    }
                 }
             }
         }

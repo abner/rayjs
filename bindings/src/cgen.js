@@ -61,10 +61,6 @@ const numMantissa = {
     "long double":[64,64]
 };
 var globallastFunctionContext;
-export function showError(){
-    console.log('fn '+globallastFunctionContext[0].name);
-    console.log(globallastFunctionContext[1].simpleToString(0));
-}
 const mantisaNum=Object.fromEntries(Object.entries(numMantissa).map(a=>[JSON.stringify(a[1]),a[0]]));//inverse
 
 //This class represents metadata of a single part of gen text
@@ -86,6 +82,8 @@ class CodeToken {
             for(let i=0;i<args.length;i++){
                 into[args[i].name]=args[i];//{{char} *} {} => char *
             }
+        }else if(this.type=='enumtype'){
+            into[this.text.name]={type:'type',subtype:'enum',name:this.text.name};
         }
     }
 }
@@ -824,6 +822,9 @@ export class CodeScope {
         const txtIndend="\t".repeat(indent);
         let str;
         switch(token.type){
+            case "enumtype":
+                str='';
+                break;
             case "enum":{
                 if(token.text.name!='' && token.text.name!=undefined)
                 variables[token.text.name]={type:'type',subtype:'enum',name:token.text.name,fields:token.text.fields};
@@ -1037,6 +1038,10 @@ export class CodeScope {
             case "call":{
                 const t=token.text;
                 const fn = variables[t.name];
+                if(fn==undefined){
+                    const lastfn=globallastFunctionContext?.[0]?.name;
+                    throw new Error(`cgen: call to undefined function '${t.name}' in fn '${lastfn}'`);
+                }
                 globalThis.fnc=globalThis.fnc!=undefined?globalThis.fnc+1:0;
                 const args = compilefunctionargs(fn,t.args,variables);
                 str=`${txtIndend}${t.name}(${args.join(',')});\n`;
@@ -1496,6 +1501,13 @@ export class CodeScope {
     enum(name,fields){
         let token = this.addToken(new CodeToken('enum',{name,fields}));
         return token;
+    }
+    /** Register an enum type in the variables context without emitting C code.
+     *  Used to make enum types visible for struct field type resolution.
+     *  @param {string} name Enum type name
+     */
+    enumtype(name){
+        return this.addToken(new CodeToken('enumtype',{name}));
     }
     /** Get token before this one
      * @return {undefined|CodeToken|CodeScope}

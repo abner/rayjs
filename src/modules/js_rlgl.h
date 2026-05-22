@@ -25,15 +25,15 @@
 	static unsigned int * js_getunsignedint_arr5nc(JSContext * ctx,JSValue src,bool * error){
 		unsigned int * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			unsigned int * js_ret=(unsigned int  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
+			unsigned int * js_ret=(unsigned int  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
 			ret =(unsigned int  *)jsc_malloc(ctx,(size_t)size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,(size_t)size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -42,7 +42,7 @@
 			size_ret =(int64_t)5;
 			ret =(unsigned int  *)jsc_malloc(ctx,size_ret*sizeof(unsigned int));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsNumber(src0)){
 					uint32_t long_reti;
@@ -55,11 +55,11 @@
 				}
 			}
 			memoryStore(jsc_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==JS_CLASS_UINT16_ARRAY){
+		}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_UINT16_ARRAY){
 			size_t offset_ret;
 			size_t size_ret;
-			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,src,&offset_ret,&size_ret,NULL);
-			unsigned int * js_ret=(unsigned int  *)JS_GetArrayBuffer(ctx,&size_ret,da_ret);
+			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret,&size_ret,NULL);
+			unsigned int * js_ret=(unsigned int  *)JS_GetArrayBuffer(ctx,&size_ret,(JSValueConst)da_ret);
 			ret =(unsigned int  *)jsc_malloc(ctx,size_ret);
 			memcpy((void  *)ret,(const void  *)js_ret,size_ret);
 			memoryStore(jsc_free,(void  *)ret);
@@ -77,8 +77,8 @@
 	
 	static rlVertexBuffer js_getrlVertexBuffer(JSContext * ctx,JSValue src,bool * error){
 		rlVertexBuffer ret;
-		if(JS_GetClassID(src)==js_rlVertexBuffer_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlVertexBuffer_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_rlVertexBuffer_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlVertexBuffer_class_id);
 			ret =*(rlVertexBuffer *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlVertexBuffer");
@@ -110,8 +110,8 @@
 	
 	static rlDrawCall js_getrlDrawCall(JSContext * ctx,JSValue src,bool * error){
 		rlDrawCall ret;
-		if(JS_GetClassID(src)==js_rlDrawCall_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlDrawCall_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_rlDrawCall_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlDrawCall_class_id);
 			ret =*(rlDrawCall *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlDrawCall");
@@ -124,15 +124,15 @@
 	static rlVertexBuffer * js_getrlVertexBuffer_arrnc(JSContext * ctx,JSValue src,bool * error){
 		rlVertexBuffer * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArray(src)){
+		if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
@@ -143,10 +143,10 @@
 			}
 			ret =(rlVertexBuffer  *)jsc_malloc(ctx,size_ret*sizeof(rlVertexBuffer));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
-				if(JS_GetClassID(src0)==js_rlVertexBuffer_class_id){
-					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_rlVertexBuffer_class_id);
+				if(JS_GetClassID((JSValueConst)src0)==js_rlVertexBuffer_class_id){
+					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_rlVertexBuffer_class_id);
 					ret[i] =*(rlVertexBuffer *)tmpshadow[0].ptr;
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type rlVertexBuffer *");
@@ -155,9 +155,9 @@
 				}
 			}
 			memoryStore(jsc_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_rlVertexBuffer_class_id){
-			if(JS_GetClassID(src)==js_rlVertexBuffer_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlVertexBuffer_class_id);
+		}else if(JS_GetClassID((JSValueConst)src)==js_rlVertexBuffer_class_id){
+			if(JS_GetClassID((JSValueConst)src)==js_rlVertexBuffer_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlVertexBuffer_class_id);
 				ret =(rlVertexBuffer  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlVertexBuffer *");
@@ -176,15 +176,15 @@
 	static rlDrawCall * js_getrlDrawCall_arrnc(JSContext * ctx,JSValue src,bool * error){
 		rlDrawCall * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArray(src)){
+		if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
@@ -195,10 +195,10 @@
 			}
 			ret =(rlDrawCall  *)jsc_malloc(ctx,size_ret*sizeof(rlDrawCall));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
-				if(JS_GetClassID(src0)==js_rlDrawCall_class_id){
-					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_rlDrawCall_class_id);
+				if(JS_GetClassID((JSValueConst)src0)==js_rlDrawCall_class_id){
+					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_rlDrawCall_class_id);
 					ret[i] =*(rlDrawCall *)tmpshadow[0].ptr;
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type rlDrawCall *");
@@ -207,9 +207,9 @@
 				}
 			}
 			memoryStore(jsc_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_rlDrawCall_class_id){
-			if(JS_GetClassID(src)==js_rlDrawCall_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlDrawCall_class_id);
+		}else if(JS_GetClassID((JSValueConst)src)==js_rlDrawCall_class_id){
+			if(JS_GetClassID((JSValueConst)src)==js_rlDrawCall_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlDrawCall_class_id);
 				ret =(rlDrawCall  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlDrawCall *");
@@ -227,8 +227,8 @@
 	
 	static rlRenderBatch js_getrlRenderBatch(JSContext * ctx,JSValue src,bool * error){
 		rlRenderBatch ret;
-		if(JS_GetClassID(src)==js_rlRenderBatch_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlRenderBatch_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_rlRenderBatch_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlRenderBatch_class_id);
 			ret =*(rlRenderBatch *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlRenderBatch");
@@ -262,15 +262,15 @@
 	static rlRenderBatch * js_getrlRenderBatch_arr(JSContext * ctx,JSValue src,bool * error){
 		rlRenderBatch * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArray(src)){
+		if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
@@ -281,10 +281,10 @@
 			}
 			ret =(rlRenderBatch  *)js_malloc(ctx,size_ret*sizeof(rlRenderBatch));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
-				if(JS_GetClassID(src0)==js_rlRenderBatch_class_id){
-					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_rlRenderBatch_class_id);
+				if(JS_GetClassID((JSValueConst)src0)==js_rlRenderBatch_class_id){
+					opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_rlRenderBatch_class_id);
 					ret[i] =*(rlRenderBatch *)tmpshadow[0].ptr;
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type rlRenderBatch *");
@@ -293,9 +293,9 @@
 				}
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_rlRenderBatch_class_id){
-			if(JS_GetClassID(src)==js_rlRenderBatch_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_rlRenderBatch_class_id);
+		}else if(JS_GetClassID((JSValueConst)src)==js_rlRenderBatch_class_id){
+			if(JS_GetClassID((JSValueConst)src)==js_rlRenderBatch_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_rlRenderBatch_class_id);
 				ret =(rlRenderBatch  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type rlRenderBatch *");
@@ -313,18 +313,18 @@
 	
 	static void * js_getvoid_arrnull(JSContext * ctx,JSValue src,bool * error){
 		void * ret;
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			ret =(void  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
+			ret =(void  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
 		}else if(JS_IsString(src)){
 			char * js_ret=(char  *)JS_ToCStringLen(ctx,NULL,src);
 			memoryStore(JS_FreeCString,(void  *)js_ret);
 			ret=(void  *)js_ret;
-		}else if(JS_GetTypedArrayType(src)!=-1){
+		}else if(JS_GetTypedArrayType((JSValueConst)src)!=-1){
 			size_t offset_ret;
 			size_t size_ret;
-			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,src,&offset_ret,&size_ret,NULL);
-			ret =(void  *)JS_GetArrayBuffer(ctx,&size_ret,src);
+			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret,&size_ret,NULL);
+			ret =(void  *)JS_GetArrayBuffer(ctx,&size_ret,(JSValueConst)src);
 			ret +=offset_ret;
 			size_ret -=offset_ret;
 			JS_FreeValuePtr(ctx,&da_ret);
@@ -341,18 +341,18 @@
 	static unsigned int * js_getunsignedint_arr(JSContext * ctx,JSValue src,bool * error){
 		unsigned int * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			ret =(unsigned int  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
-		}else if(JS_IsArray(src)){
+			ret =(unsigned int  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
+		}else if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
@@ -363,7 +363,7 @@
 			}
 			ret =(unsigned int  *)js_malloc(ctx,size_ret*sizeof(unsigned int));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsNumber(src0)){
 					uint32_t long_reti;
@@ -376,11 +376,11 @@
 				}
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==JS_CLASS_UINT16_ARRAY){
+		}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_UINT16_ARRAY){
 			size_t offset_ret;
 			size_t size_ret;
-			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,src,&offset_ret,&size_ret,NULL);
-			ret =(unsigned int  *)JS_GetArrayBuffer(ctx,&size_ret,src);
+			JSValue da_ret=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret,&size_ret,NULL);
+			ret =(unsigned int  *)JS_GetArrayBuffer(ctx,&size_ret,(JSValueConst)src);
 			ret +=offset_ret;
 			size_ret -=offset_ret;
 			JS_FreeValuePtr(ctx,&da_ret);
@@ -414,12 +414,12 @@
 	static Matrix * js_getMatrix_arr(JSContext * ctx,JSValue src,bool * error);
 	
 	static void js_rlVertexBuffer_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_rlVertexBuffer_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
 	static JSValue js_rlVertexBuffer_get_elementCount(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		int elementCount=ptr[0].elementCount;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)elementCount));
@@ -428,7 +428,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_elementCount(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -444,10 +444,10 @@
 		for(int i=0;i<ptr[0].elementCount*3*4;i++){
 			float src0=ptr[0].vertices[i];
 			JSValue ret1=JS_NewFloat64(ctx,((double)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -521,7 +521,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_vertices(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -535,7 +535,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_vertices(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float * value=js_getfloat_arrnc(ctx,v,&error);
@@ -552,10 +552,10 @@
 		for(int i=0;i<ptr[0].elementCount*2*4;i++){
 			float src0=ptr[0].texcoords[i];
 			JSValue ret1=JS_NewFloat64(ctx,((double)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -629,7 +629,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_texcoords(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -643,7 +643,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_texcoords(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float * value=js_getfloat_arrnc(ctx,v,&error);
@@ -660,10 +660,10 @@
 		for(int i=0;i<ptr[0].elementCount*3*4;i++){
 			float src0=ptr[0].normals[i];
 			JSValue ret1=JS_NewFloat64(ctx,((double)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -737,7 +737,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_normals(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -751,7 +751,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_normals(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float * value=js_getfloat_arrnc(ctx,v,&error);
@@ -768,10 +768,10 @@
 		for(int i=0;i<ptr[0].elementCount*4*4;i++){
 			unsigned char src0=ptr[0].colors[i];
 			JSValue ret1=JS_NewUint32(ctx,(uint32_t)((unsigned long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -845,7 +845,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_colors(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -859,7 +859,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_colors(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned char * value=js_getunsignedchar_arrnc(ctx,v,&error);
@@ -876,10 +876,10 @@
 		for(int i=0;i<ptr[0].elementCount*6;i++){
 			unsigned int src0=ptr[0].indices[i];
 			JSValue ret1=JS_NewUint32(ctx,(uint32_t)((unsigned long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -953,7 +953,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_indices(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -967,7 +967,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_indices(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned int * value=js_getunsignedint_arrnc(ctx,v,&error);
@@ -979,7 +979,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_vaoId(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		unsigned int vaoId=ptr[0].vaoId;
 		JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)vaoId));
@@ -988,7 +988,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_vaoId(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned int value=js_getunsignedint(ctx,v,&error);
@@ -1004,10 +1004,10 @@
 		for(int i=0;i<5;i++){
 			unsigned int src0=ptr[0].vboId[i];
 			JSValue ret1=JS_NewUint32(ctx,(uint32_t)((unsigned long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -1081,7 +1081,7 @@
 	}
 	
 	static JSValue js_rlVertexBuffer_get_vboId(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -1095,7 +1095,7 @@
 	
 	static JSValue js_rlVertexBuffer_set_vboId(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlVertexBuffer_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlVertexBuffer_class_id);
 		rlVertexBuffer * ptr=(rlVertexBuffer  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned int * value=js_getunsignedint_arr5nc(ctx,v,&error);
@@ -1122,18 +1122,18 @@
 		JSClassDef js_rlVertexBuffer_def={ .class_name = "rlVertexBuffer", .finalizer = js_rlVertexBuffer_finalizer };
 		JS_NewClass(rt,js_rlVertexBuffer_class_id,(const JSClassDef  *)&js_rlVertexBuffer_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_rlVertexBuffer_proto_funcs,(int)countof(js_rlVertexBuffer_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_rlVertexBuffer_proto_funcs,(int)countof(js_rlVertexBuffer_proto_funcs));
 		JS_SetClassProto(ctx,js_rlVertexBuffer_class_id,proto);
 		return 0;
 	}
 	
 	static void js_rlDrawCall_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_rlDrawCall_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
 	static JSValue js_rlDrawCall_get_mode(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		int mode=ptr[0].mode;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)mode));
@@ -1142,7 +1142,7 @@
 	
 	static JSValue js_rlDrawCall_set_mode(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1153,7 +1153,7 @@
 	}
 	
 	static JSValue js_rlDrawCall_get_vertexCount(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		int vertexCount=ptr[0].vertexCount;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)vertexCount));
@@ -1162,7 +1162,7 @@
 	
 	static JSValue js_rlDrawCall_set_vertexCount(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1173,7 +1173,7 @@
 	}
 	
 	static JSValue js_rlDrawCall_get_vertexAlignment(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		int vertexAlignment=ptr[0].vertexAlignment;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)vertexAlignment));
@@ -1182,7 +1182,7 @@
 	
 	static JSValue js_rlDrawCall_set_vertexAlignment(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1193,7 +1193,7 @@
 	}
 	
 	static JSValue js_rlDrawCall_get_textureId(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		unsigned int textureId=ptr[0].textureId;
 		JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)textureId));
@@ -1202,7 +1202,7 @@
 	
 	static JSValue js_rlDrawCall_set_textureId(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlDrawCall_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlDrawCall_class_id);
 		rlDrawCall * ptr=(rlDrawCall  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned int value=js_getunsignedint(ctx,v,&error);
@@ -1225,18 +1225,18 @@
 		JSClassDef js_rlDrawCall_def={ .class_name = "rlDrawCall", .finalizer = js_rlDrawCall_finalizer };
 		JS_NewClass(rt,js_rlDrawCall_class_id,(const JSClassDef  *)&js_rlDrawCall_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_rlDrawCall_proto_funcs,(int)countof(js_rlDrawCall_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_rlDrawCall_proto_funcs,(int)countof(js_rlDrawCall_proto_funcs));
 		JS_SetClassProto(ctx,js_rlDrawCall_class_id,proto);
 		return 0;
 	}
 	
 	static void js_rlRenderBatch_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_rlRenderBatch_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
 	static JSValue js_rlRenderBatch_get_bufferCount(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		int bufferCount=ptr[0].bufferCount;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)bufferCount));
@@ -1245,7 +1245,7 @@
 	
 	static JSValue js_rlRenderBatch_set_bufferCount(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1256,7 +1256,7 @@
 	}
 	
 	static JSValue js_rlRenderBatch_get_currentBuffer(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		int currentBuffer=ptr[0].currentBuffer;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)currentBuffer));
@@ -1265,7 +1265,7 @@
 	
 	static JSValue js_rlRenderBatch_set_currentBuffer(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1280,14 +1280,14 @@
 		JSValue ret=JS_NewArray(ctx);
 		for(int i=0;i<ptr[0].bufferCount;i++){
 			rlVertexBuffer * src0=(ptr[0].vertexBuffer+i);
-			JS_DupValue(ctx,anchor);
+			JS_DupValue(ctx,(JSValueConst)anchor);
 			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
 			JSValue ret1=JS_NewObjectClass(ctx,js_rlVertexBuffer_class_id);
-			JS_SetOpaque(ret1,(void  *)ptr_ret1);
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_SetOpaque((JSValueConst)ret1,(void  *)ptr_ret1);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -1315,10 +1315,10 @@
 		}else{
 			if(property>=0&&property<ptr[0].bufferCount){
 				rlVertexBuffer * src=(ptr[0].vertexBuffer+property);
-				JS_DupValue(ctx,anchor);
+				JS_DupValue(ctx,(JSValueConst)anchor);
 				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
 				JSValue ret=JS_NewObjectClass(ctx,js_rlVertexBuffer_class_id);
-				JS_SetOpaque(ret,(void  *)ptr_ret);
+				JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 				return ret;
 			}else{
 				return JS_UNDEFINED;
@@ -1364,7 +1364,7 @@
 	}
 	
 	static JSValue js_rlRenderBatch_get_vertexBuffer(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -1378,7 +1378,7 @@
 	
 	static JSValue js_rlRenderBatch_set_vertexBuffer(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		rlVertexBuffer * value=js_getrlVertexBuffer_arrnc(ctx,v,&error);
@@ -1394,14 +1394,14 @@
 		JSValue ret=JS_NewArray(ctx);
 		for(int i=0;i<RL_DEFAULT_BATCH_DRAWCALLS;i++){
 			rlDrawCall * src0=(ptr[0].draws+i);
-			JS_DupValue(ctx,anchor);
+			JS_DupValue(ctx,(JSValueConst)anchor);
 			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
 			JSValue ret1=JS_NewObjectClass(ctx,js_rlDrawCall_class_id);
-			JS_SetOpaque(ret1,(void  *)ptr_ret1);
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_SetOpaque((JSValueConst)ret1,(void  *)ptr_ret1);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		if(as_sting==true){
-			ret =JS_JSONStringify(ctx,ret,JS_UNDEFINED,JS_UNDEFINED);
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
 		}
 		return ret;
 	}
@@ -1429,10 +1429,10 @@
 		}else{
 			if(property>=0&&property<RL_DEFAULT_BATCH_DRAWCALLS){
 				rlDrawCall * src=(ptr[0].draws+property);
-				JS_DupValue(ctx,anchor);
+				JS_DupValue(ctx,(JSValueConst)anchor);
 				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
 				JSValue ret=JS_NewObjectClass(ctx,js_rlDrawCall_class_id);
-				JS_SetOpaque(ret,(void  *)ptr_ret);
+				JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 				return ret;
 			}else{
 				return JS_UNDEFINED;
@@ -1478,7 +1478,7 @@
 	}
 	
 	static JSValue js_rlRenderBatch_get_draws(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		JSValue anchor;
 		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
@@ -1492,7 +1492,7 @@
 	
 	static JSValue js_rlRenderBatch_set_draws(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		rlDrawCall * value=js_getrlDrawCall_arrnc(ctx,v,&error);
@@ -1504,7 +1504,7 @@
 	}
 	
 	static JSValue js_rlRenderBatch_get_drawCounter(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		int drawCounter=ptr[0].drawCounter;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)drawCounter));
@@ -1513,7 +1513,7 @@
 	
 	static JSValue js_rlRenderBatch_set_drawCounter(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -1524,7 +1524,7 @@
 	}
 	
 	static JSValue js_rlRenderBatch_get_currentDepth(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		float currentDepth=ptr[0].currentDepth;
 		JSValue ret=JS_NewFloat64(ctx,((double)currentDepth));
@@ -1533,7 +1533,7 @@
 	
 	static JSValue js_rlRenderBatch_set_currentDepth(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_rlRenderBatch_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_rlRenderBatch_class_id);
 		rlRenderBatch * ptr=(rlRenderBatch  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		float value=js_getfloat(ctx,v,&error);
@@ -1558,7 +1558,7 @@
 		JSClassDef js_rlRenderBatch_def={ .class_name = "rlRenderBatch", .finalizer = js_rlRenderBatch_finalizer };
 		JS_NewClass(rt,js_rlRenderBatch_class_id,(const JSClassDef  *)&js_rlRenderBatch_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_rlRenderBatch_proto_funcs,(int)countof(js_rlRenderBatch_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_rlRenderBatch_proto_funcs,(int)countof(js_rlRenderBatch_proto_funcs));
 		JS_SetClassProto(ctx,js_rlRenderBatch_class_id,proto);
 		return 0;
 	}
@@ -1567,13 +1567,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(rlVertexBuffer));
 			JSValue _return=JS_NewObjectClass(ctx,js_rlVertexBuffer_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		rlVertexBuffer _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_rlVertexBuffer_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_rlVertexBuffer_class_id){
 			rlVertexBuffer ptr=js_getrlVertexBuffer(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =rlVertexBuffer_copy(ctx,ptr);
@@ -1609,7 +1609,7 @@
 		rlVertexBuffer * _returnptr=((rlVertexBuffer *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_rlVertexBuffer_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -1618,13 +1618,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(rlDrawCall));
 			JSValue _return=JS_NewObjectClass(ctx,js_rlDrawCall_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		rlDrawCall _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_rlDrawCall_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_rlDrawCall_class_id){
 			rlDrawCall ptr=js_getrlDrawCall(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =ptr;
@@ -1648,7 +1648,7 @@
 		rlDrawCall * _returnptr=((rlDrawCall *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_rlDrawCall_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -1657,13 +1657,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(rlRenderBatch));
 			JSValue _return=JS_NewObjectClass(ctx,js_rlRenderBatch_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		rlRenderBatch _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_rlRenderBatch_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_rlRenderBatch_class_id){
 			rlRenderBatch ptr=js_getrlRenderBatch(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =rlRenderBatch_copy(ctx,ptr);
@@ -1693,7 +1693,7 @@
 		rlRenderBatch * _returnptr=((rlRenderBatch *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_rlRenderBatch_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -2441,7 +2441,7 @@
 		for(int i=0;i<32;i++){
 			int src0=returnVal[i];
 			JSValue ret1=JS_NewInt32(ctx,(int32_t)((long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		return ret;
 	}
@@ -2457,7 +2457,7 @@
 		rlRenderBatch * ptr2_ret=((rlRenderBatch *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_rlRenderBatch_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2790,7 +2790,7 @@
 		for(int i=0;i<GetPixelDataSize(width,height,format);i++){
 			unsigned char src0=returnVal[i];
 			JSValue ret1=JS_NewUint32(ctx,(uint32_t)((unsigned long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		return ret;
 	}
@@ -2814,7 +2814,7 @@
 	
 	static JSValue js_rlFramebufferAttach(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		unsigned int fboId=js_getunsignedint(ctx,argv[0],&error);
+		unsigned int id=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		unsigned int texId=js_getunsignedint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
@@ -2824,7 +2824,7 @@
 		if(error==1)return JS_EXCEPTION;
 		int mipLevel=js_getint(ctx,argv[4],&error);
 		if(error==1)return JS_EXCEPTION;
-		rlFramebufferAttach(fboId,texId,attachType,texType,mipLevel);
+		rlFramebufferAttach(id,texId,attachType,texType,mipLevel);
 		return JS_UNDEFINED;
 	}
 	
@@ -2845,7 +2845,46 @@
 		return JS_UNDEFINED;
 	}
 	
-	static JSValue js_rlLoadShaderCode(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+	static JSValue js_rlCopyFramebuffer(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		int x=js_getint(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		int y=js_getint(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		int width=js_getint(ctx,argv[2],&error);
+		if(error==1)return JS_EXCEPTION;
+		int height=js_getint(ctx,argv[3],&error);
+		if(error==1)return JS_EXCEPTION;
+		int format=js_getint(ctx,argv[4],&error);
+		if(error==1)return JS_EXCEPTION;
+		void * pixels=js_getvoid_arr(ctx,argv[5],&error);
+		if(error==1)return JS_EXCEPTION;
+		rlCopyFramebuffer(x,y,width,height,format,pixels);
+		return JS_UNDEFINED;
+	}
+	
+	static JSValue js_rlResizeFramebuffer(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		int width=js_getint(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		int height=js_getint(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		rlResizeFramebuffer(width,height);
+		return JS_UNDEFINED;
+	}
+	
+	static JSValue js_rlLoadShader(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		char * code=js_getchar_arr(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		int type=js_getint(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		int returnVal=rlLoadShader((const char  *)code,type);
+		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
+		return ret;
+	}
+	
+	static JSValue js_rlLoadShaderProgram(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
 		char * vsCode=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
@@ -2856,26 +2895,32 @@
 		return ret;
 	}
 	
-	static JSValue js_rlCompileShader(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+	static JSValue js_rlLoadShaderProgramEx(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		char * shaderCode=js_getchar_arr(ctx,argv[0],&error);
+		unsigned int vsId=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
-		int type=js_getint(ctx,argv[1],&error);
+		unsigned int fsId=js_getunsignedint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadShader((const char  *)shaderCode,type);
+		int returnVal=rlLoadShaderProgramEx(vsId,fsId);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
 	
-	static JSValue js_rlLoadShaderProgram(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+	static JSValue js_rlLoadShaderProgramCompute(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		unsigned int vShaderId=js_getunsignedint(ctx,argv[0],&error);
+		unsigned int csId=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
-		unsigned int fShaderId=js_getunsignedint(ctx,argv[1],&error);
-		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadShaderProgramEx(vShaderId,fShaderId);
+		int returnVal=rlLoadShaderProgramCompute(csId);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
+	}
+	
+	static JSValue js_rlUnloadShader(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		unsigned int id=js_getunsignedint(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		rlUnloadShader(id);
+		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_rlUnloadShaderProgram(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
@@ -2888,22 +2933,22 @@
 	
 	static JSValue js_rlGetLocationUniform(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		unsigned int shaderId=js_getunsignedint(ctx,argv[0],&error);
+		unsigned int id=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * uniformName=js_getchar_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlGetLocationUniform(shaderId,(const char  *)uniformName);
+		int returnVal=rlGetLocationUniform(id,(const char  *)uniformName);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
 	
 	static JSValue js_rlGetLocationAttrib(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		bool error=(bool)0;
-		unsigned int shaderId=js_getunsignedint(ctx,argv[0],&error);
+		unsigned int id=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * attribName=js_getchar_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlGetLocationAttrib(shaderId,(const char  *)attribName);
+		int returnVal=rlGetLocationAttrib(id,(const char  *)attribName);
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
 	}
@@ -3014,15 +3059,6 @@
 		if(error==1)return JS_EXCEPTION;
 		rlSetShader(id,locs);
 		return JS_UNDEFINED;
-	}
-	
-	static JSValue js_rlLoadComputeShaderProgram(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		unsigned int shaderId=js_getunsignedint(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		int returnVal=rlLoadShaderProgramCompute(shaderId);
-		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
-		return ret;
 	}
 	
 	static JSValue js_rlComputeShaderDispatch(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
@@ -3142,7 +3178,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -3152,7 +3188,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -3162,7 +3198,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -3175,7 +3211,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -3188,7 +3224,7 @@
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -3363,9 +3399,13 @@
 		JS_CFUNC_DEF("rlFramebufferAttach",5,js_rlFramebufferAttach),
 		JS_CFUNC_DEF("rlFramebufferComplete",1,js_rlFramebufferComplete),
 		JS_CFUNC_DEF("rlUnloadFramebuffer",1,js_rlUnloadFramebuffer),
-		JS_CFUNC_DEF("rlLoadShaderCode",2,js_rlLoadShaderCode),
-		JS_CFUNC_DEF("rlCompileShader",2,js_rlCompileShader),
+		JS_CFUNC_DEF("rlCopyFramebuffer",6,js_rlCopyFramebuffer),
+		JS_CFUNC_DEF("rlResizeFramebuffer",2,js_rlResizeFramebuffer),
+		JS_CFUNC_DEF("rlLoadShader",2,js_rlLoadShader),
 		JS_CFUNC_DEF("rlLoadShaderProgram",2,js_rlLoadShaderProgram),
+		JS_CFUNC_DEF("rlLoadShaderProgramEx",2,js_rlLoadShaderProgramEx),
+		JS_CFUNC_DEF("rlLoadShaderProgramCompute",1,js_rlLoadShaderProgramCompute),
+		JS_CFUNC_DEF("rlUnloadShader",1,js_rlUnloadShader),
 		JS_CFUNC_DEF("rlUnloadShaderProgram",1,js_rlUnloadShaderProgram),
 		JS_CFUNC_DEF("rlGetLocationUniform",2,js_rlGetLocationUniform),
 		JS_CFUNC_DEF("rlGetLocationAttrib",2,js_rlGetLocationAttrib),
@@ -3374,7 +3414,6 @@
 		JS_CFUNC_DEF("rlSetUniformMatrices",3,js_rlSetUniformMatrices),
 		JS_CFUNC_DEF("rlSetUniformSampler",2,js_rlSetUniformSampler),
 		JS_CFUNC_DEF("rlSetShader",2,js_rlSetShader),
-		JS_CFUNC_DEF("rlLoadComputeShaderProgram",1,js_rlLoadComputeShaderProgram),
 		JS_CFUNC_DEF("rlComputeShaderDispatch",3,js_rlComputeShaderDispatch),
 		JS_CFUNC_DEF("rlLoadShaderBuffer",3,js_rlLoadShaderBuffer),
 		JS_CFUNC_DEF("rlUnloadShaderBuffer",1,js_rlUnloadShaderBuffer),
@@ -3409,7 +3448,7 @@
 		js_declare_rlRenderBatch(ctx,m);
 		JSValue rlRenderBatch_constr=JS_NewCFunction2(ctx,js_rlRenderBatch_constructor,(const char  *)"rlRenderBatch",(int)6,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"rlRenderBatch",rlRenderBatch_constr);
-		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_11_SOFTWARE",JS_NewInt32(ctx,(int32_t)0));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_SOFTWARE",JS_NewInt32(ctx,(int32_t)RL_OPENGL_SOFTWARE));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_11",JS_NewInt32(ctx,(int32_t)RL_OPENGL_11));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_21",JS_NewInt32(ctx,(int32_t)RL_OPENGL_21));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_OPENGL_33",JS_NewInt32(ctx,(int32_t)RL_OPENGL_33));
@@ -3528,6 +3567,11 @@
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_CULL_FACE_FRONT",JS_NewInt32(ctx,(int32_t)RL_CULL_FACE_FRONT));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_CULL_FACE_BACK",JS_NewInt32(ctx,(int32_t)RL_CULL_FACE_BACK));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_BUFFER_ELEMENTS",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_BATCH_BUFFER_ELEMENTS));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_BUFFERS",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_BATCH_BUFFERS));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_MAX_MATRIX_STACK_SIZE",JS_NewInt32(ctx,(int32_t)RL_MAX_MATRIX_STACK_SIZE));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_CULL_DISTANCE_NEAR",JS_NewFloat64(ctx,RL_CULL_DISTANCE_NEAR));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_CULL_DISTANCE_FAR",JS_NewFloat64(ctx,RL_CULL_DISTANCE_FAR));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_TEXTURE_WRAP_S",JS_NewInt32(ctx,(int32_t)RL_TEXTURE_WRAP_S));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_TEXTURE_WRAP_T",JS_NewInt32(ctx,(int32_t)RL_TEXTURE_WRAP_T));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_TEXTURE_MAG_FILTER",JS_NewInt32(ctx,(int32_t)RL_TEXTURE_MAG_FILTER));
@@ -3594,6 +3638,16 @@
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_BLEND_COLOR",JS_NewInt32(ctx,(int32_t)RL_BLEND_COLOR));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_READ_FRAMEBUFFER",JS_NewInt32(ctx,(int32_t)RL_READ_FRAMEBUFFER));
 		JS_SetModuleExport(ctx,m,(const char  *)"RL_DRAW_FRAMEBUFFER",JS_NewInt32(ctx,(int32_t)RL_DRAW_FRAMEBUFFER));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_POSITION",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_POSITION));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS));
+		JS_SetModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM",JS_NewInt32(ctx,(int32_t)RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM));
 		return 0;
 	}
 	
@@ -3605,7 +3659,7 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"rlVertexBuffer");
 		JS_AddModuleExport(ctx,m,(const char  *)"rlDrawCall");
 		JS_AddModuleExport(ctx,m,(const char  *)"rlRenderBatch");
-		JS_AddModuleExport(ctx,m,(const char  *)"RL_OPENGL_11_SOFTWARE");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_OPENGL_SOFTWARE");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_OPENGL_11");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_OPENGL_21");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_OPENGL_33");
@@ -3724,6 +3778,11 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_CULL_FACE_FRONT");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_CULL_FACE_BACK");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_BUFFER_ELEMENTS");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_BUFFERS");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_MAX_MATRIX_STACK_SIZE");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_CULL_DISTANCE_NEAR");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_CULL_DISTANCE_FAR");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_TEXTURE_WRAP_S");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_TEXTURE_WRAP_T");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_TEXTURE_MAG_FILTER");
@@ -3790,6 +3849,16 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_BLEND_COLOR");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_READ_FRAMEBUFFER");
 		JS_AddModuleExport(ctx,m,(const char  *)"RL_DRAW_FRAMEBUFFER");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_POSITION");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS");
+		JS_AddModuleExport(ctx,m,(const char  *)"RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM");
 		return m;
 	}
 

@@ -16,3 +16,6 @@
 	path = thirdparty/mimalloc
 	url = https://github.com/microsoft/mimalloc.git
 	branch = dev
+[submodule "thirdparty/box2d"]
+	path = thirdparty/box2d
+	url = https://github.com/erincatto/box2d.git

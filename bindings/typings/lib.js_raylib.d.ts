@@ -202,13 +202,13 @@ prototype: Camera3D
 new(position?: Vector3, target?: Vector3, up?: Vector3, fovy?: number, projection?: number): Camera3D
 }
 interface Camera2D {
-/** Camera offset (displacement from target) */
+/** Camera offset (screen space offset from window origin) */
 offset: Vector2,
-/** Camera target (rotation and zoom origin) */
+/** Camera target (world space target point that is mapped to screen space offset) */
 target: Vector2,
-/** Camera rotation in degrees */
+/** Camera rotation in degrees (pivots around target) */
 rotation: number,
-/** Camera zoom (scaling), should be 1.0f by default */
+/** Camera zoom (scaling around target), must not be set to 0, set to 1.0f for no scale */
 zoom: number,
 }
 var Camera2D: {
@@ -234,18 +234,16 @@ tangents: number[],
 colors: number[],
 /** Vertex indices (in case vertex data comes indexed) */
 indices: number[],
+/** Number of bones (MAX: 256 bones) */
+boneCount: number,
+/** Vertex bone indices, up to 4 bones influence by vertex (skinning) (shader-location = 6) */
+boneIndices: number[],
+/** Vertex bone weight, up to 4 bones influence by vertex (skinning) (shader-location = 7) */
+boneWeights: number[],
 /** Animated vertex positions (after bones transformations) */
 animVertices: number[],
 /** Animated normals (after bones transformations) */
 animNormals: number[],
-/** Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning) (shader-location = 6) */
-boneIds: number[],
-/** Vertex bone weight, up to 4 bones influence by vertex (skinning) (shader-location = 7) */
-boneWeights: number[],
-/** Bones animated transformation matrices */
-boneMatrices: Matrix[],
-/** Number of bones */
-boneCount: number,
 /** OpenGL Vertex Array Object id */
 vaoId: number,
 /** OpenGL Vertex Buffer Objects id (default vertex data) */
@@ -253,7 +251,7 @@ vboId: number[],
 }
 var Mesh: {
 prototype: Mesh
-new(vertexCount?: number, triangleCount?: number, vertices?: number[], texcoords?: number[], texcoords2?: number[], normals?: number[], tangents?: number[], colors?: number[], indices?: number[], animVertices?: number[], animNormals?: number[], boneIds?: number[], boneWeights?: number[], boneMatrices?: Matrix[], boneCount?: number, vaoId?: number, vboId?: number[]): Mesh
+new(vertexCount?: number, triangleCount?: number, vertices?: number[], texcoords?: number[], texcoords2?: number[], normals?: number[], tangents?: number[], colors?: number[], indices?: number[], boneCount?: number, boneIndices?: number[], boneWeights?: number[], animVertices?: number[], animNormals?: number[], vaoId?: number, vboId?: number[]): Mesh
 }
 interface Shader {
 /** Shader program id */
@@ -311,6 +309,18 @@ var BoneInfo: {
 prototype: BoneInfo
 new(name?: string, parent?: number): BoneInfo
 }
+interface ModelSkeleton {
+/** Number of bones */
+boneCount: number,
+/** Bones information (skeleton) */
+bones: BoneInfo[],
+/** Bones base transformation (Transform[]) */
+bindPose: Transform[],
+}
+var ModelSkeleton: {
+prototype: ModelSkeleton
+new(boneCount?: number, bones?: BoneInfo[], bindPose?: Transform[]): ModelSkeleton
+}
 interface Model {
 /** Local transform matrix */
 transform: Matrix,
@@ -324,30 +334,28 @@ meshes: Mesh[],
 materials: Material[],
 /** Mesh material number */
 meshMaterial: number[],
-/** Number of bones */
-boneCount: number,
-/** Bones information (skeleton) */
-bones: BoneInfo[],
-/** Bones base transformation (pose) */
-bindPose: Transform[],
+/** Current animation pose (Transform[]) */
+currentPose: Transform[],
+/** Bones animated transformation matrices */
+boneMatrices: Matrix[],
 }
 var Model: {
 prototype: Model
-new(transform?: Matrix, meshCount?: number, materialCount?: number, meshes?: Mesh[], materials?: Material[], meshMaterial?: number[], boneCount?: number, bones?: BoneInfo[], bindPose?: Transform[]): Model
+new(transform?: Matrix, meshCount?: number, materialCount?: number, meshes?: Mesh[], materials?: Material[], meshMaterial?: number[], currentPose?: Transform[], boneMatrices?: Matrix[]): Model
 }
 interface ModelAnimation {
+/** Animation name */
+name: string,
 /** Number of bones (per pose) */
 boneCount: number,
 /** Number of animation key frames */
 keyframeCount: number,
 /** Animation sequence keyframe poses [keyframe][pose] */
 keyframePoses: Transform[][],
-/** Animation name */
-name: string,
 }
 var ModelAnimation: {
 prototype: ModelAnimation
-new(boneCount?: number, keyframeCount?: number, keyframePoses?: Transform[][], name?: string): ModelAnimation
+new(name?: string, boneCount?: number, keyframeCount?: number, keyframePoses?: Transform[][]): ModelAnimation
 }
 interface Ray {
 /** Ray position (origin) */
@@ -492,8 +500,6 @@ prototype: VrStereoConfig
 new(projection?: [Matrix,Matrix], viewOffset?: [Matrix,Matrix], leftLensCenter?: [number,number], rightLensCenter?: [number,number], leftScreenCenter?: [number,number], rightScreenCenter?: [number,number], scale?: [number,number], scaleIn?: [number,number]): VrStereoConfig
 }
 interface FilePathList {
-/** Filepaths max entries */
-capacity: number,
 /** Filepaths entries count */
 count: number,
 /** Filepaths entries */
@@ -501,7 +507,7 @@ paths: string[],
 }
 var FilePathList: {
 prototype: FilePathList
-new(capacity?: number, count?: number, paths?: string[]): FilePathList
+new(count?: number, paths?: string[]): FilePathList
 }
 interface AutomationEvent {
 /** Event frame */
@@ -546,6 +552,7 @@ type Texture2D = Texture;
 type TextureCubemap = Texture;
 type RenderTexture2D = RenderTexture;
 type Camera = Camera3D;
+type *ModelAnimPose = Transform;
 /** Initialize window and OpenGL context */
 function InitWindow(width: number, height: number, title: string): void/** Close window and unload OpenGL context */
 function CloseWindow(): void/** Check if application should close (KEY_ESCAPE pressed or windows close icon clicked) */
@@ -648,18 +655,18 @@ function LoadRandomSequence(count: number, min: number, max: number): number[]/*
 function UnloadRandomSequence(sequence: number[]): void/** Takes a screenshot of current screen (filename extension defines format) */
 function TakeScreenshot(fileName: string): void/** Setup init configuration flags (view FLAGS) */
 function SetConfigFlags(flags: number): void/** Open URL with default system browser (if available) */
-function OpenURL(url: string): void/** Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...) */
-function TraceLog(logLevel: number, text: string, ...args: any): void/** Set the current threshold (minimum) log level */
-function SetTraceLogLevel(logLevel: number): void/** Set custom file binary data loader */
-function SetLoadFileDataCallback(callback: LoadFileDataCallback): void/** Set custom file binary data saver */
-function SetSaveFileDataCallback(callback: SaveFileDataCallback): void/** Set custom file text data loader */
-function SetLoadFileTextCallback(callback: LoadFileTextCallback): void/** Set custom file text data saver */
-function SetSaveFileTextCallback(callback: SaveFileTextCallback): void/** Load file data as byte array (read) */
+function OpenURL(url: string): void/** Set the current threshold (minimum) log level */
+function SetTraceLogLevel(logLevel: number): void/** Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...) */
+function TraceLog(logLevel: number, text: string, ...args: any): void/** Load file data as byte array (read) */
 function LoadFileData(fileName: string, dataSize: number | number[]): number[]/** undefined */
 function SaveFileData(fileName: string, data: ArrayBuffer, dataSize: number): boolean/** Export data to code (.h), returns true on success */
 function ExportDataAsCode(data: number[], dataSize: number, fileName: string): boolean/** Load text data from file (read), returns a '\0' terminated string */
 function LoadFileText(fileName: string): string/** Save text data to file (write), string must be '\0' terminated, returns true on success */
-function SaveFileText(fileName: string, text: string): boolean/** Rename file (if exists) */
+function SaveFileText(fileName: string, text: string): boolean/** Set custom file binary data loader */
+function SetLoadFileDataCallback(callback: LoadFileDataCallback): void/** Set custom file binary data saver */
+function SetSaveFileDataCallback(callback: SaveFileDataCallback): void/** Set custom file text data loader */
+function SetLoadFileTextCallback(callback: LoadFileTextCallback): void/** Set custom file text data saver */
+function SetSaveFileTextCallback(callback: SaveFileTextCallback): void/** Rename file (if exists) */
 function FileRename(fileName: string, fileRename: string): number/** Remove file (if exists) */
 function FileRemove(fileName: string): number/** Copy file from one path to another, dstPath created if it doesn't exist */
 function FileCopy(srcPath: string, dstPath: string): number/** Move file from one directory to another, dstPath created if it doesn't exist */
@@ -679,13 +686,15 @@ function GetPrevDirectoryPath(dirPath: string): string/** Get current working di
 function GetWorkingDirectory(): string/** Get the directory of the running application (uses static string) */
 function GetApplicationDirectory(): string/** Create directories (including full path requested), returns 0 on success */
 function MakeDirectory(dirPath: string): number/** Change working directory, return true on success */
-function ChangeDirectory(dir: string): boolean/** Check if a given path is a file or a directory */
+function ChangeDirectory(dirPath: string): boolean/** Check if a given path is a file or a directory */
 function IsPathFile(path: string): boolean/** Check if fileName is valid for the platform/OS */
 function IsFileNameValid(fileName: string): boolean/** undefined */
 function LoadDirectoryFiles(dirPath: string): string[]/** undefined */
 function LoadDirectoryFilesEx(basePath: string, filter: string, scanSubdirs: boolean): string[]/** Check if a file has been dropped into window */
 function IsFileDropped(): boolean/** undefined */
-function LoadDroppedFiles(): string[]/** Compress data (DEFLATE algorithm), memory must be MemFree() */
+function LoadDroppedFiles(): string[]/** Get the file count in a directory */
+function GetDirectoryFileCount(dirPath: string): number/** Get the file count in a directory with extension filtering and recursive directory scan. Use 'DIR' in the filter string to include directories in the result */
+function GetDirectoryFileCountEx(basePath: string, filter: string, scanSubdirs: boolean): number/** Compress data (DEFLATE algorithm), memory must be MemFree() */
 function CompressData(data: number[], dataSize: number, compDataSize: number[]): string/** Decompress data (DEFLATE algorithm), memory must be MemFree() */
 function DecompressData(compData: number[], compDataSize: number, dataSize: number | number[]): string/** Encode data to Base64 string (includes NULL terminator), memory must be MemFree() */
 function EncodeDataBase64(data: number[], dataSize: number, outputSize: number[]): string/** Decode Base64 string (expected NULL terminated), memory must be MemFree() */
@@ -762,11 +771,11 @@ function DrawLineEx(startPos: Vector2, endPos: Vector2, thick: number, color: Co
 function DrawLineStrip(points: Vector2[], pointCount: number, color: Color): void/** Draw line segment cubic-bezier in-out interpolation */
 function DrawLineBezier(startPos: Vector2, endPos: Vector2, thick: number, color: Color): void/** Draw a dashed line */
 function DrawLineDashed(startPos: Vector2, endPos: Vector2, dashSize: number, spaceSize: number, color: Color): void/** Draw a color-filled circle */
-function DrawCircle(centerX: number, centerY: number, radius: number, color: Color): void/** Draw a piece of a circle */
+function DrawCircle(centerX: number, centerY: number, radius: number, color: Color): void/** Draw a color-filled circle (Vector version) */
+function DrawCircleV(center: Vector2, radius: number, color: Color): void/** Draw a gradient-filled circle */
+function DrawCircleGradient(center: Vector2, radius: number, inner: Color, outer: Color): void/** Draw a piece of a circle */
 function DrawCircleSector(center: Vector2, radius: number, startAngle: number, endAngle: number, segments: number, color: Color): void/** Draw circle sector outline */
-function DrawCircleSectorLines(center: Vector2, radius: number, startAngle: number, endAngle: number, segments: number, color: Color): void/** Draw a gradient-filled circle */
-function DrawCircleGradient(centerX: number, centerY: number, radius: number, inner: Color, outer: Color): void/** Draw a color-filled circle (Vector version) */
-function DrawCircleV(center: Vector2, radius: number, color: Color): void/** Draw circle outline */
+function DrawCircleSectorLines(center: Vector2, radius: number, startAngle: number, endAngle: number, segments: number, color: Color): void/** Draw circle outline */
 function DrawCircleLines(centerX: number, centerY: number, radius: number, color: Color): void/** Draw circle outline (Vector version) */
 function DrawCircleLinesV(center: Vector2, radius: number, color: Color): void/** Draw ellipse */
 function DrawEllipse(centerX: number, centerY: number, radiusH: number, radiusV: number, color: Color): void/** Draw ellipse (Vector version) */
@@ -829,7 +838,7 @@ function LoadImageFromTexture(texture: Texture2D): Image/** Load image from scre
 function LoadImageFromScreen(): Image/** Check if an image is valid (data and parameters) */
 function IsImageValid(image: Image): boolean/** Unload image from CPU memory (RAM) */
 function UnloadImage(image: Image): void/** Export image data to file, returns true on success */
-function ExportImage(image: Image, fileName: string): boolean/** Export image to memory buffer */
+function ExportImage(image: Image, fileName: string): boolean/** Export image to memory buffer, memory must be MemFree() */
 function ExportImageToMemory(image: Image, fileType: string, fileSize: number | number[]): string/** Export image as code file defining an array of bytes, returns true on success */
 function ExportImageAsCode(image: Image, fileName: string): boolean/** Generate image: plain color */
 function GenImageColor(width: number, height: number, color: Color): Image/** Generate image: linear gradient, direction in degrees [0..360], 0=Vertical gradient */
@@ -954,7 +963,8 @@ function DrawTextCodepoint(font: Font, codepoint: number, position: Vector2, fon
 function DrawTextCodepoints(font: Font, codepoints: number[], codepointCount: number, position: Vector2, fontSize: number, spacing: number, tint: Color): void/** Set vertical line spacing when drawing with line-breaks */
 function SetTextLineSpacing(spacing: number): void/** Measure string width for default font */
 function MeasureText(text: string, fontSize: number): number/** Measure string size for Font */
-function MeasureTextEx(font: Font, text: string, fontSize: number, spacing: number): Vector2/** Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found */
+function MeasureTextEx(font: Font, text: string, fontSize: number, spacing: number): Vector2/** Measure string size for an existing array of codepoints for Font */
+function MeasureTextCodepoints(font: Font, codepoints: number[], length: number, fontSize: number, spacing: number): Vector2/** Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found */
 function GetGlyphIndex(font: Font, codepoint: number): number/** Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found */
 function GetGlyphInfo(font: Font, codepoint: number): GlyphInfo/** Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found */
 function GetGlyphAtlasRec(font: Font, codepoint: number): Rectangle/** Load UTF-8 text encoded from codepoints array */
@@ -973,10 +983,13 @@ function TextLength(text: string): number/** Text formatting with variables (spr
 function TextFormat(text: string, ...args: any): string/** Get a piece of a text string */
 function TextSubtext(text: string, position: number, length: number): string/** Remove text spaces, concat words */
 function TextRemoveSpaces(text: string): string/** Get text between two strings */
-function GetTextBetween(text: string, begin: string, end: string): string/** Replace text string (WARNING: memory must be freed!) */
-function TextReplace(text: string, search: string, replacement: string): string/** Replace text between two specific strings (WARNING: memory must be freed!) */
-function TextReplaceBetween(text: string, begin: string, end: string, replacement: string): string/** Insert text in a position (WARNING: memory must be freed!) */
-function TextInsert(text: string, insert: string, position: number): string/** Join text strings with delimiter */
+function GetTextBetween(text: string, begin: string, end: string): string/** Replace text string with new string */
+function TextReplace(text: string, search: string, replacement: string): string/** Replace text string with new string, memory must be MemFree() */
+function TextReplaceAlloc(text: string, search: string, replacement: string): string/** Replace text between two specific strings */
+function TextReplaceBetween(text: string, begin: string, end: string, replacement: string): string/** Replace text between two specific strings, memory must be MemFree() */
+function TextReplaceBetweenAlloc(text: string, begin: string, end: string, replacement: string): string/** Insert text in a defined byte position */
+function TextInsert(text: string, insert: string, position: number): string/** Insert text in a defined byte position, memory must be MemFree() */
+function TextInsertAlloc(text: string, insert: string, position: number): string/** Join text strings with delimiter */
 function TextJoin(textList: string[], count: number, delimiter: string): string/** Split text into multiple strings, using MAX_TEXTSPLIT_COUNT static strings */
 function TextSplit(text: string, delimiter: string, count: number | number[]): string[]/** Append text at specific position and move cursor */
 function TextAppend(text: string, append: string, position: number | number[]): void/** Find first text occurrence within a string, -1 if not found */
@@ -1017,9 +1030,7 @@ function GetModelBoundingBox(model: Model): BoundingBox/** Draw a model (with te
 function DrawModel(model: Model, position: Vector3, scale: number, tint: Color): void/** Draw a model with extended parameters */
 function DrawModelEx(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: number, scale: Vector3, tint: Color): void/** Draw a model wires (with texture if set) */
 function DrawModelWires(model: Model, position: Vector3, scale: number, tint: Color): void/** Draw a model wires (with texture if set) with extended parameters */
-function DrawModelWiresEx(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: number, scale: Vector3, tint: Color): void/** Draw a model as points */
-function DrawModelPoints(model: Model, position: Vector3, scale: number, tint: Color): void/** Draw a model as points with extended parameters */
-function DrawModelPointsEx(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: number, scale: Vector3, tint: Color): void/** Draw bounding box (wires) */
+function DrawModelWiresEx(model: Model, position: Vector3, rotationAxis: Vector3, rotationAngle: number, scale: Vector3, tint: Color): void/** Draw bounding box (wires) */
 function DrawBoundingBox(box: BoundingBox, color: Color): void/** Draw a billboard texture */
 function DrawBillboard(camera: Camera, texture: Texture2D, position: Vector3, scale: number, tint: Color): void/** Draw a billboard texture defined by source */
 function DrawBillboardRec(camera: Camera, texture: Texture2D, source: Rectangle, position: Vector3, size: Vector2, tint: Color): void/** Draw a billboard texture defined by source and rotation */
@@ -1050,9 +1061,9 @@ function IsMaterialValid(material: Material): boolean/** Unload material from GP
 function UnloadMaterial(material: Material): void/** Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...) */
 function SetMaterialTexture(material: Material, mapType: number, texture: Texture2D): void/** Set material for a mesh */
 function SetModelMeshMaterial(model: Model, meshId: number, materialId: number): void/** Load model animations from file */
-function LoadModelAnimations(fileName: string, animCount: number | number[]): ModelAnimation[]/** Update model animation pose (CPU) */
-function UpdateModelAnimation(model: Model, anim: ModelAnimation, frame: number): void/** Unload animation data */
-function UnloadModelAnimation(anim: ModelAnimation): void/** Unload animation array data */
+function LoadModelAnimations(fileName: string, animCount: number | number[]): ModelAnimation[]/** Update model animation pose (vertex buffers and bone matrices) */
+function UpdateModelAnimation(model: Model, anim: ModelAnimation, frame: number): void/** Update model animation pose, blending two animations */
+function UpdateModelAnimationEx(model: Model, animA: ModelAnimation, frameA: number, animB: ModelAnimation, frameB: number, blend: number): void/** Unload animation array data */
 function UnloadModelAnimations(animations: ModelAnimation[], animCount: number): void/** Check model animation skeleton match */
 function IsModelAnimationValid(model: Model, anim: ModelAnimation): boolean/** Check collision between two spheres */
 function CheckCollisionSpheres(center1: Vector3, radius1: number, center2: Vector3, radius2: number): boolean/** Check collision between two bounding boxes */
@@ -1074,7 +1085,7 @@ function IsWaveValid(wave: Wave): boolean/** Load sound from file */
 function LoadSound(fileName: string): Sound/** Load sound from wave data */
 function LoadSoundFromWave(wave: Wave): Sound/** Create a new sound that shares the same sample data as the source sound, does not own the sound data */
 function LoadSoundAlias(source: Sound): Sound/** Checks if a sound is valid (data loaded and buffers initialized) */
-function IsSoundValid(sound: Sound): boolean/** Update sound buffer with new data (data and frame count should fit in sound) */
+function IsSoundValid(sound: Sound): boolean/** Update sound buffer with new data (default data format: 32 bit float, stereo) */
 function UpdateSound(sound: Sound, data: ArrayBuffer, sampleCount: number): void/** Unload wave data */
 function UnloadWave(wave: Wave): void/** Unload sound */
 function UnloadSound(sound: Sound): void/** Unload a sound alias (does not deallocate sample data) */
@@ -1087,7 +1098,7 @@ function PauseSound(sound: Sound): void/** Resume a paused sound */
 function ResumeSound(sound: Sound): void/** Check if a sound is currently playing */
 function IsSoundPlaying(sound: Sound): boolean/** Set volume for a sound (1.0 is max level) */
 function SetSoundVolume(sound: Sound, volume: number): void/** Set pitch for a sound (1.0 is base level) */
-function SetSoundPitch(sound: Sound, pitch: number): void/** Set pan for a sound (0.5 is center) */
+function SetSoundPitch(sound: Sound, pitch: number): void/** Set pan for a sound (-1.0 left, 0.0 center, 1.0 right) */
 function SetSoundPan(sound: Sound, pan: number): void/** Copy a wave to a new wave */
 function WaveCopy(wave: Wave): Wave/** Crop a wave to defined frames range */
 function WaveCrop(wave: Wave, initFrame: number, finalFrame: number): void/** Convert wave data to desired format */
@@ -1106,7 +1117,7 @@ function PauseMusicStream(music: Music): void/** Resume playing paused music */
 function ResumeMusicStream(music: Music): void/** Seek music to a position (in seconds) */
 function SeekMusicStream(music: Music, position: number): void/** Set volume for music (1.0 is max level) */
 function SetMusicVolume(music: Music, volume: number): void/** Set pitch for a music (1.0 is base level) */
-function SetMusicPitch(music: Music, pitch: number): void/** Set pan for a music (0.5 is center) */
+function SetMusicPitch(music: Music, pitch: number): void/** Set pan for a music (-1.0 left, 0.0 center, 1.0 right) */
 function SetMusicPan(music: Music, pan: number): void/** Get music time length (in seconds) */
 function GetMusicTimeLength(music: Music): number/** Get current music time played (in seconds) */
 function GetMusicTimePlayed(music: Music): number/** Load audio stream (to stream raw audio pcm data) */
@@ -1121,7 +1132,7 @@ function ResumeAudioStream(stream: AudioStream): void/** Check if audio stream i
 function IsAudioStreamPlaying(stream: AudioStream): boolean/** Stop audio stream */
 function StopAudioStream(stream: AudioStream): void/** Set volume for audio stream (1.0 is max level) */
 function SetAudioStreamVolume(stream: AudioStream, volume: number): void/** Set pitch for audio stream (1.0 is base level) */
-function SetAudioStreamPitch(stream: AudioStream, pitch: number): void/** Set pan for audio stream (0.5 is centered) */
+function SetAudioStreamPitch(stream: AudioStream, pitch: number): void/** Set pan for audio stream (-1.0 to 1.0 range, 0.0 is centered) */
 function SetAudioStreamPan(stream: AudioStream, pan: number): void/** Default size for new audio streams */
 function SetAudioStreamBufferSizeDefault(size: number): void/** Attach audio stream processor to the entire audio pipeline, receives frames x 2 samples as 'float' (stereo) */
 function AttachAudioMixedProcessor(processor: AudioMixedProcessor): void/** Detach audio stream processor from the entire audio pipeline */
@@ -1281,7 +1292,7 @@ var MOUSE_CURSOR_RESIZE_NS: number/** Top-left to bottom-right diagonal resize/m
 var MOUSE_CURSOR_RESIZE_NWSE: number/** The top-right to bottom-left diagonal resize/move arrow shape */
 var MOUSE_CURSOR_RESIZE_NESW: number/** The omnidirectional resize/move cursor shape */
 var MOUSE_CURSOR_RESIZE_ALL: number/**  */
-var MOUSE_CURSOR_NOT_ALLOWED: number/** Unknown button, just for error checking */
+var MOUSE_CURSOR_NOT_ALLOWED: number/** Unknown button, for error checking */
 var GAMEPAD_BUTTON_UNKNOWN: number/** Gamepad left DPAD up button */
 var GAMEPAD_BUTTON_LEFT_FACE_UP: number/** Gamepad left DPAD right button */
 var GAMEPAD_BUTTON_LEFT_FACE_RIGHT: number/** Gamepad left DPAD down button */
@@ -1339,16 +1350,16 @@ var SHADER_LOC_MAP_METALNESS: number/** Shader location: sampler2d texture: norm
 var SHADER_LOC_MAP_NORMAL: number/** Shader location: sampler2d texture: roughness */
 var SHADER_LOC_MAP_ROUGHNESS: number/** Shader location: sampler2d texture: occlusion */
 var SHADER_LOC_MAP_OCCLUSION: number/** Shader location: sampler2d texture: emission */
-var SHADER_LOC_MAP_EMISSION: number/** Shader location: sampler2d texture: height */
+var SHADER_LOC_MAP_EMISSION: number/** Shader location: sampler2d texture: heightmap */
 var SHADER_LOC_MAP_HEIGHT: number/** Shader location: samplerCube texture: cubemap */
 var SHADER_LOC_MAP_CUBEMAP: number/** Shader location: samplerCube texture: irradiance */
 var SHADER_LOC_MAP_IRRADIANCE: number/** Shader location: samplerCube texture: prefilter */
 var SHADER_LOC_MAP_PREFILTER: number/** Shader location: sampler2d texture: brdf */
-var SHADER_LOC_MAP_BRDF: number/** Shader location: vertex attribute: boneIds */
-var SHADER_LOC_VERTEX_BONEIDS: number/** Shader location: vertex attribute: boneWeights */
-var SHADER_LOC_VERTEX_BONEWEIGHTS: number/** Shader location: array of matrices uniform: boneMatrices */
-var SHADER_LOC_BONE_MATRICES: number/**  */
-var SHADER_LOC_VERTEX_INSTANCE_TX: number/** Shader location: sampler2d texture: albedo (same as: SHADER_LOC_MAP_DIFFUSE) */
+var SHADER_LOC_MAP_BRDF: number/** Shader location: vertex attribute: bone indices */
+var SHADER_LOC_VERTEX_BONEIDS: number/** Shader location: vertex attribute: bone weights */
+var SHADER_LOC_VERTEX_BONEWEIGHTS: number/** Shader location: matrix attribute: bone transforms (animation) */
+var SHADER_LOC_MATRIX_BONETRANSFORMS: number/**  */
+var SHADER_LOC_VERTEX_INSTANCETRANSFORM: number/** Shader location: sampler2d texture: albedo (same as: SHADER_LOC_MAP_DIFFUSE) */
 var SHADER_LOC_MAP_DIFFUSE: number/** Shader location: sampler2d texture: metalness (same as: SHADER_LOC_MAP_SPECULAR) */
 var SHADER_LOC_MAP_SPECULAR: number/** Shader uniform type: float */
 var SHADER_UNIFORM_FLOAT: number/** Shader uniform type: vec2 (2 float) */
@@ -1391,7 +1402,7 @@ var PIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA: number/** 4 bpp */
 var PIXELFORMAT_COMPRESSED_PVRT_RGB: number/** 4 bpp */
 var PIXELFORMAT_COMPRESSED_PVRT_RGBA: number/** 8 bpp */
 var PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA: number/**  */
-var PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: number/** No filter, just pixel approximation */
+var PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: number/** No filter, pixel approximation */
 var TEXTURE_FILTER_POINT: number/** Linear filtering */
 var TEXTURE_FILTER_BILINEAR: number/** Trilinear filtering (linear with mipmaps) */
 var TEXTURE_FILTER_TRILINEAR: number/** Anisotropic filtering 4x */

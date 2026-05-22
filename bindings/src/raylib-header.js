@@ -525,6 +525,12 @@ export class RayJsHeader {
             this.typings.addFunction(api);
         });
     }
+    preRegisterEnum(renum) {
+        const binding = renum.binding || {};
+        if (binding.ignore) return;
+        // Register in includeGen so it's visible during addApiFunction (which reads includeGen.getVariables())
+        this.includeGen.enumtype(renum.name);
+    }
     addEnum(renum) {
         const binding = renum.binding || {};
         if (binding.ignore) return;
@@ -565,7 +571,8 @@ export class RayJsHeader {
         this.moduleInit.call(classDeclName, ["ctx", "m"]);
         if (binding?.createConstructor) {
             const constructorName = this.jsStructConstructor(struct.name, struct.fields, classId);
-            this.moduleInit.call('JS_NewCFunction2',['ctx',constructorName,`"${struct.name}"`,struct.fields.length,'JS_CFUNC_constructor', 0],{type:'JSValue',name:`${struct.name}_constr`});
+            const enabledFieldCount = struct.fields.filter(f => !(f.binding && f.binding.get===false)).length;
+            this.moduleInit.call('JS_NewCFunction2',['ctx',constructorName,`"${struct.name}"`,enabledFieldCount,'JS_CFUNC_constructor', 0],{type:'JSValue',name:`${struct.name}_constr`});
             this.moduleInit.call("JS_SetModuleExport", ["ctx", "m", `"${struct.name}"`, struct.name + "_constr"]);
             this.moduleEntry.call("JS_AddModuleExport", ["ctx", "m", '"' + struct.name + '"']);
         }
@@ -637,7 +644,7 @@ export class RayJsHeader {
             field.binding.sizeVars.push(amount);
             field.type=type2+' *';
             thiz.jsStructGetter_array(structName, field);
-        }else if(field.type.endsWith('*')){
+        }else if(field.type.endsWith('*') && field.type !== 'char *' && field.type !== 'const char *'){
             thiz.jsStructGetter_array(structName, field);
         }
 
@@ -645,7 +652,7 @@ export class RayJsHeader {
             fun.call('JS_GetOpaque2',['ctx', 'this_val', classId],{type:`opaqueShadow *`,name:"shadow"});
             fun.declare(`${structName} *`,'ptr','shadow[0].ptr');
             //fun.call('JS_GetOpaque2',['ctx', 'this_val', classId],{type:`${structName} *`,name:"ptr"});
-            if(field.type.endsWith(']') || ( field.type.endsWith('*') && field.type!='char *' ) ){
+            if(field.type.endsWith(']') || ( field.type.endsWith('*') && field.type !== 'char *' && field.type !== 'const char *' ) ){
                 fun.declare('JSValue','anchor')
                 fun.if(['JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)',''],(fn2)=>{
                     fn2.assign('anchor','this_val');
@@ -671,7 +678,8 @@ export class RayJsHeader {
                 simpleregex(field.type,['r+',azZ0,'r*',' *'],0,capture);
                 let flags={sizeVars:field.binding.sizeVars};
                 let variables=this.definitions.cgen.getVariables();
-                if(isobject(capture[0],variables)){
+                const isEnum=getaliasedVariable(variables[capture[0]])?.subtype=='enum';
+                if(isobject(capture[0],variables) && !isEnum){
                     fun.declare('JSValue','anchor');
                     fun.if(['JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)',''],(fn2)=>{
                         fn2.assign('anchor','this_val');
@@ -687,7 +695,15 @@ export class RayJsHeader {
                 }else{
                     fun.declare(field.type, field.name, "ptr." + field.name);
                 }
-                cToJs(fun,field.type,"ret",field.name,flags);
+                if(isEnum){
+                    // Bypass cToJs for enum fields: cToJs emits (int)(localvar) which
+                    // hits a bug in compilefunctionargs where 'localvar' is a child expression
+                    // that can't be resolved, producing (int32_t)int instead of (int32_t)state.
+                    // Direct call lets cast() handle b2EnumType→int32_t correctly.
+                    fun.call('JS_NewInt32',['ctx',field.name],{type:'JSValue',name:'ret'});
+                }else{
+                    cToJs(fun,field.type,"ret",field.name,flags);
+                }
             }
             //TODO: call addApiStruct here
             fun.return("ret");
@@ -723,12 +739,18 @@ export class RayJsHeader {
                 });
             }
 
-            for(let i = 0; i < fields.length; i++) {
-                const para = fields[i];
+            const enabledFields = fields.filter(f => !(f.binding && f.binding.get===false));
+            for(let i = 0; i < enabledFields.length; i++) {
+                const para = enabledFields[i];
                 this.jsToC(elseBody,para.type, para.name, "argv[" + i + "]",{noContextAlloc:true});
             }
             let structArgs=[];
             for(let field of fields){
+                // Disabled fields (function pointers, void*, etc.) get zero-initialized
+                if(field.binding && field.binding.get===false){
+                    structArgs.push('0');
+                    continue;
+                }
                 let type=field.type;
                 if(type.endsWith(']')){
                     let arrayLen = getStaticArrayLen(type);
@@ -834,27 +856,34 @@ export class RayJsHeader {
 
 
         const set_args = [args.ctx,args.ptr,args.set_to,args.property,args.as_string];
-        this.structGen.cgen.function( "int", `js_${structName}_${field.name}_set`, set_args, true,ctx=>{
-            ctx.declare(`${structName} *`,'ptr','ptr_u');
-            ctx.if([`as_sting==true`,''],fn=>{
-                fn.return('false');
-            },fn=>{
-                fn.if([`property>=0 && property<${length}`,''],fn2=>{
-                    fn2.declare('bool','error',0);
-                    let ctype=binding.typeCast||field.type;
-                    let type=getsubtype(ctype);
-                    fn2.assign('local_memlock','true');
-                    this.jsToC(fn2,type,'ret','set_to',{sizeVars:binding.sizeVars.slice(1)});//{altReturn:'-1'}
-                    fn2.assign('local_memlock','false');
-                    const cast=(binding.typeCast==undefined?'':`(${binding.typeCast})`);
-                    fn2.assign( `ptr.${field.name}${cast}[property]`, `ret`);
-                    fn2.return('true');
-                },fn2=>{
-                    fn2.return('false');
-                });
+        if(binding.set === false) {
+            // const pointer — emit a read-only stub so the ArrayProxy compiles
+            this.structGen.cgen.function( "int", `js_${structName}_${field.name}_set`, set_args, true, ctx=>{
+                ctx.return('false');
             });
-            ctx.return('true');
-        });
+        } else {
+            this.structGen.cgen.function( "int", `js_${structName}_${field.name}_set`, set_args, true,ctx=>{
+                ctx.declare(`${structName} *`,'ptr','ptr_u');
+                ctx.if([`as_sting==true`,''],fn=>{
+                    fn.return('false');
+                },fn=>{
+                    fn.if([`property>=0 && property<${length}`,''],fn2=>{
+                        fn2.declare('bool','error',0);
+                        let ctype=binding.typeCast||field.type;
+                        let type=getsubtype(ctype);
+                        fn2.assign('local_memlock','true');
+                        this.jsToC(fn2,type,'ret','set_to',{sizeVars:binding.sizeVars.slice(1)});//{altReturn:'-1'}
+                        fn2.assign('local_memlock','false');
+                        const cast=(binding.typeCast==undefined?'':`(${binding.typeCast})`);
+                        fn2.assign( `ptr.${field.name}${cast}[property]`, `ret`);
+                        fn2.return('true');
+                    },fn2=>{
+                        fn2.return('false');
+                    });
+                });
+                ctx.return('true');
+            });
+        }
 
         const has_args = [args.ctx,args.ptr,args.property,args.as_string];
         this.structGen.cgen.function( "int",`js_${structName}_${field.name}_has`, has_args, true,ctx=>{

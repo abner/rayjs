@@ -15,8 +15,8 @@
 	
 	static GuiStyleProp js_getGuiStyleProp(JSContext * ctx,JSValue src,bool * error){
 		GuiStyleProp ret;
-		if(JS_GetClassID(src)==js_GuiStyleProp_class_id){
-			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_GuiStyleProp_class_id);
+		if(JS_GetClassID((JSValueConst)src)==js_GuiStyleProp_class_id){
+			opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_GuiStyleProp_class_id);
 			ret =*(GuiStyleProp *)tmpshadow[0].ptr;
 		}else{
 			JS_ThrowTypeError(ctx,(const char  *)"src does not match type GuiStyleProp");
@@ -31,6 +31,8 @@
 	static Font js_getFont(JSContext * ctx,JSValue src,bool * error);
 	
 	static char * js_getchar_arr(JSContext * ctx,JSValue src,bool * error);
+	
+	static unsigned char * js_getunsignedchar_arr(JSContext * ctx,JSValue src,bool * error);
 	
 	static char * js_getchar_arrnull(JSContext * ctx,JSValue src,bool * error);
 	
@@ -50,10 +52,10 @@
 		Rectangle * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)4;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_GetClassID(src0)==js_Rectangle_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_Rectangle_class_id);
+			if(JS_GetClassID((JSValueConst)src0)==js_Rectangle_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_Rectangle_class_id);
 				ret =(Rectangle  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Rectangle *");
@@ -68,11 +70,11 @@
 			for(int i=0;i<size_ret;i++){
 				float * tmp_obj=(float  *)ret;
 				for(int i0=0;i0<4;i0++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i+i0);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i+i0);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsNumber(src0)){
 						double double_tmp_objii0;
-						JS_ToFloat64(ctx,&double_tmp_objii0,src0);
+						JS_ToFloat64(ctx,&double_tmp_objii0,(JSValueConst)src0);
 						tmp_obj[i+i0] =((float)double_tmp_objii0);
 					}else{
 						JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Rectangle *");
@@ -83,10 +85,10 @@
 				i +=3;
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_Rectangle_class_id){
+		}else if(JS_GetClassID((JSValueConst)src)==js_Rectangle_class_id){
 			isptr[0]=(bool)true;
-			if(JS_GetClassID(src)==js_Rectangle_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_Rectangle_class_id);
+			if(JS_GetClassID((JSValueConst)src)==js_Rectangle_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_Rectangle_class_id);
 				ret =(Rectangle  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type Rectangle *");
@@ -109,10 +111,10 @@
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)1;
 			ret =(bool  *)js_malloc(ctx,sizeof(bool));
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
 			if(JS_IsBool(src0)){
-				int js_ret0=JS_ToBool(ctx,src0);
+				int js_ret0=JS_ToBool(ctx,(JSValueConst)src0);
 				ret[0] =(bool)js_ret0;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type bool *");
@@ -125,7 +127,7 @@
 			ret =(bool  *)js_malloc(ctx,sizeof(bool));
 			memoryStore(js_free,(void  *)ret);
 			if(JS_IsBool(src)){
-				int js_ret0=JS_ToBool(ctx,src);
+				int js_ret0=JS_ToBool(ctx,(JSValueConst)src);
 				ret[0] =(bool)js_ret0;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type bool *");
@@ -144,42 +146,42 @@
 		char * * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)1;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_IsArrayBuffer(src0)){
+			if(JS_IsArrayBuffer((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_IsArrayBuffer(src0)){
+				if(JS_IsArrayBuffer((JSValueConst)src0)){
 					int64_t size_ret0;
-					ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,src0);
+					ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,(JSValueConst)src0);
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type char * *");
 					error[0]=(bool)1;
 					return NULL;
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
 				bool is_arrayProxy=(bool)0;
-				if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+				if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 					is_arrayProxy =(bool)1;
-					void * AP_opaque=JS_GetOpaque(src0,js_ArrayProxy_class_id);
+					void * AP_opaque=JS_GetOpaque((JSValueConst)src0,js_ArrayProxy_class_id);
 					ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 					src0 =AP_fn.values(ctx,src0,AP_fn.opaque,(int)0,(bool)false);
 				}
-				if(JS_IsArray(src0)){
+				if(JS_IsArray((JSValueConst)src0)){
 					int64_t size_ret0;
-					if(JS_GetLength(ctx,src0,&size_ret0)==-1){
+					if(JS_GetLength(ctx,(JSValueConst)src0,&size_ret0)==-1){
 						error[0]=(bool)1;
 						return NULL;
 					}
 					if(size_ret0==0)return NULL;
 					ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 					for(int i=0;i<size_ret0;i++){
-						JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i);
+						JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i);
 						JS_FreeValue(ctx,src00);
 						if(JS_IsString(src00)){
 							char * js_ret0i=(char  *)JS_ToCString(ctx,src00);
@@ -199,20 +201,20 @@
 				}
 				if(is_arrayProxy)JS_FreeValue(ctx,src0);
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_IsArray(src0)){
+			}else if(JS_IsArray((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_IsArray(src0)){
+				if(JS_IsArray((JSValueConst)src0)){
 					int64_t size_ret0;
-					if(JS_GetLength(ctx,src0,&size_ret0)==-1){
+					if(JS_GetLength(ctx,(JSValueConst)src0,&size_ret0)==-1){
 						error[0]=(bool)1;
 						return NULL;
 					}
 					if(size_ret0==0)return NULL;
 					ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 					for(int i=0;i<size_ret0;i++){
-						JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i);
+						JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i);
 						JS_FreeValue(ctx,src00);
 						if(JS_IsString(src00)){
 							char * js_ret0i=(char  *)JS_ToCString(ctx,src00);
@@ -231,15 +233,15 @@
 					return NULL;
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+				if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 					size_t offset_ret0;
 					size_t size_ret0;
-					JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,src0,&offset_ret0,&size_ret0,NULL);
-					ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,src0);
+					JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src0,&offset_ret0,&size_ret0,NULL);
+					ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,(JSValueConst)src0);
 					ret[0] +=offset_ret0;
 					size_ret0 -=offset_ret0;
 					JS_FreeValuePtr(ctx,&da_ret0);
@@ -251,7 +253,7 @@
 				memoryStore(js_free,(void  *)*ret);
 			}else if(JS_IsString(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsString(src0)){
 					char * js_ret0=(char  *)JS_ToCStringLen(ctx,NULL,src0);
@@ -265,7 +267,7 @@
 				memoryStore(js_free,(void  *)*ret);
 			}else if(JS_IsNull(src0)||JS_IsUndefined(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsNull(src0)||JS_IsUndefined(src0)){
 					isptr[0]=(bool)true;
@@ -281,30 +283,30 @@
 				error[0]=(bool)1;
 				return NULL;
 			}
-		}else if(JS_IsArrayBuffer(src)||JS_GetClassID(src)==js_ArrayProxy_class_id||JS_IsArray(src)||JS_GetClassID(src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)||JS_IsNull(src)||JS_IsUndefined(src)){
+		}else if(JS_IsArrayBuffer((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id||JS_IsArray((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)||JS_IsNull(src)||JS_IsUndefined(src)){
 			isptr[0]=(bool)true;
 			ret =(char  * *)js_malloc(ctx,sizeof(char *));
 			memoryStore(js_free,(void  *)*ret);
 			bool is_arrayProxy=(bool)0;
-			if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+			if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 				is_arrayProxy =(bool)1;
-				void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+				void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 				ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 				src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 			}
-			if(JS_IsArrayBuffer(src)){
+			if(JS_IsArrayBuffer((JSValueConst)src)){
 				int64_t size_ret0;
-				ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,src);
-			}else if(JS_IsArray(src)){
+				ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,(JSValueConst)src);
+			}else if(JS_IsArray((JSValueConst)src)){
 				int64_t size_ret0;
-				if(JS_GetLength(ctx,src,&size_ret0)==-1){
+				if(JS_GetLength(ctx,(JSValueConst)src,&size_ret0)==-1){
 					error[0]=(bool)1;
 					return NULL;
 				}
 				if(size_ret0==0)return NULL;
 				ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 				for(int i=0;i<size_ret0;i++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsString(src0)){
 						char * js_ret0i=(char  *)JS_ToCString(ctx,src0);
@@ -317,11 +319,11 @@
 					}
 				}
 				memoryStore(js_free,(void  *)ret[0]);
-			}else if(JS_GetClassID(src)==JS_CLASS_INT8_ARRAY){
+			}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY){
 				size_t offset_ret0;
 				size_t size_ret0;
-				JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,src,&offset_ret0,&size_ret0,NULL);
-				ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,src);
+				JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret0,&size_ret0,NULL);
+				ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,(JSValueConst)src);
 				ret[0] +=offset_ret0;
 				size_ret0 -=offset_ret0;
 				JS_FreeValuePtr(ctx,&da_ret0);
@@ -355,35 +357,35 @@
 		char * * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)1;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_IsArrayBuffer(src0)){
+			if(JS_IsArrayBuffer((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_IsArrayBuffer(src0)){
+				if(JS_IsArrayBuffer((JSValueConst)src0)){
 					int64_t size_ret0;
-					ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,src0);
+					ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,(JSValueConst)src0);
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type char * *");
 					error[0]=(bool)1;
 					return NULL;
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
 				bool is_arrayProxy=(bool)0;
-				if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+				if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 					is_arrayProxy =(bool)1;
-					void * AP_opaque=JS_GetOpaque(src0,js_ArrayProxy_class_id);
+					void * AP_opaque=JS_GetOpaque((JSValueConst)src0,js_ArrayProxy_class_id);
 					ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 					src0 =AP_fn.values(ctx,src0,AP_fn.opaque,(int)0,(bool)false);
 				}
-				if(JS_IsArray(src0)){
+				if(JS_IsArray((JSValueConst)src0)){
 					int64_t size_ret0;
-					if(JS_GetLength(ctx,src0,&size_ret0)==-1){
+					if(JS_GetLength(ctx,(JSValueConst)src0,&size_ret0)==-1){
 						error[0]=(bool)1;
 						return NULL;
 					}
@@ -394,7 +396,7 @@
 					}
 					ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 					for(int i=0;i<size_ret0;i++){
-						JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i);
+						JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i);
 						JS_FreeValue(ctx,src00);
 						if(JS_IsString(src00)){
 							char * js_ret0i=(char  *)JS_ToCString(ctx,src00);
@@ -414,13 +416,13 @@
 				}
 				if(is_arrayProxy)JS_FreeValue(ctx,src0);
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_IsArray(src0)){
+			}else if(JS_IsArray((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_IsArray(src0)){
+				if(JS_IsArray((JSValueConst)src0)){
 					int64_t size_ret0;
-					if(JS_GetLength(ctx,src0,&size_ret0)==-1){
+					if(JS_GetLength(ctx,(JSValueConst)src0,&size_ret0)==-1){
 						error[0]=(bool)1;
 						return NULL;
 					}
@@ -431,7 +433,7 @@
 					}
 					ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 					for(int i=0;i<size_ret0;i++){
-						JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i);
+						JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i);
 						JS_FreeValue(ctx,src00);
 						if(JS_IsString(src00)){
 							char * js_ret0i=(char  *)JS_ToCString(ctx,src00);
@@ -450,15 +452,15 @@
 					return NULL;
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
-				if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+				if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 					size_t offset_ret0;
 					size_t size_ret0;
-					JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,src0,&offset_ret0,&size_ret0,NULL);
-					ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,src0);
+					JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src0,&offset_ret0,&size_ret0,NULL);
+					ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,(JSValueConst)src0);
 					ret[0] +=offset_ret0;
 					size_ret0 -=offset_ret0;
 					JS_FreeValuePtr(ctx,&da_ret0);
@@ -470,7 +472,7 @@
 				memoryStore(js_free,(void  *)*ret);
 			}else if(JS_IsString(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
-				src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsString(src0)){
 					char * js_ret0=(char  *)JS_ToCStringLen(ctx,NULL,src0);
@@ -487,23 +489,23 @@
 				error[0]=(bool)1;
 				return NULL;
 			}
-		}else if(JS_IsArrayBuffer(src)||JS_GetClassID(src)==js_ArrayProxy_class_id||JS_IsArray(src)||JS_GetClassID(src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)){
+		}else if(JS_IsArrayBuffer((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id||JS_IsArray((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)){
 			isptr[0]=(bool)true;
 			ret =(char  * *)js_malloc(ctx,sizeof(char *));
 			memoryStore(js_free,(void  *)*ret);
 			bool is_arrayProxy=(bool)0;
-			if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+			if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 				is_arrayProxy =(bool)1;
-				void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+				void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 				ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 				src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 			}
-			if(JS_IsArrayBuffer(src)){
+			if(JS_IsArrayBuffer((JSValueConst)src)){
 				int64_t size_ret0;
-				ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,src);
-			}else if(JS_IsArray(src)){
+				ret[0] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret0,(JSValueConst)src);
+			}else if(JS_IsArray((JSValueConst)src)){
 				int64_t size_ret0;
-				if(JS_GetLength(ctx,src,&size_ret0)==-1){
+				if(JS_GetLength(ctx,(JSValueConst)src,&size_ret0)==-1){
 					error[0]=(bool)1;
 					return NULL;
 				}
@@ -514,7 +516,7 @@
 				}
 				ret[0] =(char  *)js_malloc(ctx,size_ret0*sizeof(char));
 				for(int i=0;i<size_ret0;i++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsString(src0)){
 						char * js_ret0i=(char  *)JS_ToCString(ctx,src0);
@@ -527,11 +529,11 @@
 					}
 				}
 				memoryStore(js_free,(void  *)ret[0]);
-			}else if(JS_GetClassID(src)==JS_CLASS_INT8_ARRAY){
+			}else if(JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY){
 				size_t offset_ret0;
 				size_t size_ret0;
-				JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,src,&offset_ret0,&size_ret0,NULL);
-				ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,src);
+				JSValue da_ret0=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src,&offset_ret0,&size_ret0,NULL);
+				ret[0] =(char  *)JS_GetArrayBuffer(ctx,&size_ret0,(JSValueConst)src);
 				ret[0] +=offset_ret0;
 				size_ret0 -=offset_ret0;
 				JS_FreeValuePtr(ctx,&da_ret0);
@@ -557,10 +559,10 @@
 		Vector2 * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)2;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_GetClassID(src0)==js_Vector2_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_Vector2_class_id);
+			if(JS_GetClassID((JSValueConst)src0)==js_Vector2_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_Vector2_class_id);
 				ret =(Vector2  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Vector2 *");
@@ -575,11 +577,11 @@
 			for(int i=0;i<size_ret;i++){
 				float * tmp_obj=(float  *)ret;
 				for(int i0=0;i0<2;i0++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i+i0);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i+i0);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsNumber(src0)){
 						double double_tmp_objii0;
-						JS_ToFloat64(ctx,&double_tmp_objii0,src0);
+						JS_ToFloat64(ctx,&double_tmp_objii0,(JSValueConst)src0);
 						tmp_obj[i+i0] =((float)double_tmp_objii0);
 					}else{
 						JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Vector2 *");
@@ -590,10 +592,10 @@
 				i +=1;
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_Vector2_class_id){
+		}else if(JS_GetClassID((JSValueConst)src)==js_Vector2_class_id){
 			isptr[0]=(bool)true;
-			if(JS_GetClassID(src)==js_Vector2_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_Vector2_class_id);
+			if(JS_GetClassID((JSValueConst)src)==js_Vector2_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_Vector2_class_id);
 				ret =(Vector2  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type Vector2 *");
@@ -614,29 +616,29 @@
 	static char * * js_getchar_arr_arrnull(JSContext * ctx,JSValue src,bool * error){
 		char * * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArray(src)){
+		if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_IsArrayBuffer(src0)){
+			if(JS_IsArrayBuffer((JSValueConst)src0)){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
-					if(JS_IsArrayBuffer(src0)){
+					if(JS_IsArrayBuffer((JSValueConst)src0)){
 						int64_t size_reti;
-						ret[i] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_reti,src0);
+						ret[i] =(char  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_reti,(JSValueConst)src0);
 					}else{
 						JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type char * *");
 						error[0]=(bool)1;
@@ -644,29 +646,29 @@
 					}
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
 					bool is_arrayProxy0=(bool)0;
-					if(JS_GetClassID(src0)==js_ArrayProxy_class_id){
+					if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 						is_arrayProxy0 =(bool)1;
-						void * AP_opaque=JS_GetOpaque(src0,js_ArrayProxy_class_id);
+						void * AP_opaque=JS_GetOpaque((JSValueConst)src0,js_ArrayProxy_class_id);
 						ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 						src0 =AP_fn.values(ctx,src0,AP_fn.opaque,(int)0,(bool)false);
 					}
-					if(JS_IsArray(src0)){
+					if(JS_IsArray((JSValueConst)src0)){
 						int64_t size_reti;
-						if(JS_GetLength(ctx,src0,&size_reti)==-1){
+						if(JS_GetLength(ctx,(JSValueConst)src0,&size_reti)==-1){
 							error[0]=(bool)1;
 							return NULL;
 						}
 						if(size_reti==0)return NULL;
 						ret[i] =(char  *)js_malloc(ctx,size_reti*sizeof(char));
 						for(int i0=0;i0<size_reti;i0++){
-							JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i0);
+							JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i0);
 							JS_FreeValue(ctx,src00);
 							if(JS_IsString(src00)){
 								char * js_retii0=(char  *)JS_ToCString(ctx,src00);
@@ -687,22 +689,22 @@
 					if(is_arrayProxy0)JS_FreeValue(ctx,src0);
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_IsArray(src0)){
+			}else if(JS_IsArray((JSValueConst)src0)){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
-					if(JS_IsArray(src0)){
+					if(JS_IsArray((JSValueConst)src0)){
 						int64_t size_reti;
-						if(JS_GetLength(ctx,src0,&size_reti)==-1){
+						if(JS_GetLength(ctx,(JSValueConst)src0,&size_reti)==-1){
 							error[0]=(bool)1;
 							return NULL;
 						}
 						if(size_reti==0)return NULL;
 						ret[i] =(char  *)js_malloc(ctx,size_reti*sizeof(char));
 						for(int i0=0;i0<size_reti;i0++){
-							JSValue src00=JS_GetPropertyUint32(ctx,src0,(uint32_t)i0);
+							JSValue src00=JS_GetPropertyUint32(ctx,(JSValueConst)src0,(uint32_t)i0);
 							JS_FreeValue(ctx,src00);
 							if(JS_IsString(src00)){
 								char * js_retii0=(char  *)JS_ToCString(ctx,src00);
@@ -722,17 +724,17 @@
 					}
 				}
 				memoryStore(js_free,(void  *)*ret);
-			}else if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
-					if(JS_GetClassID(src0)==JS_CLASS_INT8_ARRAY){
+					if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 						size_t offset_reti;
 						size_t size_reti;
-						JSValue da_reti=JS_GetTypedArrayBuffer(ctx,src0,&offset_reti,&size_reti,NULL);
-						ret[i] =(char  *)JS_GetArrayBuffer(ctx,&size_reti,src0);
+						JSValue da_reti=JS_GetTypedArrayBuffer(ctx,(JSValueConst)src0,&offset_reti,&size_reti,NULL);
+						ret[i] =(char  *)JS_GetArrayBuffer(ctx,&size_reti,(JSValueConst)src0);
 						ret[i] +=offset_reti;
 						size_reti -=offset_reti;
 						JS_FreeValuePtr(ctx,&da_reti);
@@ -747,7 +749,7 @@
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsString(src0)){
 						char * js_reti=(char  *)JS_ToCStringLen(ctx,NULL,src0);
@@ -764,7 +766,7 @@
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
 				for(int i=0;i<size_ret;i++){
-					src0 =JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+					src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsNull(src0)||JS_IsUndefined(src0)){
 						ret[i] =NULL;
@@ -796,28 +798,28 @@
 	static bool * js_getbool_arrnull(JSContext * ctx,JSValue src,bool * error){
 		bool * ret;
 		bool is_arrayProxy=(bool)0;
-		if(JS_GetClassID(src)==js_ArrayProxy_class_id){
+		if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 			is_arrayProxy =(bool)1;
-			void * AP_opaque=JS_GetOpaque(src,js_ArrayProxy_class_id);
+			void * AP_opaque=JS_GetOpaque((JSValueConst)src,js_ArrayProxy_class_id);
 			ArrayProxy_class AP_fn=((ArrayProxy_class *)AP_opaque)[0];
 			src =AP_fn.values(ctx,src,AP_fn.opaque,(int)0,(bool)false);
 		}
-		if(JS_IsArrayBuffer(src)){
+		if(JS_IsArrayBuffer((JSValueConst)src)){
 			int64_t size_ret;
-			ret =(bool  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,src);
-		}else if(JS_IsArray(src)){
+			ret =(bool  *)JS_GetArrayBuffer(ctx,(size_t  *)&size_ret,(JSValueConst)src);
+		}else if(JS_IsArray((JSValueConst)src)){
 			int64_t size_ret;
-			if(JS_GetLength(ctx,src,&size_ret)==-1){
+			if(JS_GetLength(ctx,(JSValueConst)src,&size_ret)==-1){
 				error[0]=(bool)1;
 				return NULL;
 			}
 			if(size_ret==0)return NULL;
 			ret =(bool  *)js_malloc(ctx,size_ret*sizeof(bool));
 			for(int i=0;i<size_ret;i++){
-				JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i);
+				JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i);
 				JS_FreeValue(ctx,src0);
 				if(JS_IsBool(src0)){
-					int js_reti=JS_ToBool(ctx,src0);
+					int js_reti=JS_ToBool(ctx,(JSValueConst)src0);
 					ret[i] =(bool)js_reti;
 				}else{
 					JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type bool *");
@@ -841,10 +843,10 @@
 		Color * ret;
 		if(js_IsArrayLength(ctx,src,(int64_t)1)){
 			int64_t size_ret=(int64_t)4;
-			JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)0);
+			JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
 			JS_FreeValue(ctx,src0);
-			if(JS_GetClassID(src0)==js_Color_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src0,js_Color_class_id);
+			if(JS_GetClassID((JSValueConst)src0)==js_Color_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src0,js_Color_class_id);
 				ret =(Color  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src0 does not match type Color *");
@@ -859,7 +861,7 @@
 			for(int i=0;i<size_ret;i++){
 				unsigned char * tmp_obj=(unsigned char  *)ret;
 				for(int i0=0;i0<4;i0++){
-					JSValue src0=JS_GetPropertyUint32(ctx,src,(uint32_t)i+i0);
+					JSValue src0=JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)i+i0);
 					JS_FreeValue(ctx,src0);
 					if(JS_IsNumber(src0)){
 						uint32_t long_tmp_objii0;
@@ -874,10 +876,10 @@
 				i +=3;
 			}
 			memoryStore(js_free,(void  *)ret);
-		}else if(JS_GetClassID(src)==js_Color_class_id){
+		}else if(JS_GetClassID((JSValueConst)src)==js_Color_class_id){
 			isptr[0]=(bool)true;
-			if(JS_GetClassID(src)==js_Color_class_id){
-				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque(src,js_Color_class_id);
+			if(JS_GetClassID((JSValueConst)src)==js_Color_class_id){
+				opaqueShadow * tmpshadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)src,js_Color_class_id);
 				ret =(Color  *)tmpshadow[0].ptr;
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type Color *");
@@ -896,19 +898,17 @@
 	
 	static Vector3 * js_getVector3_ptr(JSContext * ctx,JSValue src,bool * error,bool * isptr);
 	
-	static unsigned char * js_getunsignedchar_arr(JSContext * ctx,JSValue src,bool * error);
-	
 	static char js_getchar(JSContext * ctx,JSValue src,bool * error);
 	
 	static Vector3 js_getVector3(JSContext * ctx,JSValue src,bool * error);
 	
 	static void js_GuiStyleProp_finalizer(JSRuntime * rt,JSValue val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque(val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque((JSValueConst)val,js_GuiStyleProp_class_id);
 		deallocate_shadow(rt,shadow);
 	}
 	
 	static JSValue js_GuiStyleProp_get_controlId(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		unsigned short controlId=ptr[0].controlId;
 		JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)controlId));
@@ -917,7 +917,7 @@
 	
 	static JSValue js_GuiStyleProp_set_controlId(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned short value=js_getunsignedshort(ctx,v,&error);
@@ -928,7 +928,7 @@
 	}
 	
 	static JSValue js_GuiStyleProp_get_propertyId(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		unsigned short propertyId=ptr[0].propertyId;
 		JSValue ret=JS_NewUint32(ctx,(uint32_t)((unsigned long)propertyId));
@@ -937,7 +937,7 @@
 	
 	static JSValue js_GuiStyleProp_set_propertyId(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		unsigned short value=js_getunsignedshort(ctx,v,&error);
@@ -948,7 +948,7 @@
 	}
 	
 	static JSValue js_GuiStyleProp_get_propertyValue(JSContext * ctx,JSValue this_val){
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		int propertyValue=ptr[0].propertyValue;
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)propertyValue));
@@ -957,7 +957,7 @@
 	
 	static JSValue js_GuiStyleProp_set_propertyValue(JSContext * ctx,JSValue this_val,JSValue v){
 		bool error=(bool)0;
-		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,this_val,js_GuiStyleProp_class_id);
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_GuiStyleProp_class_id);
 		GuiStyleProp * ptr=(GuiStyleProp  *)shadow[0].ptr;
 		local_memlock=(bool)true;
 		int value=js_getint(ctx,v,&error);
@@ -979,7 +979,7 @@
 		JSClassDef js_GuiStyleProp_def={ .class_name = "GuiStyleProp", .finalizer = js_GuiStyleProp_finalizer };
 		JS_NewClass(rt,js_GuiStyleProp_class_id,(const JSClassDef  *)&js_GuiStyleProp_def);
 		JSValue proto=JS_NewObject(ctx);
-		JS_SetPropertyFunctionList(ctx,proto,js_GuiStyleProp_proto_funcs,(int)countof(js_GuiStyleProp_proto_funcs));
+		JS_SetPropertyFunctionList(ctx,(JSValueConst)proto,js_GuiStyleProp_proto_funcs,(int)countof(js_GuiStyleProp_proto_funcs));
 		JS_SetClassProto(ctx,js_GuiStyleProp_class_id,proto);
 		return 0;
 	}
@@ -988,13 +988,13 @@
 		if(argc==0){
 			opaqueShadow * ptr__return=create_shadow_with_data0(sizeof(GuiStyleProp));
 			JSValue _return=JS_NewObjectClass(ctx,js_GuiStyleProp_class_id);
-			JS_SetOpaque(_return,(void  *)ptr__return);
+			JS_SetOpaque((JSValueConst)_return,(void  *)ptr__return);
 			return _return;
 		}
 		bool error=(bool)0;
 		local_memlock=(bool)true;
 		GuiStyleProp _struct;
-		if(argc==1&&JS_GetClassID(argv[0])==js_GuiStyleProp_class_id){
+		if(argc==1&&JS_GetClassID((JSValueConst)argv[0])==js_GuiStyleProp_class_id){
 			GuiStyleProp ptr=js_getGuiStyleProp(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =ptr;
@@ -1015,7 +1015,7 @@
 		GuiStyleProp * _returnptr=((GuiStyleProp *)(_structShadow+1));
 		_returnptr[0]=_struct;
 		JSValue _return=JS_NewObjectClass(ctx,js_GuiStyleProp_class_id);
-		JS_SetOpaque(_return,(void  *)_structShadow);
+		JS_SetOpaque((JSValueConst)_return,(void  *)_structShadow);
 		local_memlock=(bool)false;
 		return _return;
 	}
@@ -1082,7 +1082,7 @@
 		Font * ptr2_ret=((Font *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Font_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1114,6 +1114,16 @@
 		char * fileName=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		GuiLoadStyle((const char  *)fileName);
+		return JS_UNDEFINED;
+	}
+	
+	static JSValue js_GuiLoadStyleFromMemory(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
+		bool error=(bool)0;
+		unsigned char * fileData=js_getunsignedchar_arr(ctx,argv[0],&error);
+		if(error==1)return JS_EXCEPTION;
+		int dataSize=js_getint(ctx,argv[1],&error);
+		if(error==1)return JS_EXCEPTION;
+		GuiLoadStyleFromMemory((const unsigned char  *)fileData,dataSize);
 		return JS_UNDEFINED;
 	}
 	
@@ -1165,7 +1175,7 @@
 		for(int i=0;i<RAYGUI_ICON_MAX_ICONS*RAYGUI_ICON_DATA_ELEMENTS;i++){
 			int src0=returnVal[i];
 			JSValue ret1=JS_NewInt32(ctx,(int32_t)((long)src0));
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		return ret;
 	}
@@ -1260,10 +1270,10 @@
 		bool active_isptr=(bool)false;
 		int * active=js_getint_ptr(ctx,argv[3],&error,&active_isptr);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=GuiTabBar(bounds,(const char  * *)text,count,active);
+		int returnVal=GuiTabBar(bounds,text,count,active);
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1289,16 +1299,16 @@
 			Vector2 * ptr2_src=((Vector2 *)(ptr_src+1));
 			ptr2_src[0]=scroll[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector2_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		if(view_isptr==0){
 			opaqueShadow * ptr_src=create_shadow_with_data(sizeof(Rectangle));
 			Rectangle * ptr2_src=((Rectangle *)(ptr_src+1));
 			ptr2_src[0]=view[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Rectangle_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[4],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[4],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1350,7 +1360,7 @@
 		int returnVal=GuiToggle(bounds,(const char  *)text,active);
 		if(active_isptr==0){
 			JSValue src=JS_NewBool(ctx,active[0]);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1369,7 +1379,7 @@
 		int returnVal=GuiToggleGroup(bounds,(const char  *)text,active);
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1387,7 +1397,7 @@
 		int returnVal=GuiToggleSlider(bounds,(const char  *)text,active);
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1405,7 +1415,7 @@
 		int returnVal=GuiCheckBox(bounds,(const char  *)text,checked);
 		if(checked_isptr==0){
 			JSValue src=JS_NewBool(ctx,checked[0]);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1424,7 +1434,7 @@
 		int returnVal=GuiComboBox(bounds,(const char  *)text,active);
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1444,7 +1454,7 @@
 		int returnVal=GuiDropdownBox(bounds,(const char  *)text,active,editMode);
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1468,7 +1478,7 @@
 		int returnVal=GuiSpinner(bounds,(const char  *)text,value,minValue,maxValue,editMode);
 		if(value_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)value[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1492,7 +1502,7 @@
 		int returnVal=GuiValueBox(bounds,(const char  *)text,value,minValue,maxValue,editMode);
 		if(value_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)value[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1515,11 +1525,11 @@
 		int returnVal=GuiValueBoxFloat(bounds,(const char  *)*text,textValue,value,editMode);
 		if(text_isptr==0){
 			JSValue src=JS_NewString(ctx,(const char  *)text[0]);
-			JS_SetPropertyUint32(ctx,argv[1],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[1],(uint32_t)0,src);
 		}
 		if(value_isptr==0){
 			JSValue src=JS_NewFloat64(ctx,((double)value[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1540,7 +1550,7 @@
 		int returnVal=GuiTextBox(bounds,*text,textSize,editMode);
 		if(text_isptr==0){
 			JSValue src=JS_NewString(ctx,(const char  *)text[0]);
-			JS_SetPropertyUint32(ctx,argv[1],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[1],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1565,7 +1575,7 @@
 		int returnVal=GuiSlider(bounds,(const char  *)textLeft,(const char  *)textRight,value,minValue,maxValue);
 		if(value_isptr==0){
 			JSValue src=JS_NewFloat64(ctx,((double)value[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1589,7 +1599,7 @@
 		int returnVal=GuiSliderBar(bounds,(const char  *)textLeft,(const char  *)textRight,value,minValue,maxValue);
 		if(value_isptr==0){
 			JSValue src=JS_NewFloat64(ctx,((double)value[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1613,7 +1623,7 @@
 		int returnVal=GuiProgressBar(bounds,(const char  *)textLeft,(const char  *)textRight,value,minValue,maxValue);
 		if(value_isptr==0){
 			JSValue src=JS_NewFloat64(ctx,((double)value[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1660,8 +1670,8 @@
 			Vector2 * ptr2_src=((Vector2 *)(ptr_src+1));
 			ptr2_src[0]=mouseCell[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector2_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[4],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[4],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1683,11 +1693,11 @@
 		int returnVal=GuiListView(bounds,(const char  *)text,scrollIndex,active);
 		if(scrollIndex_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)scrollIndex[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1709,14 +1719,14 @@
 		if(error==1)return JS_EXCEPTION;
 		int * focus=js_getint_arr(ctx,argv[5],&error);
 		if(error==1)return JS_EXCEPTION;
-		int returnVal=GuiListViewEx(bounds,(const char  * *)text,count,scrollIndex,active,focus);
+		int returnVal=GuiListViewEx(bounds,text,count,scrollIndex,active,focus);
 		if(scrollIndex_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)scrollIndex[0]));
-			JS_SetPropertyUint32(ctx,argv[3],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[3],(uint32_t)0,src);
 		}
 		if(active_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)active[0]));
-			JS_SetPropertyUint32(ctx,argv[4],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[4],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1775,8 +1785,8 @@
 			Color * ptr2_src=((Color *)(ptr_src+1));
 			ptr2_src[0]=color[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Color_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1798,8 +1808,8 @@
 			Color * ptr2_src=((Color *)(ptr_src+1));
 			ptr2_src[0]=color[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Color_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		memoryClear(ctx);
@@ -1818,7 +1828,7 @@
 		int returnVal=GuiColorBarAlpha(bounds,(const char  *)text,alpha);
 		if(alpha_isptr==0){
 			JSValue src=JS_NewFloat64(ctx,((double)alpha[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1852,8 +1862,8 @@
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=colorHsv[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
@@ -1874,21 +1884,11 @@
 			Vector3 * ptr2_src=((Vector3 *)(ptr_src+1));
 			ptr2_src[0]=colorHsv[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Vector3_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)returnVal));
 		return ret;
-	}
-	
-	static JSValue js_GuiLoadStyleFromMemory(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
-		bool error=(bool)0;
-		unsigned char * fileData=js_getunsignedchar_arr(ctx,argv[0],&error);
-		if(error==1)return JS_EXCEPTION;
-		int dataSize=js_getint(ctx,argv[1],&error);
-		if(error==1)return JS_EXCEPTION;
-		GuiLoadStyleFromMemory((const unsigned char  *)fileData,dataSize);
-		return JS_UNDEFINED;
 	}
 	
 	static JSValue js_GetTextBounds(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
@@ -1902,7 +1902,7 @@
 		Rectangle * ptr2_ret=((Rectangle *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Rectangle_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1956,16 +1956,16 @@
 		if(error==1)return JS_EXCEPTION;
 		int * textRow=js_getint_arr(ctx,argv[3],&error);
 		if(error==1)return JS_EXCEPTION;
-		char * * returnVal=(char  * *)GuiTextSplit((const char  *)text,delimiter,count,textRow);
+		char * * returnVal=GuiTextSplit((const char  *)text,delimiter,count,textRow);
 		if(count_isptr==0){
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)count[0]));
-			JS_SetPropertyUint32(ctx,argv[2],(uint32_t)0,src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
 		JSValue ret=JS_NewArray(ctx);
 		for(int i=0;i<count[0];i++){
 			char * src0=returnVal[i];
 			JSValue ret1=JS_NewString(ctx,(const char  *)src0);
-			JS_DefinePropertyValueUint32(ctx,ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
 		}
 		return ret;
 	}
@@ -1979,7 +1979,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -1992,7 +1992,7 @@
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2030,7 +2030,7 @@
 		Color * ptr2_ret=((Color *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Color_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -2080,6 +2080,7 @@
 		JS_CFUNC_DEF("GuiSetStyle",3,js_GuiSetStyle),
 		JS_CFUNC_DEF("GuiGetStyle",2,js_GuiGetStyle),
 		JS_CFUNC_DEF("GuiLoadStyle",1,js_GuiLoadStyle),
+		JS_CFUNC_DEF("GuiLoadStyleFromMemory",2,js_GuiLoadStyleFromMemory),
 		JS_CFUNC_DEF("GuiLoadStyleDefault",0,js_GuiLoadStyleDefault),
 		JS_CFUNC_DEF("GuiEnableTooltip",0,js_GuiEnableTooltip),
 		JS_CFUNC_DEF("GuiDisableTooltip",0,js_GuiDisableTooltip),
@@ -2125,7 +2126,6 @@
 		JS_CFUNC_DEF("GuiColorBarHue",3,js_GuiColorBarHue),
 		JS_CFUNC_DEF("GuiColorPickerHSV",3,js_GuiColorPickerHSV),
 		JS_CFUNC_DEF("GuiColorPanelHSV",3,js_GuiColorPanelHSV),
-		JS_CFUNC_DEF("GuiLoadStyleFromMemory",2,js_GuiLoadStyleFromMemory),
 		JS_CFUNC_DEF("GetTextBounds",2,js_GetTextBounds),
 		JS_CFUNC_DEF("GetTextIcon",2,js_GetTextIcon),
 		JS_CFUNC_DEF("GuiDrawText",4,js_GuiDrawText),
@@ -2203,6 +2203,7 @@
 		JS_SetModuleExport(ctx,m,(const char  *)"SLIDER_WIDTH",JS_NewInt32(ctx,(int32_t)SLIDER_WIDTH));
 		JS_SetModuleExport(ctx,m,(const char  *)"SLIDER_PADDING",JS_NewInt32(ctx,(int32_t)SLIDER_PADDING));
 		JS_SetModuleExport(ctx,m,(const char  *)"PROGRESS_PADDING",JS_NewInt32(ctx,(int32_t)PROGRESS_PADDING));
+		JS_SetModuleExport(ctx,m,(const char  *)"PROGRESS_SIDE",JS_NewInt32(ctx,(int32_t)PROGRESS_SIDE));
 		JS_SetModuleExport(ctx,m,(const char  *)"ARROWS_SIZE",JS_NewInt32(ctx,(int32_t)ARROWS_SIZE));
 		JS_SetModuleExport(ctx,m,(const char  *)"ARROWS_VISIBLE",JS_NewInt32(ctx,(int32_t)ARROWS_VISIBLE));
 		JS_SetModuleExport(ctx,m,(const char  *)"SCROLL_SLIDER_PADDING",JS_NewInt32(ctx,(int32_t)SCROLL_SLIDER_PADDING));
@@ -2493,6 +2494,7 @@
 		JS_SetModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_MAJOR",JS_NewInt32(ctx,(int32_t)RAYGUI_VERSION_MAJOR));
 		JS_SetModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_MINOR",JS_NewInt32(ctx,(int32_t)RAYGUI_VERSION_MINOR));
 		JS_SetModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_PATCH",JS_NewInt32(ctx,(int32_t)RAYGUI_VERSION_PATCH));
+		JS_SetModuleExport(ctx,m,(const char  *)"GUI_SCROLL_DELTA",JS_NewFloat64(ctx,(double)GUI_SCROLL_DELTA));
 		JS_SetModuleExport(ctx,m,(const char  *)"SCROLLBAR_LEFT_SIDE",JS_NewInt32(ctx,(int32_t)SCROLLBAR_LEFT_SIDE));
 		JS_SetModuleExport(ctx,m,(const char  *)"SCROLLBAR_RIGHT_SIDE",JS_NewInt32(ctx,(int32_t)SCROLLBAR_RIGHT_SIDE));
 		JS_SetModuleExport(ctx,m,(const char  *)"RAYGUI_ICON_SIZE",JS_NewInt32(ctx,(int32_t)RAYGUI_ICON_SIZE));
@@ -2565,6 +2567,7 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"SLIDER_WIDTH");
 		JS_AddModuleExport(ctx,m,(const char  *)"SLIDER_PADDING");
 		JS_AddModuleExport(ctx,m,(const char  *)"PROGRESS_PADDING");
+		JS_AddModuleExport(ctx,m,(const char  *)"PROGRESS_SIDE");
 		JS_AddModuleExport(ctx,m,(const char  *)"ARROWS_SIZE");
 		JS_AddModuleExport(ctx,m,(const char  *)"ARROWS_VISIBLE");
 		JS_AddModuleExport(ctx,m,(const char  *)"SCROLL_SLIDER_PADDING");
@@ -2855,6 +2858,7 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_MAJOR");
 		JS_AddModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_MINOR");
 		JS_AddModuleExport(ctx,m,(const char  *)"RAYGUI_VERSION_PATCH");
+		JS_AddModuleExport(ctx,m,(const char  *)"GUI_SCROLL_DELTA");
 		JS_AddModuleExport(ctx,m,(const char  *)"SCROLLBAR_LEFT_SIDE");
 		JS_AddModuleExport(ctx,m,(const char  *)"SCROLLBAR_RIGHT_SIDE");
 		JS_AddModuleExport(ctx,m,(const char  *)"RAYGUI_ICON_SIZE");

@@ -739,7 +739,7 @@ export class source_parser {
         return ret;
     }
     parseFunctionArgs(input) {
-        return input.split(',').filter(x => x !== 'void' && x !=='').map(arg => {
+        return input.split(',').filter(x => x.trim() !== 'void' && x.trim() !=='').map(arg => {
             let type = this.normalizeType(arg);
             if(type=='...'){
                 return { name: 'args', type: '...', binding:{},sizeVars:[] };

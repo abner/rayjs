@@ -12,8 +12,8 @@ var GuiStyleProp: {
 prototype: GuiStyleProp
 new(controlId?: number, propertyId?: number, propertyValue?: number): GuiStyleProp
 }
-/** NOTE: We check for STATE_DISABLED to avoid messing custom global state setups */
-function GuiEnable(): void/** NOTE: We check for STATE_NORMAL to avoid messing custom global state setups */
+/** NOTE: Checking for STATE_DISABLED to avoid messing custom global state setups */
+function GuiEnable(): void/** NOTE: Checking for STATE_NORMAL to avoid messing custom global state setups */
 function GuiDisable(): void/** Lock gui global state */
 function GuiLock(): void/** Unlock gui global state */
 function GuiUnlock(): void/** Check if gui is locked (global state) */
@@ -25,7 +25,8 @@ function GuiSetFont(font: Font): void/** Get custom gui font */
 function GuiGetFont(): Font/** Set control style property value */
 function GuiSetStyle(control: number, property: number, value: number): void/** Get control style property value */
 function GuiGetStyle(control: number, property: number): number/** in that case, custom font image atlas is GRAY+ALPHA and pixel data can be compressed (DEFLATE) */
-function GuiLoadStyle(fileName: string): void/** Load style default over global style */
+function GuiLoadStyle(fileName: string): void/** WARNING: Binary files only */
+function GuiLoadStyleFromMemory(fileData: number[], dataSize: number): void/** Load style default over global style */
 function GuiLoadStyleDefault(): void/** Enable gui tooltips (global state) */
 function GuiEnableTooltip(): void/** Disable gui tooltips (global state) */
 function GuiDisableTooltip(): void/** Set tooltip string */
@@ -59,7 +60,7 @@ function GuiSlider(bounds: Rectangle, textLeft: string, textRight: string, value
 function GuiSliderBar(bounds: Rectangle, textLeft: string, textRight: string, value: number | number[], minValue: number, maxValue: number): number/** Progress Bar control extended, shows current progress value */
 function GuiProgressBar(bounds: Rectangle, textLeft: string, textRight: string, value: number | number[], minValue: number, maxValue: number): number/** Status Bar control */
 function GuiStatusBar(bounds: Rectangle, text: string): number/** Dummy rectangle control, intended for placeholding */
-function GuiDummyRec(bounds: Rectangle, text: string): number/** https://stackoverflow.com/questions/4435450/2d-opengl-drawing-lines-that-dont-exactly-fit-pixel-raster */
+function GuiDummyRec(bounds: Rectangle, text: string): number/** REF: https://stackoverflow.com/questions/4435450/2d-opengl-drawing-lines-that-dont-exactly-fit-pixel-raster */
 function GuiGrid(bounds: Rectangle, text: string, spacing: number, subdivs: number, mouseCell: Vector2): number/** List View control */
 function GuiListView(bounds: Rectangle, text: string, scrollIndex: number | number[], active: number | number[]): number/** List View control with extended parameters */
 function GuiListViewEx(bounds: Rectangle, text: string[], count: number, scrollIndex: number | number[], active: number | number[], focus: number[]): number/** Message Box control */
@@ -70,9 +71,8 @@ function GuiColorPanel(bounds: Rectangle, text: string, color: Color): number/**
 function GuiColorBarAlpha(bounds: Rectangle, text: string, alpha: number | number[]): number/** float GuiColorBarLuminance() [BLACK->WHITE] */
 function GuiColorBarHue(bounds: Rectangle, text: string, hue: number[]): number/** NOTE: bounds define GuiColorPanelHSV() size */
 function GuiColorPickerHSV(bounds: Rectangle, text: string, colorHsv: Vector3): number/** Color Panel control - HSV variant */
-function GuiColorPanelHSV(bounds: Rectangle, text: string, colorHsv: Vector3): number/** WARNING: Binary files only */
-function GuiLoadStyleFromMemory(fileData: number[], dataSize: number): void/** Get text bounds considering control bounds */
-function GetTextBounds(control: number, bounds: Rectangle): Rectangle/** NOTE: We support up to 999 values for iconId */
+function GuiColorPanelHSV(bounds: Rectangle, text: string, colorHsv: Vector3): number/** Get text bounds considering control bounds */
+function GetTextBounds(control: number, bounds: Rectangle): Rectangle/** NOTE: Up to RAYGUI_ICON_MAX_ICONS supported for iconId */
 function GetTextIcon(text: string, iconId: number[]): string/** Gui draw text using default font */
 function GuiDrawText(text: string, textBounds: Rectangle, alignment: number, tint: Color): void/** Gui draw rectangle using default raygui plain style with borders */
 function GuiDrawRectangle(rec: Rectangle, borderWidth: number, borderColor: Color, color: Color): void/** Also check for multiple columns (required by GuiToggleGroup()) */
@@ -140,7 +140,8 @@ var TEXT_WRAP_MODE: number/** ToggleGroup separation between toggles */
 var GROUP_PADDING: number/** Slider size of internal bar */
 var SLIDER_WIDTH: number/**  */
 var SLIDER_PADDING: number/** ProgressBar internal padding */
-var PROGRESS_PADDING: number/** ScrollBar arrows size */
+var PROGRESS_PADDING: number/** ProgressBar increment side: 0-left->right, 1-right-left */
+var PROGRESS_SIDE: number/** ScrollBar arrows size */
 var ARROWS_SIZE: number/** ScrollBar arrows visible */
 var ARROWS_VISIBLE: number/** ScrollBar slider internal padding */
 var SCROLL_SLIDER_PADDING: number/** ScrollBar slider size */
@@ -431,6 +432,7 @@ var OTHER: number/**  */
 var RAYGUI_VERSION_MAJOR: number/**  */
 var RAYGUI_VERSION_MINOR: number/**  */
 var RAYGUI_VERSION_PATCH: number/**  */
+var GUI_SCROLL_DELTA: number/**  */
 var SCROLLBAR_LEFT_SIDE: number/**  */
 var SCROLLBAR_RIGHT_SIDE: number/** Size of icons in pixels (squared) */
 var RAYGUI_ICON_SIZE: number/** Maximum number of icons */

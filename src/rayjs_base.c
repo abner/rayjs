@@ -139,6 +139,7 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt){
     js_init_module_reasings(ctx, "rayjs:reasings");
     js_init_module_rlgl(ctx, "rayjs:rlgl");
     js_init_module_rlightmapper(ctx, "rayjs:rlightmapper");
+    js_init_module_box2d(ctx, "rayjs:box2d");
 
     JSValue global = JS_GetGlobalObject(ctx);
     JS_SetPropertyFunctionList(ctx, global, global_obj, countof(global_obj));

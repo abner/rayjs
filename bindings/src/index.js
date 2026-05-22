@@ -208,10 +208,74 @@ function main() {
 
     globalThis.config=JSON.parse(fs.readFileSync('bindings/config/buildFlags.json','utf8'));//We want to re-parse inner quickjs.h, so reset info gained from quickjs.c
     let configmodule=new source_parser(fs.readFileSync("thirdparty/raylib/src/config.h", "utf8"));//only parse to add #defined
+    // Box2D macro definitions for C static library context (B2_API = empty, B2_INLINE = static inline)
+    globalThis.config.defined['BOX2D_EXPORT'] = {type:'undefined', content:{body:''}};
+    globalThis.config.defined['B2_API']       = {type:'undefined', content:{body:''}};
+    globalThis.config.defined['B2_INLINE']    = {type:'undefined', content:{body:'static inline'}};
     let toolsSource = new source_parser(fs.readFileSync("src/rayjs_base.h", "utf8"),sourcefiles);
     toolsSource=sourceToVars(toolsSource);
     toolsSource['countof']={name:'countof',type:'function',args:[{type:'any',name:'a'}],returnType:'size_t'};
     toolsSource['sizeof']={name:'sizeof',type:'function',args:[{type:'any',name:'a'}],returnType:'size_t'};
+    // JS_EXTERN functions not picked up by source_parser (moved from static inline to JS_EXTERN in new quickjs); add manually
+    toolsSource['JS_ToFloat64']={name:'JS_ToFloat64',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'double *',name:'pres'},{type:'JSValueConst',name:'val'}],returnType:'int'};
+    toolsSource['JS_ToInt32']={name:'JS_ToInt32',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'int32_t *',name:'pres'},{type:'JSValueConst',name:'val'}],returnType:'int'};
+    toolsSource['JS_ToInt64']={name:'JS_ToInt64',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'int64_t *',name:'pres'},{type:'JSValueConst',name:'val'}],returnType:'int'};
+    toolsSource['JS_ToBool']={name:'JS_ToBool',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'val'}],returnType:'int'};
+    toolsSource['JS_ThrowTypeError']={name:'JS_ThrowTypeError',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'const char *',name:'fmt'}],returnType:'JSValue'};
+    toolsSource['JS_FreeValue']={name:'JS_FreeValue',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValue',name:'v'}],returnType:'void'};
+    toolsSource['JS_FreeCString']={name:'JS_FreeCString',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'const char *',name:'ptr'}],returnType:'void'};
+    toolsSource['JS_FreeContext']={name:'JS_FreeContext',type:'function',args:[{type:'JSContext *',name:'s'}],returnType:'void'};
+    toolsSource['JS_FreeRuntime']={name:'JS_FreeRuntime',type:'function',args:[{type:'JSRuntime *',name:'rt'}],returnType:'void'};
+    toolsSource['JS_DupContext']={name:'JS_DupContext',type:'function',args:[{type:'JSContext *',name:'ctx'}],returnType:'JSContext *'};
+    toolsSource['JS_DupValue']={name:'JS_DupValue',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'v'}],returnType:'JSValue'};
+    toolsSource['JS_GetRuntime']={name:'JS_GetRuntime',type:'function',args:[{type:'JSContext *',name:'ctx'}],returnType:'JSRuntime *'};
+    toolsSource['JS_GetClassID']={name:'JS_GetClassID',type:'function',args:[{type:'JSValueConst',name:'v'}],returnType:'JSClassID'};
+    toolsSource['JS_GetOpaque']={name:'JS_GetOpaque',type:'function',args:[{type:'JSValueConst',name:'obj'},{type:'JSClassID',name:'class_id'}],returnType:'void *'};
+    toolsSource['JS_GetOpaque2']={name:'JS_GetOpaque2',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'obj'},{type:'JSClassID',name:'class_id'}],returnType:'void *'};
+    toolsSource['JS_SetOpaque']={name:'JS_SetOpaque',type:'function',args:[{type:'JSValueConst',name:'obj'},{type:'void *',name:'opaque'}],returnType:'int'};
+    toolsSource['JS_GetLength']={name:'JS_GetLength',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'obj'},{type:'int64_t *',name:'pres'}],returnType:'int'};
+    toolsSource['JS_NewArray']={name:'JS_NewArray',type:'function',args:[{type:'JSContext *',name:'ctx'}],returnType:'JSValue'};
+    toolsSource['JS_NewObject']={name:'JS_NewObject',type:'function',args:[{type:'JSContext *',name:'ctx'}],returnType:'JSValue'};
+    toolsSource['JS_NewObjectClass']={name:'JS_NewObjectClass',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSClassID',name:'class_id'}],returnType:'JSValue'};
+    toolsSource['JS_NewStringLen']={name:'JS_NewStringLen',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'const char *',name:'str1'},{type:'size_t',name:'len1'}],returnType:'JSValue'};
+    toolsSource['JS_NewArrayBufferCopy']={name:'JS_NewArrayBufferCopy',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'const uint8_t *',name:'buf'},{type:'size_t',name:'len'}],returnType:'JSValue'};
+    toolsSource['JS_NewCFunction2']={name:'JS_NewCFunction2',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSCFunction *',name:'func'},{type:'const char *',name:'name'},{type:'int',name:'length'},{type:'JSCFunctionEnum',name:'cproto'},{type:'int',name:'magic'}],returnType:'JSValue'};
+    toolsSource['JS_NewCModule']={name:'JS_NewCModule',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'const char *',name:'name_str'},{type:'JSModuleInitFunc *',name:'init_func'}],returnType:'JSModuleDef *'};
+    toolsSource['JS_NewClass']={name:'JS_NewClass',type:'function',args:[{type:'JSRuntime *',name:'rt'},{type:'JSClassID',name:'class_id'},{type:'const JSClassDef *',name:'class_def'}],returnType:'int'};
+    toolsSource['JS_NewClassID']={name:'JS_NewClassID',type:'function',args:[{type:'JSRuntime *',name:'rt'},{type:'JSClassID *',name:'pclass_id'}],returnType:'JSClassID'};
+    toolsSource['JS_GetPropertyUint32']={name:'JS_GetPropertyUint32',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'this_obj'},{type:'uint32_t',name:'idx'}],returnType:'JSValue'};
+    toolsSource['JS_SetPropertyUint32']={name:'JS_SetPropertyUint32',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'this_obj'},{type:'uint32_t',name:'idx'},{type:'JSValue',name:'val'}],returnType:'int'};
+    toolsSource['JS_DefinePropertyValueUint32']={name:'JS_DefinePropertyValueUint32',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'this_obj'},{type:'uint32_t',name:'idx'},{type:'JSValue',name:'val'},{type:'int',name:'flags'}],returnType:'int'};
+    toolsSource['JS_SetPropertyFunctionList']={name:'JS_SetPropertyFunctionList',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'obj'},{type:'const JSCFunctionListEntry *',name:'tab'},{type:'int',name:'len'}],returnType:'int'};
+    toolsSource['JS_SetClassProto']={name:'JS_SetClassProto',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSClassID',name:'class_id'},{type:'JSValue',name:'obj'}],returnType:'void'};
+    toolsSource['JS_GetArrayBuffer']={name:'JS_GetArrayBuffer',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'size_t *',name:'psize'},{type:'JSValueConst',name:'obj'}],returnType:'uint8_t *'};
+    toolsSource['JS_GetTypedArrayBuffer']={name:'JS_GetTypedArrayBuffer',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'obj'},{type:'size_t *',name:'pbyte_offset'},{type:'size_t *',name:'pbyte_length'},{type:'size_t *',name:'pbytes_per_element'}],returnType:'JSValue'};
+    toolsSource['JS_GetTypedArrayType']={name:'JS_GetTypedArrayType',type:'function',args:[{type:'JSValueConst',name:'obj'}],returnType:'int'};
+    toolsSource['JS_Call']={name:'JS_Call',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'func_obj'},{type:'JSValueConst',name:'this_obj'},{type:'int',name:'argc'},{type:'JSValueConst *',name:'argv'}],returnType:'JSValue'};
+    toolsSource['JS_JSONStringify']={name:'JS_JSONStringify',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'obj'},{type:'JSValueConst',name:'replacer'},{type:'JSValueConst',name:'space0'}],returnType:'JSValue'};
+    toolsSource['JS_AddModuleExport']={name:'JS_AddModuleExport',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSModuleDef *',name:'m'},{type:'const char *',name:'name_str'}],returnType:'int'};
+    toolsSource['JS_AddModuleExportList']={name:'JS_AddModuleExportList',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSModuleDef *',name:'m'},{type:'const JSCFunctionListEntry *',name:'tab'},{type:'int',name:'len'}],returnType:'int'};
+    toolsSource['JS_SetModuleExport']={name:'JS_SetModuleExport',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSModuleDef *',name:'m'},{type:'const char *',name:'export_name'},{type:'JSValue',name:'val'}],returnType:'int'};
+    toolsSource['JS_SetModuleExportList']={name:'JS_SetModuleExportList',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSModuleDef *',name:'m'},{type:'const JSCFunctionListEntry *',name:'tab'},{type:'int',name:'len'}],returnType:'int'};
+    toolsSource['JS_SetMaxStackSize']={name:'JS_SetMaxStackSize',type:'function',args:[{type:'JSRuntime *',name:'rt'},{type:'size_t',name:'stack_size'}],returnType:'void'};
+    toolsSource['JS_IsArrayBuffer']={name:'JS_IsArrayBuffer',type:'function',args:[{type:'JSValueConst',name:'obj'}],returnType:'bool'};
+    toolsSource['JS_IsArray']={name:'JS_IsArray',type:'function',args:[{type:'JSValueConst',name:'val'}],returnType:'bool'};
+    toolsSource['JS_IsFunction']={name:'JS_IsFunction',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'val'}],returnType:'bool'};
+    toolsSource['JS_IsEqual']={name:'JS_IsEqual',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValueConst',name:'op1'},{type:'JSValueConst',name:'op2'}],returnType:'int'};
+    toolsSource['JS_NewAtomUInt32']={name:'JS_NewAtomUInt32',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'uint32_t',name:'n'}],returnType:'JSAtom'};
+    // Raylib constants not in config.h (defined in implementation files); needed for sizeVars
+    toolsSource['MAX_MESH_VERTEX_BUFFERS']={name:'MAX_MESH_VERTEX_BUFFERS',type:'value',subtype:'int',props:{}};
+    toolsSource['RL_MAX_SHADER_LOCATIONS']={name:'RL_MAX_SHADER_LOCATIONS',type:'value',subtype:'int',props:{}};
+    toolsSource['RL_DEFAULT_BATCH_DRAWCALLS']={name:'RL_DEFAULT_BATCH_DRAWCALLS',type:'value',subtype:'int',props:{}};
+    // QuickJS memory allocation functions (JS_EXTERN in new quickjs, not static inline)
+    toolsSource['js_malloc']={name:'js_malloc',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'size_t',name:'size'}],returnType:'void *'};
+    toolsSource['js_free']={name:'js_free',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'void *',name:'ptr'}],returnType:'void'};
+    toolsSource['js_calloc']={name:'js_calloc',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'size_t',name:'count'},{type:'size_t',name:'size'}],returnType:'void *'};
+    toolsSource['js_realloc']={name:'js_realloc',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'void *',name:'ptr'},{type:'size_t',name:'size'}],returnType:'void *'};
+    toolsSource['js_postMessage']={name:'js_postMessage',type:'function',args:[{type:'JSContext *',name:'ctx'},{type:'JSValue',name:'worker'},{type:'int',name:'argc'},{type:'JSValue *',name:'argv'}],returnType:'JSValue'};
+    // C boolean literals — referenced as variable names by cgen when JS boolean false/true is passed to .call()
+    toolsSource['false']={name:'false',type:'value',subtype:'bool',props:{}};
+    toolsSource['true']={name:'true',type:'value',subtype:'bool',props:{}};
     globalThis.toolsSource=Object.values(toolsSource);
     toolsSource=undefined;
     // Load the pre-generated raylib api
@@ -240,6 +304,14 @@ function main() {
     modules['reasings']=new source_parser(fs.readFileSync("thirdparty/raylib/examples/shapes/reasings.h", "utf8"),sourcefiles);
     modules['rlgl']=new source_parser(fs.readFileSync("thirdparty/raylib/src/rlgl.h", "utf8"),sourcefiles);
     modules['rlightmapper']=new source_parser(fs.readFileSync("src/rlightmapper.h", "utf8"),sourcefiles);
+    const box2d_sourcefiles = Object.assign({}, sourcefiles, {
+        "base.h": "thirdparty/box2d/include/box2d/base.h",
+        "collision.h": "thirdparty/box2d/include/box2d/collision.h",
+        "id.h": "thirdparty/box2d/include/box2d/id.h",
+        "types.h": "thirdparty/box2d/include/box2d/types.h",
+        "math_functions.h": "thirdparty/box2d/include/box2d/math_functions.h",
+    });
+    modules['box2d']=new source_parser(fs.readFileSync("thirdparty/box2d/include/box2d/box2d.h", "utf8"),box2d_sourcefiles);
     //gather shared code for rayjs_generated
     let modules_generated={
         functions: [],
@@ -329,6 +401,10 @@ function main() {
         gen.includeGen.include("rlightmapper.h",vars,defines);
     };
     modules['rlightmapper'].gen = new rayjs_header("rlightmapper",'rlightmapper.h',sharedFnNames);
+    includeDictionary['box2d']=(gen,vars)=>{
+        gen.includeGen.include("box2d/box2d.h",vars);
+    };
+    modules['box2d'].gen = new rayjs_header("box2d",'box2d/box2d.h',sharedFnNames);
     for(let key in modules)attachGetters(modules[key]);
 
     //generate hashmap of names to detect dependencies
@@ -1019,6 +1095,120 @@ function main() {
     });
 
     modules['raylib'].ignore('bool');
+
+    // Box2D customizations
+    // Ignore low-level alloc/assert hooks (not useful from JS)
+    modules['box2d'].ignore("b2SetAllocator");
+    modules['box2d'].ignore("b2SetAssertFcn");
+    // Ignore internal assert (exposed via !NDEBUG only, not in the public API surface)
+    modules['box2d'].ignore("b2InternalAssertFcn");
+    // b2DebugDraw has function-pointer fields for rendering callbacks — mark all non-bindable
+    // (users integrate debug draw via custom C code, not from JS)
+    // b2DebugDraw requires C function pointer callbacks — not usable from JS
+    att = modules['box2d'].getStruct("b2DebugDraw");
+    if(att) att.binding.ignore=true;
+    // General pass: disable void* fields and function-pointer fields in all box2d structs
+    // (void* cannot be meaningfully used in JS; function pointers are C-only callbacks)
+    for(const s of modules['box2d'].structs){
+        for(const field of s.fields){
+            const t=field.type.trim();
+            if(t==='void *' || t==='void*' || (t.includes('(') && t.includes('*'))){
+                field.binding.get=false; field.binding.set=false;
+            }
+        }
+    }
+    // b2WorldDef: disable threading fields and internal value
+    att = modules['box2d'].getStruct("b2WorldDef");
+    if(att){
+        for(const fname of ['enqueueTask','finishTask','userTaskContext','frictionCallback','restitutionCallback','internalValue']){
+            const f=att.fields.find(a=>a.name===fname);
+            if(f){f.binding.get=false; f.binding.set=false;}
+        }
+    }
+    // Disable internalValue on all def structs (Box2D uses it to detect uninitialized defs)
+    for(const sname of ['b2BodyDef','b2ShapeDef','b2ChainDef','b2DistanceJointDef','b2MotorJointDef',
+                        'b2MouseJointDef','b2FilterJointDef','b2PrismaticJointDef','b2RevoluteJointDef',
+                        'b2WeldJointDef','b2WheelJointDef']){
+        att=modules['box2d'].getStruct(sname);
+        if(att){
+            const iv=att.fields.find(a=>a.name==='internalValue');
+            if(iv){iv.binding.get=false; iv.binding.set=false;}
+        }
+    }
+    // Event structs: set sizeVars for array-pointer fields
+    att=modules['box2d'].getStruct("b2SensorEvents");
+    if(att){
+        att.fields.find(a=>a.name==='beginEvents').binding.sizeVars=['ptr.beginCount'];
+        att.fields.find(a=>a.name==='endEvents').binding.sizeVars=['ptr.endCount'];
+    }
+    att=modules['box2d'].getStruct("b2ContactEvents");
+    if(att){
+        att.fields.find(a=>a.name==='beginEvents').binding.sizeVars=['ptr.beginCount'];
+        att.fields.find(a=>a.name==='endEvents').binding.sizeVars=['ptr.endCount'];
+        att.fields.find(a=>a.name==='hitEvents').binding.sizeVars=['ptr.hitCount'];
+    }
+    att=modules['box2d'].getStruct("b2BodyEvents");
+    if(att){
+        att.fields.find(a=>a.name==='moveEvents').binding.sizeVars=['ptr.moveCount'];
+    }
+    // b2ChainDef: const pointer fields are read-only arrays
+    att=modules['box2d'].getStruct("b2ChainDef");
+    if(att){
+        const pts=att.fields.find(a=>a.name==='points');
+        if(pts){pts.binding.sizeVars=['ptr.count']; pts.binding.set=false;}
+        const mats=att.fields.find(a=>a.name==='materials');
+        if(mats){mats.binding.sizeVars=['ptr.materialCount']; mats.binding.set=false;}
+    }
+    // b2BodyMoveEvent: userData void* — leave as no get/set
+    att=modules['box2d'].getStruct("b2BodyMoveEvent");
+    if(att){
+        const ud=att.fields.find(a=>a.name==='userData');
+        if(ud){ud.binding.get=false; ud.binding.set=false;}
+    }
+    // b2Counters.colorCounts is a fixed array [12]
+    att=modules['box2d'].getStruct("b2Counters");
+    if(att){
+        const cc=att.fields.find(a=>a.name==='colorCounts');
+        if(cc)cc.binding.sizeVars=[12];
+    }
+    // b2World_Draw uses b2DebugDraw* which has function pointers — ignore for now
+    modules['box2d'].ignore("b2World_Draw");
+    // b2World_OverlapAABB/Shape and Cast functions accept void* context alongside callbacks
+    // The callbacks (b2OverlapResultFcn, b2CastResultFcn) are useful but need special handling;
+    // ignore the raw void* context versions for now (users call via JS function wrapping)
+    modules['box2d'].ignore("b2World_OverlapAABB");
+    modules['box2d'].ignore("b2World_OverlapShape");
+    modules['box2d'].ignore("b2World_CastRay");
+    modules['box2d'].ignore("b2World_CastShape");
+    modules['box2d'].ignore("b2World_CastMover");
+    modules['box2d'].ignore("b2World_CollideShape");
+    modules['box2d'].ignore("b2World_SetCustomFilterCallback");
+    modules['box2d'].ignore("b2World_SetPreSolveCallback");
+    // b2DynamicTree is an internal BVH structure — dynamic array of nodes with no fixed size
+    const dTree=modules['box2d'].getStruct("b2DynamicTree");
+    if(dTree) dTree.binding.ignore=true;
+    // Ignore b2Hash (low-level utility, takes uint8_t* data)
+    modules['box2d'].ignore("b2Hash");
+    // b2GetMillisecondsAndReset takes uint64_t* (output param) — ignore to avoid complexity
+    modules['box2d'].ignore("b2GetMillisecondsAndReset");
+    // b2Shape_GetContactData and b2Body_GetContactData return arrays via output params
+    modules['box2d'].ignore("b2Shape_GetContactData");
+    modules['box2d'].ignore("b2Body_GetContactData");
+    // void* UserData functions — can't represent untyped pointers in JS
+    modules['box2d'].ignore("b2World_SetUserData");
+    modules['box2d'].ignore("b2World_GetUserData");
+    modules['box2d'].ignore("b2Body_SetUserData");
+    modules['box2d'].ignore("b2Body_GetUserData");
+    modules['box2d'].ignore("b2Shape_SetUserData");
+    modules['box2d'].ignore("b2Shape_GetUserData");
+    modules['box2d'].ignore("b2Joint_SetUserData");
+    modules['box2d'].ignore("b2Joint_GetUserData");
+    // b2World_CollideMover uses callback
+    modules['box2d'].ignore("b2World_CollideMover");
+    // Friction/restitution callbacks are C function pointers — not callable from JS
+    modules['box2d'].ignore("b2World_SetFrictionCallback");
+    modules['box2d'].ignore("b2World_SetRestitutionCallback");
+
     for(let key in modules){
         const module=modules[key];
         module.aliases.forEach(x => module.gen.registerAlias(x));
@@ -1073,6 +1263,7 @@ function main() {
                 }
             }
         }
+        module.enums.forEach(x => module.gen.preRegisterEnum(x));
         module.structs.forEach(x => module.gen.addApiStruct_object(x));
         //On top level, before assigning functions, check for callbacks, if present in a function, add callback first
         const callbacks=module.callbacks.map(c=>c.name);
@@ -1122,7 +1313,6 @@ function main() {
         }
         console.log("Success!");
     }catch(e){
-        cgen.showError();
         console.log(e);
     }
 }

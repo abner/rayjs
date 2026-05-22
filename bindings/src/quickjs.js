@@ -107,7 +107,7 @@ export function getDefaultReturn(type){
             return "0.0f";
         case "double":
         case "long double":
-            return "0.0d";
+            return "0.0";
         case "JSValue":
             return "JS_EXCEPTION";
         default:
@@ -295,6 +295,7 @@ export function ctojsType(variables,ctype){
             jsType.push("char");break;
         }
         case "int8_t":
+        case "int16_t":
         case "int":
         case "signed":
         case "signed int":
@@ -306,6 +307,7 @@ export function ctojsType(variables,ctype){
             jsType.push("int8");break;
         }
         case "uint8_t":
+        case "uint16_t":
         case 'wchar_t':
         case "unsigned char":
         case "unsigned short":
@@ -356,6 +358,8 @@ export function ctojsType(variables,ctype){
             if (variable.subtype=='function' || variable.subtype=='struct'){
                 jsType.push(variable);
                 //issimpletype is not resolved here due to ptr->object being ptr->4*float that is not correct
+            }else if(variable.subtype=='enum'){
+                jsType.push('int32');
             }else{
                 throw new Error("Requred variable is not a type" + JSON.stringify(variable));
             }
@@ -459,10 +463,12 @@ export function deepCCopy(ctx,ctype,name,src,variables,deepCCopyBox,testShallow=
     if(!testShallow)ctx.declare(ctype,name,src);
     for(let i=0;i<variable.fields.length;i++){
         let field=variable.fields[i];
+        // Skip fields that are marked as non-gettable (function pointers, void*, etc.)
+        if(field.binding && field.binding.get===false) continue;
         let capture=[];
         simpleregex(field.type,['r+',azZ0+' ','r*',' *','os','[','r*',a0+' '],0,capture);
         let arrsize=capture[1].replaceAll(' ','').length;
-        if(field.type.startsWith('char *'))arrsize--;
+        if(field.type.includes('char *')&&field.type.replace(/const /g,'').startsWith('char *'))arrsize--;
         capture[3]=Number.parseInt(capture[3]);
         let sizeVars=field.binding.sizeVars||[];
         let type=field.type;
@@ -923,6 +929,7 @@ export function cToJs(topctx,ctype,name,src,flags={},variables){
     if(variables==undefined){
         variables=topctx.getVariables();
     }
+    ctype=ctype.replace(/\bconst\b /g,'');
     let ctx=topctx;
     if(ctype.endsWith(']'))debugger;
     let capture=[];
@@ -936,7 +943,7 @@ export function cToJs(topctx,ctype,name,src,flags={},variables){
         arrsize--;
     }else{
         variable=getaliasedVariable(variables[capture[1]]);
-        if(typeof(variable)=='object' && variable.type=='type'){
+        if(typeof(variable)=='object' && variable.type=='type' && variable.subtype!='enum'){
             if(arrsize>flags.sizeVars.length){
                 arrsize--;
             }
@@ -994,6 +1001,7 @@ export function cToJs(topctx,ctype,name,src,flags={},variables){
         case "bool":return ctx.call('JS_NewBool',['ctx',src],{type:'JSValue',name});
         case "char":return ctx.call('JS_NewStringLen',['ctx',`${src}`,1],{type:'JSValue',name});
         case "int8_t":
+        case "int16_t":
         case "int":
         case "signed":
         case "signed int":
@@ -1010,6 +1018,7 @@ export function cToJs(topctx,ctype,name,src,flags={},variables){
         case "signed long int":
             return ctx.call('JS_NewInt32',['ctx',src],{type:'JSValue',name});
         case "uint8_t":
+        case "uint16_t":
         case "unsigned char":
         case "unsigned short":
         case "unsigned short int":
@@ -1037,6 +1046,12 @@ export function cToJs(topctx,ctype,name,src,flags={},variables){
             return ctx.call('JS_NewFloat64',['ctx',src],{type:'JSValue',name});
         //va_list can not be generic
         //case "va_list"
+    }
+    if(getaliasedVariable(variables[ctype])?.subtype=='enum'){
+        // Pass src directly; cast() in compilefunctionargs handles EnumType→int32_t.
+        // The '(int)(src)' form breaks when src is a local C variable: resolveVariable
+        // treats (int) as the initial resolved value and silently drops the child (src).
+        return ctx.call('JS_NewInt32',['ctx',src],{type:'JSValue',name});
     }
     throw new Error("Requred type is not found: " + ctype);
 
@@ -1397,6 +1412,10 @@ export class QuickJsGenerator {
                         throw new Error("Requred type is not a type: " + type);
                     }
                     variable=getaliasedVariable(variable);
+                    if(variable.subtype=='enum'){
+                        this.cgen.call('JS_NewInt32',['ctx',`(int)(${src})`],{type:'JSValue',name});
+                        break;
+                    }
                     if(variable.props.bound_name==undefined){
                         throw new Error("struct must have been bound to exist as opaque");
                     }

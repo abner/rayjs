@@ -48,6 +48,18 @@ typedef struct ArrayProxy_class {
 #include "rayjs_generated.h"
 #endif
 
+// Raylib constants defined only in implementation files (rmodels.c, rlgl.h);
+// provided here so generated bindings compiled in a separate TU can see them.
+#ifndef MAX_MESH_VERTEX_BUFFERS
+    #define MAX_MESH_VERTEX_BUFFERS 7
+#endif
+#ifndef RL_MAX_SHADER_LOCATIONS
+    #define RL_MAX_SHADER_LOCATIONS 32
+#endif
+#ifndef RL_DEFAULT_BATCH_DRAWCALLS
+    #define RL_DEFAULT_BATCH_DRAWCALLS 256
+#endif
+
 #include <string.h>
 #include <stdarg.h>
 #include "modules/quickjs-libc.h"
@@ -60,6 +72,7 @@ extern JSModuleDef * js_init_module_rlights(JSContext * ctx, const char * module
 extern JSModuleDef * js_init_module_reasings(JSContext * ctx, const char * module_name);
 extern JSModuleDef * js_init_module_rlgl(JSContext * ctx, const char * module_name);
 extern JSModuleDef * js_init_module_rlightmapper(JSContext * ctx, const char * module_name);
+extern JSModuleDef * js_init_module_box2d(JSContext * ctx, const char * module_name);
 static JSCFunctionListEntry argv0;
 
 #ifndef countof

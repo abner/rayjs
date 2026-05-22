@@ -25,14 +25,14 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Vector3));
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -47,14 +47,14 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Vector3));
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -69,14 +69,14 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Vector3));
 		Vector3 * ptr2_ret=((Vector3 *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Vector3_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -95,8 +95,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -114,8 +114,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -135,8 +135,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -154,8 +154,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -175,8 +175,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -200,8 +200,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -219,8 +219,8 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		return JS_UNDEFINED;
 	}
@@ -236,14 +236,14 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Matrix));
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	
@@ -260,14 +260,14 @@
 			Camera * ptr2_src=((Camera *)(ptr_src+1));
 			ptr2_src[0]=camera[0];
 			JSValue src=JS_NewObjectClass(ctx,js_Camera3D_class_id);
-			JS_SetOpaque(src,(void  *)ptr_src);
-			JS_SetPropertyUint32(ctx,argv[0],(uint32_t)0,src);
+			JS_SetOpaque((JSValueConst)src,(void  *)ptr_src);
+			JS_SetPropertyUint32(ctx,(JSValueConst)argv[0],(uint32_t)0,src);
 		}
 		opaqueShadow * ptr_ret=create_shadow_with_data(sizeof(Matrix));
 		Matrix * ptr2_ret=((Matrix *)(ptr_ret+1));
 		ptr2_ret[0]=returnVal;
 		JSValue ret=JS_NewObjectClass(ctx,js_Matrix_class_id);
-		JS_SetOpaque(ret,(void  *)ptr_ret);
+		JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
 		return ret;
 	}
 	static const JSCFunctionListEntry jsrcamera_funcs[]={

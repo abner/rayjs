@@ -176,21 +176,24 @@ function rlGenTextureMipmaps(id: number, width: number, height: number, format: 
 function rlReadTexturePixels(id: number, width: number, height: number, format: number): number[]/** Read screen pixel data (color buffer) */
 function rlReadScreenPixels(width: number, height: number): string/** Load an empty framebuffer */
 function rlLoadFramebuffer(): number/** Attach texture/renderbuffer to a framebuffer */
-function rlFramebufferAttach(fboId: number, texId: number, attachType: number, texType: number, mipLevel: number): void/** Verify framebuffer is complete */
+function rlFramebufferAttach(id: number, texId: number, attachType: number, texType: number, mipLevel: number): void/** Verify framebuffer is complete */
 function rlFramebufferComplete(id: number): boolean/** Delete framebuffer from GPU */
-function rlUnloadFramebuffer(id: number): void/** Load shader from code strings */
-function rlLoadShaderCode(vsCode: string, fsCode: string): number/** Compile custom shader and return shader id (type: RL_VERTEX_SHADER, RL_FRAGMENT_SHADER, RL_COMPUTE_SHADER) */
-function rlCompileShader(shaderCode: string, type: number): number/** Load custom shader program */
-function rlLoadShaderProgram(vShaderId: number, fShaderId: number): number/** Unload shader program */
+function rlUnloadFramebuffer(id: number): void/** Copy framebuffer pixel data to internal buffer */
+function rlCopyFramebuffer(x: number, y: number, width: number, height: number, format: number, pixels: ArrayBuffer): void/** Resize internal framebuffer */
+function rlResizeFramebuffer(width: number, height: number): void/** Load (compile) shader and return shader id (type: RL_VERTEX_SHADER, RL_FRAGMENT_SHADER, RL_COMPUTE_SHADER) */
+function rlLoadShader(code: string, type: number): number/** Load shader from code strings */
+function rlLoadShaderProgram(vsCode: string, fsCode: string): number/** Load shader program, using already loaded shader ids */
+function rlLoadShaderProgramEx(vsId: number, fsId: number): number/** Load compute shader program */
+function rlLoadShaderProgramCompute(csId: number): number/** Unload shader, loaded with rlLoadShader() */
+function rlUnloadShader(id: number): void/** Unload shader program */
 function rlUnloadShaderProgram(id: number): void/** Get shader location uniform, requires shader program id */
-function rlGetLocationUniform(shaderId: number, uniformName: string): number/** Get shader location attribute, requires shader program id */
-function rlGetLocationAttrib(shaderId: number, attribName: string): number/** Set shader value uniform */
+function rlGetLocationUniform(id: number, uniformName: string): number/** Get shader location attribute, requires shader program id */
+function rlGetLocationAttrib(id: number, attribName: string): number/** Set shader value uniform */
 function rlSetUniform(locIndex: number, value: ArrayBuffer, uniformType: number, count: number): void/** Set shader value matrix */
 function rlSetUniformMatrix(locIndex: number, mat: Matrix): void/** Set shader value matrices */
 function rlSetUniformMatrices(locIndex: number, mat: Matrix[], count: number): void/** Set shader value sampler */
 function rlSetUniformSampler(locIndex: number, textureId: number): void/** Set shader currently active (id and locations) */
-function rlSetShader(id: number, locs: number[]): void/** Load compute shader program */
-function rlLoadComputeShaderProgram(shaderId: number): number/** Dispatch compute shader (equivalent to *draw* for graphics pipeline) */
+function rlSetShader(id: number, locs: number[]): void/** Dispatch compute shader (equivalent to *draw* for graphics pipeline) */
 function rlComputeShaderDispatch(groupX: number, groupY: number, groupZ: number): void/** Load shader storage buffer object (SSBO) */
 function rlLoadShaderBuffer(size: number, data: ArrayBuffer, usageHint: number): number/** Unload shader storage buffer object (SSBO) */
 function rlUnloadShaderBuffer(ssboId: number): void/** Update SSBO buffer data */
@@ -211,7 +214,7 @@ function rlSetMatrixProjectionStereo(right: Matrix, left: Matrix): void/** Set e
 function rlSetMatrixViewOffsetStereo(right: Matrix, left: Matrix): void/** Load and draw a cube */
 function rlLoadDrawCube(): void/** Load and draw a quad */
 function rlLoadDrawQuad(): void/** Software rendering */
-var RL_OPENGL_11_SOFTWARE: number/** OpenGL 1.1 */
+var RL_OPENGL_SOFTWARE: number/** OpenGL 1.1 */
 var RL_OPENGL_11: number/** OpenGL 2.1 (GLSL 120) */
 var RL_OPENGL_21: number/** OpenGL 3.3 (GLSL 330) */
 var RL_OPENGL_33: number/** OpenGL 4.3 (using GLSL 330) */
@@ -249,7 +252,7 @@ var RL_PIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA: number/** 4 bpp */
 var RL_PIXELFORMAT_COMPRESSED_PVRT_RGB: number/** 4 bpp */
 var RL_PIXELFORMAT_COMPRESSED_PVRT_RGBA: number/** 8 bpp */
 var RL_PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA: number/**  */
-var RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: number/** No filter, just pixel approximation */
+var RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: number/** No filter, pixel approximation */
 var RL_TEXTURE_FILTER_POINT: number/** Linear filtering */
 var RL_TEXTURE_FILTER_BILINEAR: number/** Trilinear filtering (linear with mipmaps) */
 var RL_TEXTURE_FILTER_TRILINEAR: number/** Anisotropic filtering 4x */
@@ -329,7 +332,12 @@ var RL_ATTACHMENT_TEXTURE2D: number/** Framebuffer texture attachment type: rend
 var RL_ATTACHMENT_RENDERBUFFER: number/**  */
 var RL_CULL_FACE_FRONT: number/**  */
 var RL_CULL_FACE_BACK: number/** NOTE: Be careful with text, every letter maps to a quad */
-var RL_DEFAULT_BATCH_BUFFER_ELEMENTS: number/** GL_TEXTURE_WRAP_S */
+var RL_DEFAULT_BATCH_BUFFER_ELEMENTS: number/** Default number of batch buffers (multi-buffering) */
+var RL_DEFAULT_BATCH_BUFFERS: number/** Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture()) */
+var RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS: number/** Maximum size of Matrix stack */
+var RL_MAX_MATRIX_STACK_SIZE: number/** Default near cull distance */
+var RL_CULL_DISTANCE_NEAR: number/** Default far cull distance */
+var RL_CULL_DISTANCE_FAR: number/** GL_TEXTURE_WRAP_S */
 var RL_TEXTURE_WRAP_S: number/** GL_TEXTURE_WRAP_T */
 var RL_TEXTURE_WRAP_T: number/** GL_TEXTURE_MAG_FILTER */
 var RL_TEXTURE_MAG_FILTER: number/** GL_TEXTURE_MIN_FILTER */
@@ -395,4 +403,14 @@ var RL_BLEND_DST_ALPHA: number/** GL_BLEND_SRC_ALPHA */
 var RL_BLEND_SRC_ALPHA: number/** GL_BLEND_COLOR */
 var RL_BLEND_COLOR: number/** GL_READ_FRAMEBUFFER */
 var RL_READ_FRAMEBUFFER: number/** GL_DRAW_FRAMEBUFFER */
-var RL_DRAW_FRAMEBUFFER: number}
+var RL_DRAW_FRAMEBUFFER: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_POSITION: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS: number/**  */
+var RL_DEFAULT_SHADER_ATTRIB_LOCATION_INSTANCETRANSFORM: number}

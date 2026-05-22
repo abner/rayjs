@@ -124,6 +124,7 @@ static JSValue load_standalone_module(JSContext *ctx)
 #include "modules/js_reasings.h"
 #include "modules/js_rlgl.h"
 #include "modules/js_rlightmapper.h"
+#include "modules/js_box2d.h"
 
 static int eval_buf(JSContext *ctx, const void *buf, int buf_len,const char *filename, int eval_flags){
 	bool use_realpath;
