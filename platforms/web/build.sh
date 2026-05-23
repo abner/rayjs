@@ -47,18 +47,23 @@ cmd_build() {
     cmd_dist
 }
 
-# Copy the HTML shell, loader, and the example_game/ tree into
+# Copy the HTML shell, loader, and the example_games/ tree into
 # build-web/dist/ alongside the cmake-emitted rayjs.js + rayjs.wasm.
-# example_game/ already mirrors the MEMFS layout the game expects, so it
-# gets copied verbatim — anything inside ends up at the same relative
-# path inside dist/ (and then inside MEMFS once loader.js fetches it).
+# Each example_games/<name>/ subtree mirrors the MEMFS layout that game
+# expects (game/main.js, examples/foo.png, ...), and gets served from
+# dist/games/<name>/. loader.js reads ?game=<name> to pick which subtree
+# to fetch from at runtime; the fetched files are written into MEMFS at
+# the same relative path (without the games/<name>/ prefix) so existing
+# fopen()/LoadTexture() calls Just Work.
 cmd_dist() {
     local DIST="$REPO_ROOT/$BUILD_DIR/dist"
     cp "$SCRIPT_DIR/shell.html" "$DIST/index.html"
     cp "$SCRIPT_DIR/loader.js"  "$DIST/loader.js"
-    # Wipe old game payload before copying so removed files don't linger.
-    rm -rf "$DIST/game" "$DIST/examples"
-    cp -R "$SCRIPT_DIR/example_game/." "$DIST/"
+    # Wipe stale payload — both the new layout and any leftovers from
+    # the single-game layout that preceded multi-game support.
+    rm -rf "$DIST/games" "$DIST/game" "$DIST/examples"
+    mkdir -p "$DIST/games"
+    cp -R "$SCRIPT_DIR/example_games/." "$DIST/games/"
     echo "Assembled $DIST"
 }
 

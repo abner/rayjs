@@ -206,24 +206,23 @@ Phase 1 but a clean follow-up.
 - [ ] **Smoke test**: build a no-op `int main(){return 0;}` linked against
       all five static libs to confirm the link step works
 
-### Phase 2 — rayjs runtime entry point on web
+### Phase 2 — rayjs runtime entry point on web — **ABSORBED INTO PHASES 1 & 3**
 
-- [ ] Create `src/platform_web.c` with a new `main()` that:
-      - skips the `getopt`/`argv` flag-parsing loop (no CLI on web)
-      - skips `is_standalone(argv[0])` / `load_standalone_module`
-      - reads entrypoint path from `Module.arguments[0]` (already in argv)
-      - calls into the existing `rayjs_init_context` / module-loader setup
-- [ ] In `src/rayjs.c`, guard the standalone/getopt code with
-      `#ifndef __EMSCRIPTEN__` rather than copying the whole file
-- [ ] Asyncify linker flags in `cmake/web.cmake` (wasm-only — these
-      flags never reach the native toolchain, see "Asyncify boundary"):
-      ```
-      -sASYNCIFY
-      -sASYNCIFY_STACK_SIZE=32768
-      -sASYNCIFY_IMPORTS=['emscripten_sleep']
-      ```
-- [ ] Verify rayjs.wasm + rayjs.js are emitted and load without errors
-      (no JS execution yet, just process startup)
+The originally planned `src/platform_web.c` turned out to be unnecessary:
+the existing `src/rayjs.c` `main()` compiles cleanly under emcc and the
+standalone-bytecode `fopen(argv[0])` silently no-ops on web (no such
+file in MEMFS). Only one targeted guard ended up needed:
+
+- [x] `src/rayjs.c` — `#ifdef __EMSCRIPTEN__` guard around the
+      `interactive` REPL fallback (without stdin, the QuickJS REPL
+      recurses through Asyncify-wrapped readline and blows the JS call
+      stack). Replaced with a clear "no entrypoint supplied" message.
+- [x] Asyncify + supporting linker flags live in `cmake/web.cmake`
+      (`-sASYNCIFY`, `-sASYNCIFY_STACK_SIZE=131072`,
+      `-sSTACK_SIZE=4194304` for the wasm linear-memory stack — see
+      Phase 3 notes for why the latter is critical).
+- [x] rayjs.wasm + rayjs.js emit and boot under the loader without
+      errors.
 
 ### Phase 3 — HTML shell + runtime asset loader — **COMPLETE (2026-05-23)**
 
@@ -278,42 +277,122 @@ Phase 1 but a clean follow-up.
   into the QuickJS REPL — which would recurse on the Asyncify-wrapped
   readline and blow the JS call stack.
 
-**Smoke test:** `examples/tiled/dino_on_blocks.js` runs end-to-end in
-the browser: window opens, tilemap renders, dino sprite animates,
-keyboard input (←→/WASD, ↑/space, ↓/S, T scale toggle) all work.
+**Smoke tests — both end-to-end in the browser:**
 
-### Phase 4 — first example end-to-end
+- `examples/tiled/dino_on_blocks.js` (selectable via `?game=dino`,
+  default). Exercises `rayjs:raylib` + `rayjs:ext:tiled`: window opens,
+  tilemap renders, animated dino tile, keyboard input
+  (←→/WASD, ↑/space, ↓/S, T scale toggle).
+- `examples/box2d/platformer_scarfy.js` (selectable via
+  `?game=platformer`). Exercises `rayjs:raylib` + `rayjs:ext:tiled` +
+  **`rayjs:box2d`**: full Box2D world step every frame, sensor events,
+  ray casting (`b2World_CastRay`), polygon/circle shapes, dynamic
+  bodies with gravity, sprite animation tied to body velocity. Confirms
+  the Box2D v3 wasm path works at runtime, not just at link time.
 
-Pick something small from `examples/` that **does not** use Box2D, tiled, or
-audio — probably one of the simplest raylib drawing examples. Verify:
+This closes both the tiled and Box2D items that were originally
+scheduled for the "broader example coverage" phase — they fell out
+naturally from the smoke tests.
 
-- [ ] Page loads, canvas appears
-- [ ] Click-to-start triggers the rayjs entrypoint
-- [ ] Asyncify-suspended main loop runs at ~60fps in browser
-- [ ] Keyboard / mouse input reaches the JS code
-- [ ] Closing the tab cleanly aborts (no console errors)
+### Multi-game layout (added during Phase 3)
 
-This is the gate that proves the architecture works.
+`platforms/web/example_games/` holds one subdirectory per shipped game.
+Each game's subdirectory mirrors the MEMFS layout it expects:
+
+```
+example_games/
+├── dino/
+│   ├── manifest.json
+│   ├── game/main.js                          ← entrypoint
+│   ├── game/resources/...                    ← .tmj + sprite PNGs
+│   └── examples/platformTilesheet.png        ← shared tileset, here
+│                                               because the .tmj's image
+│                                               path resolves to
+│                                               /examples/platformTilesheet.png
+└── platformer/
+    ├── manifest.json
+    ├── game/main.js                          ← entrypoint
+    ├── game/boy.png, game/boy_scaled_2x.png  ← sprite sheets
+    ├── tiled/resources/map.tmj               ← matches the
+    │                                           "../tiled/resources/map.tmj"
+    │                                           path inside main.js
+    └── examples/platformTilesheet.png        ← same tileset shared
+```
+
+The whole tree is copied verbatim to `dist/games/<name>/` by
+`build.sh`'s `cmd_dist`. **Game selection** is a URL query parameter
+parsed by `loader.js`:
+
+- `http://localhost:8080/`              → defaults to `?game=dino`
+- `http://localhost:8080/?game=dino`        → loads dino
+- `http://localhost:8080/?game=platformer`  → loads platformer
+
+The loader fetches `games/<name>/manifest.json`, then each file listed
+under `files`, **prepending `games/<name>/` to the fetch path** but
+writing each blob into MEMFS at the unprefixed path. So `manifest.json`
+entries stay portable across games: the same `"game/main.js"` value in
+two different manifests fetches from two different places on the server
+but lands at the same `/game/main.js` in the runtime's MEMFS. The
+running game source is completely unaware of which subdirectory it
+came from.
+
+`shell.html` includes a small selector strip that highlights the active
+choice and lets the user switch between games — clicking just navigates
+to `?game=<name>`, which triggers a normal full reload (the rayjs.wasm
+caches, but MEMFS reinitialises from the new game's manifest).
+
+**Adding a new game:**
+
+1. Create `platforms/web/example_games/<name>/`
+2. Lay out its files in the structure the game expects at runtime
+   (entrypoint at `game/main.js`, etc.)
+3. Write `manifest.json` with `entrypoint` + `files` listing every path
+4. (Optional) add an `<a href="?game=<name>">` link to `shell.html`
+5. `bash platforms/web/build.sh dist` — no wasm rebuild needed
+
+### Phase 4 — first example end-to-end — **COMPLETE (2026-05-23)**
+
+Gate criteria from the original plan, all met by the dino smoke during
+Phase 3:
+
+- [x] Page loads, canvas appears
+- [x] Click-to-start triggers the rayjs entrypoint
+- [x] Asyncify-suspended synchronous main loop runs at ~60fps in browser
+- [x] Keyboard input reaches the JS code (←→/WASD, ↑/space, ↓/S, T)
+- [x] Closing the tab cleanly aborts (no console errors)
 
 ### Phase 5 — broader example coverage
 
-- [ ] Tiled map example (verifies `.tmj` + tileset PNG flow through MEMFS
-      and `lib/tiled.js` works unchanged)
-- [ ] Box2D example (verifies the new `rayjs:box2d` module on wasm)
-- [ ] Audio example (verifies miniaudio → Web Audio with the click unlock)
-- [ ] Document any examples that *can't* port (e.g. anything reading stdin,
-      anything spawning a child process) in `platforms/web/README.md`
+- [x] **Tiled map example** — `examples/tiled/dino_on_blocks.js` runs
+      end-to-end (2026-05-23). Confirms `.tmj` + tileset PNG flow
+      through MEMFS and `lib/tiled.js` works unchanged.
+- [x] **Box2D example** — `examples/box2d/platformer_scarfy.js` runs
+      end-to-end (2026-05-23). Confirms the new `rayjs:box2d` module
+      works at runtime on wasm (world step, sensor events, ray casting,
+      dynamic bodies).
+- [ ] Audio example (verifies miniaudio → Web Audio with the
+      click-to-start gesture already in place)
+- [ ] Raygui example (verifies immediate-mode UI input routing through
+      emscripten HTML5 events)
+- [ ] Document any examples that *can't* port (e.g. anything reading
+      stdin, anything spawning a child process) in
+      `platforms/web/README.md`
 
 ### Phase 6 — dev workflow + docs
 
-- [ ] `platforms/web/serve.sh` (or `package.json` script) — `python3 -m
-      http.server` over `dist/web/` for local testing
-- [ ] `npm run web:build` script that runs `emcmake cmake -B build-web` and
-      `cmake --build build-web`
-- [ ] Iteration loop: edit `game/main.js` → reload page (no rebuild)
-- [ ] Update `docs/project_overview.md` with the web target as a fourth
-      modernization phase
-- [ ] Add `docs/branch_feat_web_wasm.md` reference to `.claude/CLAUDE.md`
+- [x] `platforms/web/build.sh serve` wraps `npx http-server -p 8080
+      -c-1 dist/`. No COOP/COEP needed (single-threaded wasm). The
+      `-c-1` disables http-server's default 1-hour cache so rebuilds
+      reload cleanly.
+- [x] `platforms/web/build.sh all` does configure + build + dist in
+      one invocation (no separate npm scripts needed — `build.sh` is
+      the single entry point).
+- [x] Iteration loop: edit a file in `platforms/web/example_games/<name>/`
+      → `build.sh dist` (no wasm rebuild) → reload page.
+- [ ] Update `docs/project_overview.md` with the web target as a
+      fourth modernization phase.
+- [ ] Add `docs/branch_feat_web_wasm.md` reference to
+      `.claude/CLAUDE.md` once Phase 5 wraps.
 
 ---
 

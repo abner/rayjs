@@ -1,0 +1,10 @@
+{
+    "entrypoint": "game/main.js",
+    "files": [
+        "game/main.js",
+        "game/boy.png",
+        "game/boy_scaled_2x.png",
+        "tiled/resources/map.tmj",
+        "examples/platformTilesheet.png"
+    ]
+}

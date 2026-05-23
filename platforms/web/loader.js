@@ -16,13 +16,18 @@
 //      which reads argv, loads the entrypoint JS via rayjs's existing
 //      module loader, and the game's synchronous main loop takes over.
 //
-// Manifest schema (game/manifest.json):
+// Game selection: ?game=<name> URL param picks which manifest to load
+// (default "dino"). Each game lives at games/<name>/ on the HTTP server.
+//
+// Manifest schema (games/<name>/manifest.json):
 //   {
 //     "entrypoint": "game/main.js",
 //     "files": ["game/main.js", "game/assets/foo.png", ...]
 //   }
-// File paths are relative to the page; they're written into MEMFS at the
-// same relative path so existing fopen()/LoadTexture() calls Just Work.
+// `entrypoint` and `files` are MEMFS paths (no `games/<name>/` prefix);
+// they're fetched from games/<name>/<path> and written into MEMFS at /<path>
+// so existing fopen()/LoadTexture() calls Just Work and a game source
+// is unchanged whether it's loaded from dino/ or platformer/.
 
 (() => {
     const $status = document.getElementById("status");
@@ -35,16 +40,26 @@
         setStatus("Error: " + msg + (err ? " — see console" : ""));
     };
 
-    // Fetch the manifest + every file it lists, return their bytes.
+    // Pick the game from ?game=<name> (default "dino"). Each game lives
+    // under games/<name>/ on the server; the manifest's `files` are
+    // MEMFS-relative paths, which we fetch from games/<name>/<path> and
+    // write into MEMFS at /<path>.
+    const params = new URLSearchParams(window.location.search);
+    const gameName = params.get("game") || "dino";
+    const gameBase = `games/${gameName}/`;
+
     async function fetchGame() {
-        setStatus("Fetching manifest…");
-        const manifest = await (await fetch("game/manifest.json")).json();
+        setStatus(`Fetching ${gameName} manifest…`);
+        const res = await fetch(gameBase + "manifest.json");
+        if (!res.ok) throw new Error(`manifest fetch ${res.status} for ${gameName}`);
+        const manifest = await res.json();
         if (!manifest.entrypoint) throw new Error("manifest missing 'entrypoint'");
         const files = manifest.files || [manifest.entrypoint];
         setStatus(`Fetching ${files.length} file(s)…`);
         const blobs = await Promise.all(files.map(async (path) => {
-            const buf = new Uint8Array(await (await fetch(path)).arrayBuffer());
-            return { path, buf };
+            const r = await fetch(gameBase + path);
+            if (!r.ok) throw new Error(`fetch ${r.status} for ${gameBase}${path}`);
+            return { path, buf: new Uint8Array(await r.arrayBuffer()) };
         }));
         return { manifest, blobs };
     }
