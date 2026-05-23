@@ -44,11 +44,42 @@ cmd_configure() {
 
 cmd_build() {
     run_in_container "cmake --build $BUILD_DIR -j"
+    cmd_dist
+}
+
+# Copy the HTML shell, loader, and the example_game/ tree into
+# build-web/dist/ alongside the cmake-emitted rayjs.js + rayjs.wasm.
+# example_game/ already mirrors the MEMFS layout the game expects, so it
+# gets copied verbatim — anything inside ends up at the same relative
+# path inside dist/ (and then inside MEMFS once loader.js fetches it).
+cmd_dist() {
+    local DIST="$REPO_ROOT/$BUILD_DIR/dist"
+    cp "$SCRIPT_DIR/shell.html" "$DIST/index.html"
+    cp "$SCRIPT_DIR/loader.js"  "$DIST/loader.js"
+    # Wipe old game payload before copying so removed files don't linger.
+    rm -rf "$DIST/game" "$DIST/examples"
+    cp -R "$SCRIPT_DIR/example_game/." "$DIST/"
+    echo "Assembled $DIST"
 }
 
 cmd_clean() {
     rm -rf "$REPO_ROOT/$BUILD_DIR"
     echo "Removed $REPO_ROOT/$BUILD_DIR"
+}
+
+# Serve build-web/dist/ on http://localhost:8080 via npx http-server.
+# We don't need SharedArrayBuffer (single-threaded wasm), so no COOP/COEP
+# headers required.
+cmd_serve() {
+    local DIST="$REPO_ROOT/$BUILD_DIR/dist"
+    if [[ ! -f "$DIST/index.html" ]]; then
+        echo "No dist/index.html — run '$0 all' first." >&2
+        exit 1
+    fi
+    echo "Serving $DIST on http://localhost:8080  (Ctrl-C to stop)"
+    # -c-1 disables http-server's default 1-hour cache so wasm/JS reloads
+    # pick up rebuilds immediately.
+    npx http-server -p 8080 -c-1 "$DIST"
 }
 
 cmd_shell() {
@@ -74,6 +105,12 @@ case "${1:-all}" in
         ensure_image
         cmd_build
         ;;
+    dist)
+        cmd_dist
+        ;;
+    serve)
+        cmd_serve
+        ;;
     clean)
         cmd_clean
         ;;
@@ -83,7 +120,7 @@ case "${1:-all}" in
         ;;
     *)
         echo "Unknown command: $1" >&2
-        echo "Usage: $0 [all|configure|build|clean|shell]" >&2
+        echo "Usage: $0 [all|configure|build|dist|serve|clean|shell]" >&2
         exit 2
         ;;
 esac

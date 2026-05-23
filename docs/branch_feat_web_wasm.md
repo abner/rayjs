@@ -225,19 +225,62 @@ Phase 1 but a clean follow-up.
 - [ ] Verify rayjs.wasm + rayjs.js are emitted and load without errors
       (no JS execution yet, just process startup)
 
-### Phase 3 — HTML shell + runtime asset loader
+### Phase 3 — HTML shell + runtime asset loader — **COMPLETE (2026-05-23)**
 
-- [ ] `platforms/web/shell.html`:
-      - `<canvas id="canvas">`
-      - "Click to start" overlay (needed to unlock Web Audio)
-      - includes `rayjs.js` (emscripten glue) and `loader.js`
-- [ ] `platforms/web/loader.js`:
-      - defines `Module.preRun` that fetches `game/manifest.json`,
-      - for each entry, `fetch().arrayBuffer()` → `FS.writeFile(path, bytes)`,
-      - sets `Module.arguments = [manifest.entrypoint]`
-- [ ] `platforms/web/manifest.example.json` showing the schema
-- [ ] Install step in `cmake/web.cmake` that copies these three files into
-      the output `dist/web/` next to the emcc artifacts
+- [x] `platforms/web/shell.html`: `<canvas>`, "Click to start" button,
+      includes `loader.js` then `rayjs.js`
+- [x] `platforms/web/loader.js`: defines `window.Module` with
+      `noInitialRun: true`, a `preRun` hook that fetches
+      `game/manifest.json`, then each listed asset, writes them into
+      MEMFS at the same relative path, and sets
+      `Module.arguments = [manifest.entrypoint]`. Click handler calls
+      `Module.callMain(...)` once the runtime is ready.
+- [x] `platforms/web/manifest.example.json` documenting the schema
+- [x] Bundled into `dist/` by `build.sh`'s `cmd_dist` (not via cmake
+      install — keeps cmake focused on the wasm artifact). The
+      `example_game/` directory mirrors the MEMFS layout it produces,
+      so it's copied verbatim with `cp -R`.
+
+**Several non-obvious things that came up:**
+
+- emcc's default 64 KB wasm linear-memory stack was nowhere near enough
+  for the QuickJS interpreter (C-stack-recursive). QuickJS's own
+  overflow check fired and threw `RangeError: Maximum call stack size
+  exceeded` deep inside raylib init. Bumped via `-sSTACK_SIZE=4194304`
+  (4 MB).
+- raylib's `src/CMakeLists.txt:71` adds
+  `-sEXPORTED_RUNTIME_METHODS=ccall` as a **PUBLIC** link option, which
+  propagates to consumers AFTER their own link options (emcc keeps the
+  last value). Without intervention this stripped `callMain` and
+  `FS`/`cwrap` from the runtime exports. `rayjs_web_post()` now strips
+  raylib's narrower flag from its `INTERFACE_LINK_OPTIONS` before
+  adding our full list.
+- `Module.callMain` must be in `EXPORTED_RUNTIME_METHODS` (the default
+  doesn't expose it). Required because we set `noInitialRun: true` and
+  invoke main from the click handler.
+- emcc's `-z stack-size` was a long-standing source of confusion vs
+  `ASYNCIFY_STACK_SIZE`. They're two completely separate stacks:
+  - `STACK_SIZE`: the wasm linear-memory C stack. Local variables,
+    spilled registers, return addresses for non-async paths.
+  - `ASYNCIFY_STACK_SIZE`: a side stack in linear memory used only to
+    save/restore wasm state across suspend points.
+- Path resolution discipline: rayjs's `chdir(dirname(argv[1]))` (in
+  `src/rayjs.c:650`) makes CWD = `dirname(entrypoint)` before the JS
+  runs. So if the entrypoint is `game/main.js`, CWD becomes `/game/`,
+  and the example's hard-coded `../../../examples/platformTilesheet.png`
+  inside the .tmj resolves to `/examples/platformTilesheet.png` —
+  which is why `example_game/examples/platformTilesheet.png` lives
+  outside of `example_game/game/`. Same physical layout works on web
+  and would work on native if you cd'd into a comparable scratch dir.
+- Source-level guard added in `src/rayjs.c`: when no entrypoint is
+  supplied and `interactive` mode would otherwise kick in, on
+  `__EMSCRIPTEN__` we print a clear error and exit instead of dropping
+  into the QuickJS REPL — which would recurse on the Asyncify-wrapped
+  readline and blow the JS call stack.
+
+**Smoke test:** `examples/tiled/dino_on_blocks.js` runs end-to-end in
+the browser: window opens, tilemap renders, dino sprite animates,
+keyboard input (←→/WASD, ↑/space, ↓/S, T scale toggle) all work.
 
 ### Phase 4 — first example end-to-end
 

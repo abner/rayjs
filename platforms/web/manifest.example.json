@@ -1,0 +1,9 @@
+{
+    "$schema_comment": "Per-game manifest fetched by loader.js. entrypoint is required (becomes argv[1] for rayjs main). files lists every asset to populate into MEMFS at the same relative path.",
+    "entrypoint": "game/main.js",
+    "files": [
+        "game/main.js",
+        "game/assets/sprite.png",
+        "game/maps/level1.tmj"
+    ]
+}

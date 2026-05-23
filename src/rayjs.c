@@ -652,8 +652,19 @@ start:
                 goto fail;
         }
         if (interactive) {
+#ifdef __EMSCRIPTEN__
+            /* No stdin in the browser. The QuickJS REPL would otherwise
+             * recurse through Asyncify-wrapped readline and blow the JS
+             * call stack ("Maximum call stack size exceeded"). Surface a
+             * clear message instead so the cause is obvious in devtools. */
+            fprintf(stderr, "rayjs: no entrypoint supplied — set Module.arguments "
+                            "to ['/path/to/game.js'] in preRun before main runs.\n");
+            r = 1;
+            goto fail;
+#else
             JS_SetHostPromiseRejectionTracker(rt, NULL, NULL);
             js_std_eval_binary(ctx, qjsc_repl, qjsc_repl_size, 0);
+#endif
         }
         if (standalone || compile_file) {
             if (JS_IsException(ret)) {

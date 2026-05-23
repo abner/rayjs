@@ -54,6 +54,18 @@ function(rayjs_web_post)
 
     set(target ${CMAKE_PROJECT_NAME})
 
+    # raylib's src/CMakeLists.txt adds -sEXPORTED_RUNTIME_METHODS=ccall as
+    # a PUBLIC link option. Since CMake places dependency INTERFACE options
+    # AFTER the consumer target's own options on the link line, raylib's
+    # narrower list overrides ours (emcc keeps the last value). Strip it
+    # here — our own EXPORTED_RUNTIME_METHODS below includes ccall plus
+    # what we actually need (FS, cwrap, callMain).
+    get_target_property(_raylib_link_opts raylib INTERFACE_LINK_OPTIONS)
+    if(_raylib_link_opts)
+        list(REMOVE_ITEM _raylib_link_opts "-sEXPORTED_RUNTIME_METHODS=ccall")
+        set_property(TARGET raylib PROPERTY INTERFACE_LINK_OPTIONS ${_raylib_link_opts})
+    endif()
+
     # RAYJS_NO_MIMALLOC tells src/rayjs_base.c to skip <mimalloc.h> and
     # alias mi_* to standard libc (malloc/calloc/realloc/free). Required
     # because rayjs_base.c has unconditional mi_* calls (memoryStore /
@@ -74,20 +86,33 @@ function(rayjs_web_post)
         "-sMIN_WEBGL_VERSION=2"
         "-sMAX_WEBGL_VERSION=2"
         "-sASYNCIFY"
-        "-sASYNCIFY_STACK_SIZE=32768"
+        # 128 KB Asyncify SIDE stack — only used to save/restore wasm state
+        # at suspend points.
+        "-sASYNCIFY_STACK_SIZE=131072"
+        # 4 MB wasm linear-memory stack. emcc default is 64 KB, which is
+        # nowhere near enough for QuickJS: its bytecode interpreter is
+        # C-stack-recursive, so every JS function call consumes wasm
+        # stack. With 64 KB, QuickJS's own overflow check fires almost
+        # immediately during raylib's deep init, throwing
+        # `RangeError: Maximum call stack size exceeded` inside the wasm.
+        "-sSTACK_SIZE=4194304"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sINITIAL_MEMORY=64MB"
         "-sFORCE_FILESYSTEM=1"
-        "-sEXPORTED_RUNTIME_METHODS=['FS','ccall','cwrap']"
+        "-sEXPORTED_RUNTIME_METHODS=['FS','ccall','cwrap','callMain']"
+        # Preserve wasm function names so devtools shows js_call_internal
+        # instead of $func549. ~3% size cost, no runtime cost.
+        "--profiling-funcs"
     )
 
-    # Emit .html + .js + .wasm into build-web/dist/. The root CMakeLists.txt
-    # sets CMAKE_RUNTIME_OUTPUT_DIRECTORY to the source tree so the native
-    # binary lands at ./rayjs — that pollutes the repo for the web build,
-    # so we override per-target. The default emcc HTML shell is enough for
-    # Phase 1 / 4 smoke tests; Phase 3 replaces it with platforms/web/shell.html.
+    # Emit rayjs.js + rayjs.wasm into build-web/dist/. We ship our own
+    # platforms/web/shell.html as dist/index.html (copied by build.sh),
+    # so SUFFIX=".js" tells emcc to skip its default HTML wrapper.
+    # CMAKE_RUNTIME_OUTPUT_DIRECTORY is set to the source tree by the
+    # root CMakeLists.txt for the native binary's convenience; we override
+    # per-target to keep the repo clean.
     set_target_properties(${target} PROPERTIES
-        SUFFIX ".html"
+        SUFFIX ".js"
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist
     )
 endfunction()

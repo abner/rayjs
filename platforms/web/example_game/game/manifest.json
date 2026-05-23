@@ -1,0 +1,11 @@
+{
+    "entrypoint": "game/main.js",
+    "files": [
+        "game/main.js",
+        "game/resources/dino_on_blocks_2x.tmj",
+        "game/resources/dino_on_blocks_4x.tmj",
+        "game/resources/dino_2x.png",
+        "game/resources/dino_4x.png",
+        "examples/platformTilesheet.png"
+    ]
+}
