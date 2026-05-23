@@ -1,0 +1,4 @@
+{
+    "entrypoint": "game/main.js",
+    "files": ["game/main.js"]
+}

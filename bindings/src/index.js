@@ -1331,7 +1331,25 @@ function main() {
         for(let key in modules){
             const module=modules[key];
             console.log("Writing module "+module.gen.name);
-            module.gen.writeTo(`src/modules/js_${module.gen.name}.h`);
+            const outPath=`src/modules/js_${module.gen.name}.h`;
+            module.gen.writeTo(outPath);
+            // Post-process workaround: cgen's cast() unnecessarily derefs
+            // when converting a pointer-to-pointer to `void *`, producing
+            // e.g. `memoryStore(js_free,(void *)*ret)`. The `*ret` alias
+            // is to the inner JS-owned buffer (or uninitialised memory in
+            // the null branch); the intent is always to register the OUTER
+            // pointer for free. Without this fix, memoryClear() later
+            // free()s an invalid pointer — silently survivable on native
+            // mimalloc, hard crash on emscripten dlmalloc.
+            // Targeted at memoryStore call sites only so legitimate
+            // expressions like `sizeof(void *)*N` aren't touched. A proper
+            // fix belongs in cgen.js's cast() but every attempt at that so
+            // far broke the box2d callback-bridge generator path.
+            const buf=fs.readFileSync(outPath,'utf8');
+            const fixed=buf
+                .replace(/memoryStore\(js_free,\(void  *\*\)\*/g, 'memoryStore(js_free,(void *)')
+                .replace(/memoryStore\(jsc_free,\(void  *\*\)\*/g, 'memoryStore(jsc_free,(void *)');
+            if(fixed!==buf) fs.writeFileSync(outPath,fixed);
             module.gen.typings.writeTo(`bindings/typings/lib.js_${module.gen.name}.d.ts`,{variables:module.gen.definitions.cgen.getVariables(),includegen:module.gen.includeGen,modules});
             const ignored = modules[key].functions.filter(x => x.binding.ignore).length;
             console.log(`Converted ${modules[key].functions.length+modules[key].structs.length+modules[key].callbacks.length - ignored}, ${ignored} ignored.`);

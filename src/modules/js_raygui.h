@@ -160,7 +160,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -200,7 +200,7 @@
 					return NULL;
 				}
 				if(is_arrayProxy)JS_FreeValue(ctx,src0);
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -232,7 +232,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -250,7 +250,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsString(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -264,7 +264,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsNull(src0)||JS_IsUndefined(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -277,7 +277,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type char * *");
 				error[0]=(bool)1;
@@ -286,7 +286,7 @@
 		}else if(JS_IsArrayBuffer((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id||JS_IsArray((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)||JS_IsNull(src)||JS_IsUndefined(src)){
 			isptr[0]=(bool)true;
 			ret =(char  * *)js_malloc(ctx,sizeof(char *));
-			memoryStore(js_free,(void  *)*ret);
+			memoryStore(js_free,(void *)ret);
 			bool is_arrayProxy=(bool)0;
 			if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 				is_arrayProxy =(bool)1;
@@ -371,7 +371,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -415,7 +415,7 @@
 					return NULL;
 				}
 				if(is_arrayProxy)JS_FreeValue(ctx,src0);
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -451,7 +451,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -469,7 +469,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsString(src0)){
 				ret =(char  * *)js_malloc(ctx,sizeof(char *));
 				src0 =JS_GetPropertyUint32(ctx,(JSValueConst)src,(uint32_t)0);
@@ -483,7 +483,7 @@
 					error[0]=(bool)1;
 					return NULL;
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type char * *");
 				error[0]=(bool)1;
@@ -492,7 +492,7 @@
 		}else if(JS_IsArrayBuffer((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id||JS_IsArray((JSValueConst)src)||JS_GetClassID((JSValueConst)src)==JS_CLASS_INT8_ARRAY||JS_IsString(src)){
 			isptr[0]=(bool)true;
 			ret =(char  * *)js_malloc(ctx,sizeof(char *));
-			memoryStore(js_free,(void  *)*ret);
+			memoryStore(js_free,(void *)ret);
 			bool is_arrayProxy=(bool)0;
 			if(JS_GetClassID((JSValueConst)src)==js_ArrayProxy_class_id){
 				is_arrayProxy =(bool)1;
@@ -645,7 +645,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
@@ -688,7 +688,7 @@
 					}
 					if(is_arrayProxy0)JS_FreeValue(ctx,src0);
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
@@ -723,7 +723,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
@@ -744,7 +744,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsString(src0)){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
@@ -761,7 +761,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsNull(src0)||JS_IsUndefined(src0)){
 				if(size_ret==0)return NULL;
 				ret =(char  * *)js_malloc(ctx,size_ret*sizeof(char *));
@@ -776,7 +776,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type char * *");
 				error[0]=(bool)1;

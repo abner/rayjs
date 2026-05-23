@@ -1601,7 +1601,7 @@
 					}
 					if(is_arrayProxy0)JS_FreeValue(ctx,src0);
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -1643,7 +1643,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_Transform_class_id){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -1669,7 +1669,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type Transform * *");
 				error[0]=(bool)1;
@@ -2153,7 +2153,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -2204,7 +2204,7 @@
 					}
 					if(is_arrayProxy0)JS_FreeValue(ctx,src0);
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -2247,7 +2247,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -2275,7 +2275,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else if(JS_IsString(src0)){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -2300,7 +2300,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(jsc_free,(void  *)*ret);
+				memoryStore(jsc_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type char * *");
 				error[0]=(bool)1;
@@ -4159,7 +4159,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==js_ArrayProxy_class_id){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -4210,7 +4210,7 @@
 					}
 					if(is_arrayProxy0)JS_FreeValue(ctx,src0);
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsArray((JSValueConst)src0)){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -4253,7 +4253,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_GetClassID((JSValueConst)src0)==JS_CLASS_INT8_ARRAY){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -4278,7 +4278,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else if(JS_IsString(src0)){
 				if(size_ret==0){
 					JS_ThrowTypeError(ctx,(const char  *)"Received empty array");
@@ -4299,7 +4299,7 @@
 						return NULL;
 					}
 				}
-				memoryStore(js_free,(void  *)*ret);
+				memoryStore(js_free,(void *)ret);
 			}else{
 				JS_ThrowTypeError(ctx,(const char  *)"src does not match type char * *");
 				error[0]=(bool)1;
@@ -15542,7 +15542,7 @@
 		size_t size_text=argc-1;
 		if(size_text>4)size_text=(size_t)4;
 		const char * * text=(const char  * *)js_malloc(ctx,size_text*sizeof(const char *));
-		memoryStore(js_free,(void  *)*text);
+		memoryStore(js_free,(void *)text);
 		for(int i=0;i<size_text;i++){
 			text[i] =(const char  *)js_getchar_arr(ctx,argv[i+1],&error);
 			if(error==1)return JS_EXCEPTION;

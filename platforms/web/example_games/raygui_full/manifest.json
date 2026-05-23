@@ -1,0 +1,18 @@
+{
+    "entrypoint": "game/main.js",
+    "files": [
+        "game/main.js",
+        "styles/_style_amber.js",
+        "styles/_style_ashes.js",
+        "styles/_style_bluish.js",
+        "styles/_style_candy.js",
+        "styles/_style_cherry.js",
+        "styles/_style_cyber.js",
+        "styles/_style_dark.js",
+        "styles/_style_enefete.js",
+        "styles/_style_jungle.js",
+        "styles/_style_lavanda.js",
+        "styles/_style_sunny.js",
+        "styles/_style_terminal.js"
+    ]
+}

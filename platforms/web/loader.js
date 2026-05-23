@@ -82,7 +82,16 @@
                     if (dir) FS.createPath("/", dir, true, true);
                     FS.writeFile("/" + path, buf);
                 }
-                Module.arguments = [manifest.entrypoint];
+                // Always pass an absolute MEMFS path. On native, rayjs
+                // calls realpath() to absolutise argv[1] before QuickJS
+                // computes relative imports against it; emscripten's
+                // realpath() doesn't reliably absolutise MEMFS-relative
+                // paths, so `import "../styles/x.js"` from
+                // `game/main.js` would lexically reduce to `styles/x.js`
+                // and miss the leading slash needed to hit /styles/.
+                const ep = manifest.entrypoint.startsWith("/")
+                    ? manifest.entrypoint : "/" + manifest.entrypoint;
+                Module.arguments = [ep];
                 setStatus("Ready. Click to start.");
                 if ($start) $start.hidden = false;
             } catch (err) {
