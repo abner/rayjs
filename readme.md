@@ -6,12 +6,13 @@ QuickJS based Javascript bindings for raylib in a single ~3mb executable
 rayjs is small ES2020 compliant Javascript interpreter based on [QuickJS](https://bellard.org/quickjs/) with bindings for [Raylib](https://www.raylib.com/). You can use it to develop tiny desktop games with Javascript.
 
 ## What this is not
-rayjs is not a binding for NodeJS nor is it running in the browser, or phone (yet). It's comes with its own Javascript engine (QuickJS) similar to how NodeJS comes with the V8 engine. That makes it much easier to run and distribute rayjs programs as all you need to run a program / game is the small rayjs executable. No installation, no dlls or additional files are needed.
+rayjs is not a binding for NodeJS. It comes with its own Javascript engine (QuickJS) similar to how NodeJS comes with the V8 engine. That makes it much easier to run and distribute rayjs programs as all you need to run a program / game is the small rayjs executable. No installation, no dlls or additional files are needed.
 
 ## Features
 * Compiles into a single, small executable without any dependencies for easy distribution
 * Use modern Javascript features like classes or async/await
 * In-depth auto-complete with definitions for the whole API
+* **Runs in the browser** via a WebAssembly build — the same `.js` game source runs on both the native binary and in any modern browser, no code changes. See [`docs/web_target.md`](docs/web_target.md).
 
 ## Getting started
 1. Download the binary for your platform from the [release section](https://github.com/RealVarHar/rayjs/releases).

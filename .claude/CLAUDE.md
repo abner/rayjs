@@ -26,6 +26,13 @@
   (file I/O against MEMFS, module path normalization, audio-context unlock), and the
   Asyncify perf trade-off.
 
+- [`docs/web_target.md`](../docs/web_target.md) — User-facing guide to the web build.
+  Covers what the web target does (capability + deploy shape), the three architectural ideas
+  that made it possible (Asyncify for synchronous loops, MEMFS-mirrored game payload,
+  single-threaded model), how to build via `platforms/web/build.sh`, how to add a new game
+  (including the entrypoint-two-levels-deep pattern needed to satisfy QuickJS's path
+  normalizer), and what production deployment looks like.
+
 ## Planning documents
 
 - [`docs/box2d_api_coverage_plan.md`](../docs/box2d_api_coverage_plan.md) — Plan to increase
