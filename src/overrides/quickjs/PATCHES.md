@@ -1,17 +1,23 @@
 # quickjs patches
 
 Files in this directory are patched copies of `thirdparty/quickjs/quickjs.h` and
-`thirdparty/quickjs/quickjs.c`. CMakeLists.txt deploys them into the submodule via
-`configure_file` at configure time:
+`thirdparty/quickjs/quickjs.c`. CMakeLists.txt deploys them into the **build tree**
+(not the submodule) via `configure_file` at configure time:
 
 ```cmake
-configure_file(src/overrides/quickjs/quickjs.h thirdparty/quickjs/quickjs.h @ONLY)
-configure_file(src/overrides/quickjs/quickjs.c thirdparty/quickjs/quickjs.c @ONLY)
+set(quickjs_patched_dir ${CMAKE_BINARY_DIR}/quickjs-patched)
+configure_file(src/overrides/quickjs/quickjs.h ${quickjs_patched_dir}/quickjs.h @ONLY)
+configure_file(src/overrides/quickjs/quickjs.c ${quickjs_patched_dir}/quickjs.c @ONLY)
 ```
 
-This means `thirdparty/quickjs` will always appear dirty (`M quickjs.c`, `M quickjs.h`)
-after a CMake configure run. That is expected and intentional — the submodule itself is
-never committed with these changes.
+The patched dir is prepended to the include path of both the `quickjs` static library
+target and the main rayjs target, so the unmodified submodule sources (`libregexp.c`,
+`libunicode.c`, …) still resolve `#include "quickjs.h"` to the patched header.
+
+`thirdparty/quickjs` therefore stays pristine across configure/build cycles — if you
+ever see it as modified in `git status`, something else changed it. (Earlier revisions
+of this project deployed the patches directly into the submodule, which made it always
+appear dirty after configure; that's no longer the case.)
 
 ## Patches applied on top of quickjs-ng v0.14.0
 

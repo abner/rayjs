@@ -55,11 +55,17 @@ message("=== Configure QuickJS ===")
 # add quickjs
 set(quickjs_version 0.14.0)
 set(quickjs_sources_root ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/quickjs)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.h ${quickjs_sources_root}/quickjs.h @ONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.c ${quickjs_sources_root}/quickjs.c @ONLY)
+# Patched quickjs.{c,h} are emitted into the build tree, NOT into the
+# submodule, so `thirdparty/quickjs` stays pristine across configure/build
+# cycles. The patched dir is prepended to the include path below so the
+# unmodified submodule sources (libregexp.c, libunicode.c, …) still resolve
+# `#include "quickjs.h"` to the patched header.
+set(quickjs_patched_dir ${CMAKE_BINARY_DIR}/quickjs-patched)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.h ${quickjs_patched_dir}/quickjs.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/quickjs/quickjs.c ${quickjs_patched_dir}/quickjs.c @ONLY)
 set(quickjs_sources
-	${quickjs_sources_root}/quickjs.h
-	${quickjs_sources_root}/quickjs.c
+	${quickjs_patched_dir}/quickjs.h        # patched (build dir)
+	${quickjs_patched_dir}/quickjs.c        # patched (build dir)
 	${quickjs_sources_root}/quickjs-atom.h
 	${quickjs_sources_root}/libregexp.c
 	${quickjs_sources_root}/libunicode.c
@@ -85,7 +91,7 @@ if(RAYJS_USE_MIMALLOC)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/raygui/src/raygui.h ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raygui/src/raygui.h @ONLY)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/overrides/raylib/src/external/m3d.h ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/src/external/m3d.h @ONLY)
 endif()
-target_include_directories(quickjs PRIVATE ${quickjs_sources_root})
+target_include_directories(quickjs PRIVATE ${quickjs_patched_dir} ${quickjs_sources_root})
 target_link_libraries(quickjs)
 
 
@@ -156,7 +162,7 @@ else()
         COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_43=1
     )
 endif()
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${quickjs_sources_root})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${quickjs_patched_dir} ${quickjs_sources_root})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc/include)
