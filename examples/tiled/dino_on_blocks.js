@@ -99,10 +99,8 @@ const IDLE_LOCAL_ID = 3
 // the closest match in this sheet to an "in the air" pose. Requires the
 // dino tileset in the .tmj to expose at least 15 frames (columns >= 15).
 const JUMP_LOCAL_ID = 14
-// Frames 17-22 are the duck-run cycle; frame 23 is the static crouch idle.
-// (Including the idle pose in the run cycle introduced a visible twitch each
-// loop, so it's used only when the player isn't moving while ducked.)
-const DUCK_LOCAL_ID = 23
+// Frames 17-22 are the duck-run cycle; frame 17 is the static crouch idle.
+const DUCK_WALK_STANDING_ID = 17
 const DUCK_WALK_FRAMES   = [17, 18, 19, 20, 21, 22]
 const DUCK_FRAME_SECONDS = 0.08
 // Movement while ducked is slowed so the duck pose reads as cautious.
@@ -237,7 +235,7 @@ while (!WindowShouldClose()) {
 ├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
 │ jumping                 │ Press ↑ / SPACE while on ground │ Frame 14 (legs tucked)       │
 ├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
-│ ducking, still          │ Hold ↓ / S, no horizontal input │ Frame 23 (crouch idle)       │
+│ ducking, still          │ Hold ↓ / S, no horizontal input │ Frame 17 (crouch idle)       │
 ├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
 │ ducking, moving         │ Hold ↓ / S + ← → / A D          │ Crouch walk (frames 17–22)   │
 ├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
@@ -351,7 +349,7 @@ while (!WindowShouldClose()) {
       const overrideLocalId =
         jumping                            ? JUMP_LOCAL_ID
         : (ducking && moveX !== 0)         ? DUCK_WALK_FRAMES[duckAnimIndex]
-        : ducking                          ? DUCK_LOCAL_ID
+        : ducking                          ? DUCK_WALK_STANDING_ID
         : (onGround && moveX === 0)        ? IDLE_LOCAL_ID
         : undefined
       const tile = currentSrcRect(map, dinoGid, overrideLocalId)
