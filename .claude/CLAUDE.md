@@ -8,9 +8,23 @@
   binding generator and ext module system fit together.
 
 - [`docs/branch_feat_update_deps_varhar.md`](../docs/branch_feat_update_deps_varhar.md) — The
-  active development branch: all four submodule versions bumped, Box2D v3 integrated as
+  previous development branch: all four submodule versions bumped, Box2D v3 integrated as
   `rayjs:box2d`, complete list of changed files, all 6 generator bugs discovered and fixed
   during integration, key JS API facts, and a pointer to the remaining API coverage gaps.
+
+- [`docs/branch_feat_web_wasm.md`](../docs/branch_feat_web_wasm.md) — The current active
+  branch (`feat/web-wasm`): adds an Emscripten/WebAssembly build target. Containerised
+  toolchain via `platforms/web/Dockerfile` + `build.sh`, one-line conditional
+  `include(cmake/web.cmake)` from the root CMakeLists, multi-game runtime payload selected
+  by `?game=<name>` URL param. Covers the Asyncify boundary (zero impact on native), the
+  per-dep wiring, the source-level guards needed (REPL, lightmapper, glad/GLFW, sighandler/
+  environ), the systemic `memoryStore` bindings fix, and per-phase status with every
+  smoke test that's been verified in the browser.
+
+- [`platforms/web/CAVEATS.md`](../platforms/web/CAVEATS.md) — What does NOT port to the web
+  target (lightmapper, workers, standalone-bytecode mode, REPL), what behaves differently
+  (file I/O against MEMFS, module path normalization, audio-context unlock), and the
+  Asyncify perf trade-off.
 
 ## Planning documents
 

@@ -361,7 +361,7 @@ Phase 3:
 - [x] Keyboard input reaches the JS code (←→/WASD, ↑/space, ↓/S, T)
 - [x] Closing the tab cleanly aborts (no console errors)
 
-### Phase 5 — broader example coverage
+### Phase 5 — broader example coverage — **COMPLETE (2026-05-23)**
 
 - [x] **Tiled map example** — `examples/tiled/dino_on_blocks.js` runs
       end-to-end (2026-05-23). Confirms `.tmj` + tileset PNG flow
@@ -399,11 +399,13 @@ Phase 3:
          level deep (e.g. base `/game/main.js` + `../x` → `x`, not
          `/x`), so the script must live at least two directories deep
          for `../` to resolve back into a still-absolute path.
-- [ ] Document any examples that *can't* port (e.g. anything reading
-      stdin, anything spawning a child process) in
-      `platforms/web/README.md`
+- [x] **Caveats documented** — `platforms/web/CAVEATS.md` covers what's
+      disabled outright (lightmapper, workers, standalone-bytecode mode,
+      REPL), what behaves differently (file I/O against MEMFS, QuickJS
+      module path normalization, audio-context unlock), and the Asyncify
+      performance trade-off.
 
-### Phase 6 — dev workflow + docs
+### Phase 6 — dev workflow + docs — **COMPLETE (2026-05-23)**
 
 - [x] `platforms/web/build.sh serve` wraps `npx http-server -p 8080
       -c-1 dist/`. No COOP/COEP needed (single-threaded wasm). The
@@ -414,10 +416,10 @@ Phase 3:
       the single entry point).
 - [x] Iteration loop: edit a file in `platforms/web/example_games/<name>/`
       → `build.sh dist` (no wasm rebuild) → reload page.
-- [ ] Update `docs/project_overview.md` with the web target as a
-      fourth modernization phase.
-- [ ] Add `docs/branch_feat_web_wasm.md` reference to
-      `.claude/CLAUDE.md` once Phase 5 wraps.
+- [x] Update `docs/project_overview.md` with the web target as a
+      fourth modernization phase. Lands in this commit.
+- [x] Add `docs/branch_feat_web_wasm.md` + `platforms/web/CAVEATS.md`
+      references to `.claude/CLAUDE.md`. Lands in this commit.
 
 ---
 

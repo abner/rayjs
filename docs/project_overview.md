@@ -36,9 +36,25 @@ raylib 6.0 — bindings and examples required corresponding fixes. raygui 5.0 in
 out-param patterns handled via `setOutParam` / `setOutParamFloat` / `setOutParamBool` helpers.
 
 ### Phase 3 — Full dep bump + Box2D v3 (`feat/update-deps-varhar`)
-Current active branch. Bumped all four submodules to their newest versions and added Box2D v3
+Bumped all four submodules to their newest versions and added Box2D v3
 as a native `rayjs:box2d` module. See [`docs/branch_feat_update_deps_varhar.md`](branch_feat_update_deps_varhar.md)
 for the full change log and technical details.
+
+### Phase 4 — Web (WebAssembly) target (`feat/web-wasm`)
+Current active branch. Adds a containerised Emscripten toolchain
+(`platforms/web/Dockerfile` + `build.sh`) and a `cmake/web.cmake` that
+ships rayjs as `rayjs.wasm` + `rayjs.js` + an HTML shell. The same JS
+game sources run unchanged on both native and web — the synchronous
+`while (!WindowShouldClose())` main-loop pattern is preserved via
+Asyncify. Per-game JS + assets are fetched at page load and populated
+into MEMFS by `platforms/web/loader.js`; the runtime itself is
+game-agnostic. Verified end-to-end against five example games covering
+`rayjs:raylib`, `rayjs:ext:tiled`, `rayjs:box2d`, miniaudio (Web
+Audio), and `rayjs:raygui`. See
+[`docs/branch_feat_web_wasm.md`](branch_feat_web_wasm.md) for the full
+plan and
+[`platforms/web/CAVEATS.md`](../platforms/web/CAVEATS.md) for what
+doesn't port (lightmapper, workers, standalone-bytecode mode, REPL).
 
 ---
 
