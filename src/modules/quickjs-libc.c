@@ -83,6 +83,15 @@ typedef sig_t sighandler_t;
 extern char **environ;
 #endif
 
+#if defined(__EMSCRIPTEN__)
+/* Emscripten/musl doesn't expose `sighandler_t` (GNU extension) or
+ * declare `environ` under strict POSIX namespace. Mirror the Solaris
+ * pattern. signal()/environ themselves do exist in emcc's libc, even
+ * though most signal delivery is a no-op in the browser. */
+typedef void (*sighandler_t)(int);
+extern char **environ;
+#endif
+
 #endif /* _WIN32 */
 
 #include "cutils.h"
@@ -5017,6 +5026,7 @@ JSModuleDef *js_init_module_bjson(JSContext *ctx, const char *module_name)
     return m;
 }
 
+#ifdef USE_WORKER
 JSValue js_postMessage(JSContext *ctx, JSValue worker, int argc, JSValue *argv) {
     JSValue ret;
     if (argc == 1) {
@@ -5032,3 +5042,13 @@ JSValue js_postMessage(JSContext *ctx, JSValue worker, int argc, JSValue *argv) 
     }
     return ret;
 }
+#else
+/* Stub for thread-less builds (e.g. emscripten without -pthread). The
+ * raylib auto-generated bindings call js_postMessage from their C-side
+ * trace/log callbacks; without workers those callbacks have no JS-side
+ * destination, so we drop the message and return undefined. */
+JSValue js_postMessage(JSContext *ctx, JSValue worker, int argc, JSValue *argv) {
+    (void)ctx; (void)worker; (void)argc; (void)argv;
+    return JS_UNDEFINED;
+}
+#endif

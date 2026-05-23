@@ -1,4 +1,6 @@
 build/
+build-web/
+build_*/
 runtime/
 shaderc
 rayjs

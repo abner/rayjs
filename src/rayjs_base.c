@@ -50,7 +50,22 @@ static const JSCFunctionListEntry global_obj[] = {
 };
 
 
+#ifdef RAYJS_NO_MIMALLOC
+/* Web target: mimalloc is not linked. Alias mi_* to the standard libc
+ * equivalents so unconditional uses in this file (memoryStore,
+ * memoryClear, opaqueShadow helpers) resolve at link time. Macros are
+ * defined BEFORE mimalloc.h would be included, so the header is skipped
+ * entirely — its inline functions don't conflict with the aliases. */
+#include <stdlib.h>
+#include <malloc.h>
+#define mi_malloc(sz)             malloc(sz)
+#define mi_calloc(n, sz)          calloc(n, sz)
+#define mi_realloc(ptr, sz)       realloc(ptr, sz)
+#define mi_free(ptr)              free(ptr)
+#define mi_malloc_usable_size     malloc_usable_size
+#else
 #include <mimalloc.h>
+#endif
 #ifdef QJS_USE_MIMALLOC
 static void * jsc_malloc(JSContext *ctx, size_t sz ){ return mi_malloc(sz); }
 static void * jsc_calloc(JSContext *ctx, size_t n, size_t sz ){ return mi_calloc(n,sz); }
@@ -138,7 +153,9 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt){
     js_init_module_rlights(ctx, "rayjs:rlights");
     js_init_module_reasings(ctx, "rayjs:reasings");
     js_init_module_rlgl(ctx, "rayjs:rlgl");
+#ifndef __EMSCRIPTEN__
     js_init_module_rlightmapper(ctx, "rayjs:rlightmapper");
+#endif
     js_init_module_box2d(ctx, "rayjs:box2d");
 
     JSValue global = JS_GetGlobalObject(ctx);

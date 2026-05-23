@@ -140,19 +140,58 @@ PLATFORM_WEB CMake target supports both.
 - [ ] *(deferred to Phase 5)* Add `.claude/CLAUDE.md` reference once a
       working build exists
 
-### Phase 1 — toolchain wiring + dep-by-dep compile — **IN PROGRESS**
+### Phase 1 — toolchain wiring + dep-by-dep compile — **COMPLETE (2026-05-23)**
 
 The mechanical "does it even compile under emcc" phase. Native build must
 continue to work after every step.
 
 **Toolchain decision (2026-05-23):** the emsdk toolchain runs inside a
-container (`platforms/web/Dockerfile` based on `emscripten/emsdk:<pinned>`),
-driven by `platforms/web/build.sh`. The host machine only needs Docker (or
-colima). Rationale: keeps the host clean, makes builds reproducible across
-machines, and pins the emcc version per-commit.
+container (`platforms/web/Dockerfile` based on `emscripten/emsdk:3.1.74`
++ pip-installed cmake 3.30.5 for raylib 6's >=3.25 requirement), driven by
+`platforms/web/build.sh`. The host machine only needs Docker (or colima).
+Rationale: keeps the host clean, makes builds reproducible across machines,
+and pins the emcc/cmake versions per-commit.
+
+**Final artifact:** `build-web/dist/rayjs.{html,js,wasm}` — 19 KB shell +
+243 KB glue + 5.1 MB wasm (uncompressed; ~1.5–2 MB gzipped expected).
 
 - [x] Containerised emsdk: `platforms/web/Dockerfile` + `build.sh` wrapper
 - [x] Document Docker workflow in `platforms/web/README.md`
+- [x] `cmake/web.cmake` with `rayjs_web_pre()` / `rayjs_web_post()` split
+      (early hook sets raylib/Box2D/mimalloc cache options; late hook
+      applies Asyncify + WebGL 2 + FS-export linker flags and redirects
+      output to `build-web/dist/`)
+- [x] Per-dep wiring in root `CMakeLists.txt` — four `EMSCRIPTEN`-guarded
+      branches: OpenGL define for raylib subdir, OpenGL define for rayjs
+      target, mimalloc subdir add, mimalloc-static link
+- [x] Source-level fixes for emscripten:
+      - `src/modules/quickjs-libc.c` — add `__EMSCRIPTEN__` block declaring
+        `sighandler_t` typedef + `extern char **environ` (mirrors Solaris
+        pattern); guard `js_postMessage` on `USE_WORKER` and add a no-op
+        stub for thread-less builds
+      - `src/rayjs_base.c` — guard `#include <mimalloc.h>` behind
+        `RAYJS_NO_MIMALLOC` and alias `mi_*` to standard libc when set
+      - `src/rayjs.c` — add `<wchar.h>` for `wint_t` in raylib bindings;
+        guard `<external/glad.h>` + `<GLFW/glfw3.h>` +
+        `modules/js_rlightmapper.h` includes behind `!__EMSCRIPTEN__`
+      - `src/rayjs_base.c` — guard `js_init_module_rlightmapper` call
+        behind `!__EMSCRIPTEN__`
+- [x] Drive-by fix in root `CMakeLists.txt`: strip literal quotes from
+      `-D...="..."` args in the `gen_ext_modules.cmake` `execute_process` /
+      `add_custom_command` invocations (those quotes leaked into the value
+      under emcmake/Linux and created a spurious `"/src/src/js_ext_modules.h"`
+      path; harmless but ugly — also a latent native bug)
+- [x] Smoke link verified: `rayjs.wasm` emitted, recognised by `file` as
+      a WebAssembly binary module; native build re-verified end-to-end
+      (configure on a fresh `/tmp/rayjs-native-check` succeeds with no
+      new warnings)
+
+**Lightmapper status.** The `rayjs:rlightmapper` module is disabled on the
+web target. It depends on desktop OpenGL (GLAD-loaded function pointers
+into `glGen*` / FBO / VAO) which isn't available through emscripten's GLES3
+path. Re-enabling for web would require porting the lightmapper to use
+raylib's `rlgl` abstraction (which compiles to GLES3) — out of scope for
+Phase 1 but a clean follow-up.
 - [ ] In `cmake/web.cmake`: set `RAYJS_USE_MIMALLOC OFF` for web (mimalloc
       compiles to wasm but threading model adds complexity we don't need)
 - [ ] Force-disable `MI_BUILD_*` mimalloc subdirectory entirely on web

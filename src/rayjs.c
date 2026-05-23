@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
+#include <wchar.h>  /* wint_t for wide-char format paths in js_raylib.h */
 
 #include "cutils.h"
 #include "quickjs.h"
@@ -56,9 +57,16 @@ static const char trailer_magic[] = "quickjs2";
 static const int trailer_magic_size = sizeof(trailer_magic) - 1;
 static const int trailer_size = TRAILER_SIZE;
 
-//glad and glfw3 required for lightmapper
+// glad + GLFW desktop are only needed by the lightmapper module, which
+// uses desktop OpenGL calls (glGen*, FBO, VAO) routed through GLAD's
+// function pointers. The web target uses raylib's PLATFORM_WEB path
+// (emscripten's own GLES3 bindings, no GLAD), so we skip both includes
+// and the lightmapper module wholesale here. Matches the corresponding
+// skip in rayjs_base.c (js_init_module_rlightmapper registration).
+#ifndef __EMSCRIPTEN__
 #include <external/glad.h>
 #include <GLFW/glfw3.h>
+#endif
 
 #include "rayjs_base.c"
 #include "rayjs_base.h"
@@ -123,7 +131,9 @@ static JSValue load_standalone_module(JSContext *ctx)
 #include "modules/js_rlights.h"
 #include "modules/js_reasings.h"
 #include "modules/js_rlgl.h"
-#include "modules/js_rlightmapper.h"
+#ifndef __EMSCRIPTEN__
+#include "modules/js_rlightmapper.h"  /* skipped on web; see glad include block */
+#endif
 #include "modules/js_box2d.h"
 
 static int eval_buf(JSContext *ctx, const void *buf, int buf_len,const char *filename, int eval_flags){

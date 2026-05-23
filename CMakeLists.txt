@@ -13,6 +13,17 @@ if (UNIX)
 endif (UNIX)
 
 project(rayjs LANGUAGES C)
+
+# --- Web (WebAssembly) target — early hook ------------------------------
+# Loaded only when EMSCRIPTEN is true. rayjs_web_pre() must run BEFORE any
+# add_subdirectory() so raylib / Box2D pick up the web-specific cache
+# options. rayjs_web_post() is called at the bottom of this file.
+# Inert for native builds (clang/gcc never see EMSCRIPTEN set).
+if(EMSCRIPTEN)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/web.cmake)
+    rayjs_web_pre()
+endif()
+
 #Inherit some compiler flags
 include(CheckCCompilerFlag)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -41,12 +52,15 @@ include(GNUInstallDirs)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
-message("=== Configure mimalloc ===")
-set(MI_BUILD_OBJECT OFF CACHE BOOL "Build object library" FORCE)
-set(MI_BUILD_TESTS OFF CACHE BOOL "Build test executables" FORCE)
-set(MI_BUILD_SHARED OFF CACHE BOOL "Build shared library" FORCE)
-set(MI_WIN_REDIRECT OFF CACHE BOOL "Use redirection module on Windows" FORCE)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc EXCLUDE_FROM_ALL)
+if(NOT EMSCRIPTEN)
+    # mimalloc is skipped on web (see cmake/web.cmake rayjs_web_pre comment).
+    message("=== Configure mimalloc ===")
+    set(MI_BUILD_OBJECT OFF CACHE BOOL "Build object library" FORCE)
+    set(MI_BUILD_TESTS OFF CACHE BOOL "Build test executables" FORCE)
+    set(MI_BUILD_SHARED OFF CACHE BOOL "Build shared library" FORCE)
+    set(MI_WIN_REDIRECT OFF CACHE BOOL "Use redirection module on Windows" FORCE)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc EXCLUDE_FROM_ALL)
+endif()
 
 # Controls whether raylib/raygui/quickjs also use mimalloc for their allocators
 option(RAYJS_USE_MIMALLOC "Use mimalloc allocators in raylib/raygui/quickjs overrides" OFF)
@@ -102,7 +116,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 message("=== Configure raylib ===")
-if(APPLE)
+if(EMSCRIPTEN)
+    # WebGL 2 / GLES3 path. rayjs_web_pre() also sets raylib's PLATFORM/GRAPHICS.
+    add_definitions(-DGRAPHICS_API_OPENGL_ES3)
+elseif(APPLE)
     # macOS supports OpenGL up to 4.1 only
     add_definitions(-DGRAPHICS_API_OPENGL_33)
 else()
@@ -120,12 +137,16 @@ file(GLOB LIB_JS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.js")
 file(GLOB LIB_DTS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.d.ts")
 
 # Generate at configure time so the header and typings exist before compilation.
+# Each -D... is already one CMake argument, so no surrounding quotes are
+# needed; on some platforms (notably Linux under emcmake) the literal quotes
+# leak into the variable value and produce a spurious "<quote>/path/..."
+# directory tree in the build dir.
 execute_process(
     COMMAND ${CMAKE_COMMAND}
-        -DLIB_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lib"
-        -DOUTPUT_FILE="${JS_EXT_MODULES_H}"
-        -DTYPINGS_DIR="${JS_EXT_TYPINGS_DIR}"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake"
+        -DLIB_DIR=${CMAKE_CURRENT_SOURCE_DIR}/lib
+        -DOUTPUT_FILE=${JS_EXT_MODULES_H}
+        -DTYPINGS_DIR=${JS_EXT_TYPINGS_DIR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake
 )
 
 message("=== Bind files together ===")
@@ -133,13 +154,14 @@ file(GLOB files src/*.c)
 add_executable(${CMAKE_PROJECT_NAME} ${files})
 
 # Re-generate when any lib/*.js or lib/*.d.ts file changes.
+# Same no-literal-quotes rule as the execute_process call above.
 add_custom_command(
     OUTPUT ${JS_EXT_MODULES_H}
     COMMAND ${CMAKE_COMMAND}
-        -DLIB_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lib"
-        -DOUTPUT_FILE="${JS_EXT_MODULES_H}"
-        -DTYPINGS_DIR="${JS_EXT_TYPINGS_DIR}"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake"
+        -DLIB_DIR=${CMAKE_CURRENT_SOURCE_DIR}/lib
+        -DOUTPUT_FILE=${JS_EXT_MODULES_H}
+        -DTYPINGS_DIR=${JS_EXT_TYPINGS_DIR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_ext_modules.cmake
     DEPENDS ${LIB_JS_FILES} ${LIB_DTS_FILES}
     COMMENT "Re-embedding lib/*.js into src/js_ext_modules.h and updating typings"
 )
@@ -151,7 +173,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/others)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/examples/shapes)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/raylib/src/external/glfw/include)
-if(APPLE)
+if(EMSCRIPTEN)
+    set_target_properties(${CMAKE_PROJECT_NAME}
+        PROPERTIES
+        COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_ES3=1
+    )
+elseif(APPLE)
     set_target_properties(${CMAKE_PROJECT_NAME}
         PROPERTIES
         COMPILE_DEFINITIONS GRAPHICS_API_OPENGL_33=1
@@ -167,12 +194,17 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc/include)
 
-set(RAYJS_LINK_LIBRARIES "quickjs" "mimalloc-static")
-set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "raylib" "lightmapper" "box2d")
+set(RAYJS_LINK_LIBRARIES "quickjs" "raylib" "lightmapper" "box2d")
+if(NOT EMSCRIPTEN)
+    # mimalloc skipped on web; falls back to emscripten's default allocator.
+    list(APPEND RAYJS_LINK_LIBRARIES "mimalloc-static")
+endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${RAYJS_LINK_LIBRARIES})
 
-# Web (WebAssembly) target — included only under emscripten toolchain.
-# Inert for native builds (clang/gcc never see EMSCRIPTEN set).
+# --- Web (WebAssembly) target — late hook --------------------------------
+# cmake/web.cmake was already included near the top after project();
+# rayjs_web_post() now applies link options + output suffix. Inert for
+# native builds.
 if(EMSCRIPTEN)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/web.cmake)
+    rayjs_web_post()
 endif()

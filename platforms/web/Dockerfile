@@ -10,6 +10,12 @@
 
 FROM emscripten/emsdk:3.1.74
 
+# The image ships with cmake 3.22.1, but raylib 6 requires >= 3.25.
+# pip-installed cmake lands in /usr/local/bin which precedes /usr/bin
+# on PATH, so the newer version wins without uninstalling the old one.
+RUN pip install --no-cache-dir cmake==3.30.5 \
+    && cmake --version
+
 # The repo is mounted at /src by build.sh; CMake out-of-source build dir
 # (build-web/) ends up on the host because /src is a bind mount.
 WORKDIR /src
