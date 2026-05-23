@@ -1,0 +1,8 @@
+{
+    "entrypoint": "game/main.js",
+    "files": [
+        "game/main.js",
+        "game/resources/sound.wav",
+        "game/resources/target.ogg"
+    ]
+}

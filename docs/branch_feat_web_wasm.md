@@ -370,8 +370,14 @@ Phase 3:
       end-to-end (2026-05-23). Confirms the new `rayjs:box2d` module
       works at runtime on wasm (world step, sensor events, ray casting,
       dynamic bodies).
-- [ ] Audio example (verifies miniaudio → Web Audio with the
-      click-to-start gesture already in place)
+- [x] **Audio example** — `examples/audio/audio_sound_loading.js` runs
+      end-to-end (2026-05-23). SPACE plays a WAV, ENTER plays an OGG,
+      both with no errors. Confirms miniaudio → Web Audio backend and
+      that the existing click-to-start button is enough to satisfy the
+      browser's autoplay-unlock requirement. Format support is identical
+      to native raylib (WAV/OGG/MP3/FLAC/QOA + XM/MOD music) — emcc
+      just provides the output path; raylib still decodes the bytes
+      itself.
 - [ ] Raygui example (verifies immediate-mode UI input routing through
       emscripten HTML5 events)
 - [ ] Document any examples that *can't* port (e.g. anything reading
