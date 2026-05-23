@@ -61,6 +61,13 @@ usage: rayjs [options] [file [args]]
 
 ## API support
 
+For the full rundown of every function, type, and constant exposed by rayjs
+(raylib + raygui + Box2D + ext modules), open
+[`docs/cheatsheet.html`](docs/cheatsheet.html) — a single styled page modelled
+after [raylib's own cheatsheet](https://www.raylib.com/cheatsheet/cheatsheet.html),
+with cross-linked types. Regenerate it any time the bindings change with
+`node bindings/gen_cheatsheet.js`.
+
 The following raylib APIs are supported so far (with a few exceptions):
 
 - core (no VR support yet)
