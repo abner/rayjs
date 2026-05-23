@@ -81,6 +81,10 @@ function currentSrcRect(map, gid, overrideLocalId) {
 
 // 4th sprite (0-indexed = 3) is the standing/idle pose.
 const IDLE_LOCAL_ID = 3
+// 15th sprite (0-indexed = 14) shows the dino upright with legs tucked —
+// the closest match in this sheet to an "in the air" pose. Requires the
+// dino tileset in the .tmj to expose at least 15 frames (columns >= 15).
+const JUMP_LOCAL_ID = 14
 
 // Visible dino body fills only the bottom-center of its sprite tile — the
 // rest is transparent padding (head spikes, side margins). Using the full
@@ -110,6 +114,7 @@ let dinoX   = spawn.x
 let dinoY   = spawn.y - dinoH
 let velY    = 0
 let onGround = false
+let jumping  = false        // true only when airborne due to an intentional jump
 let facing   = 1            // 1 = right, -1 = left
 let jumpKeyDown = false
 let jumpBuffer  = 0
@@ -151,6 +156,23 @@ while (!WindowShouldClose()) {
   if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)) { moveX = -PLAYER_SPEED; facing = -1 }
   if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) { moveX =  PLAYER_SPEED; facing =  1 }
 
+/*
+┌─────────────────────────┬─────────────────────────────────┬─────────────────────────────┐
+│          State          │             Trigger             │           Sprite            │
+├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
+│ jumping                 │ Press ↑ / SPACE while on ground │ Frame 14 (legs tucked)      │
+├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
+│ onGround && moveX === 0 │ Standing still                  │ Frame 3 (idle)              │
+├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
+│ Walking off an edge     │ onGround → false without a jump │ Walk animation continues    │
+├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
+│ Walking on ground       │ onGround && moveX != 0          │ Walk animation (frames 4-9) │
+└─────────────────────────┴─────────────────────────────────┴─────────────────────────────┘
+
+ > jumping is set only by the intentional jump path and cleared on landing.
+ Walking off a platform edge transitions onGround to false via the ground probe 
+ without ever setting jumping, so the walk cycle keeps playing through the brief fall.
+*/
   const jumpHeld = IsKeyDown(KEY_UP) || IsKeyDown(KEY_SPACE)
   const jumpTriggered = jumpHeld && !jumpKeyDown
   jumpKeyDown = jumpHeld
@@ -159,6 +181,7 @@ while (!WindowShouldClose()) {
   if (jumpBuffer > 0 && onGround) {
     velY = JUMP_VEL
     onGround = false
+    jumping  = true
     jumpBuffer = 0
   }
 
@@ -181,23 +204,33 @@ while (!WindowShouldClose()) {
   }
 
   // ── gravity + vertical move + resolve ─────────────────
-  velY    += GRAVITY * dt
+  // Apply gravity only when airborne — otherwise sub-pixel drift each
+  // frame (velY * dt accumulates, then collision snaps back) makes the
+  // sprite visibly shake while standing still.
+  if (!onGround) velY += GRAVITY * dt
   dinoY   += velY * dt
   dinoY    = Math.min(mapH - dinoH, dinoY)
 
-  onGround = false
   const ryRect = new Rectangle(dinoX + hbOffX + 2, dinoY + hbOffY, hbW - 4, hbH)
   const hy = checkCollisionTiledLayer(map, "Ground", ryRect)
   if (hy.hit) {
     if (velY >= 0) {
-      dinoY    = hy.tileRect.y - dinoH                       // foot still flush with tile top
-      velY     = 0
-      onGround = true
+      dinoY = hy.tileRect.y - dinoH                          // foot flush with tile top
     } else {
       dinoY = hy.tileRect.y + hy.tileRect.height - hbOffY    // hitbox top flush with ceiling
-      velY  = 0
     }
+    velY = 0
   }
+
+  // Ground probe: 1px below the hitbox tells us if there is still ground
+  // under our feet. Updated AFTER vertical resolution so jumping off the
+  // ground (velY < 0) immediately registers as airborne.
+  const probeRect = new Rectangle(
+    dinoX + hbOffX + 2, dinoY + hbOffY + 1, hbW - 4, hbH,
+  )
+  onGround = velY >= 0 &&
+             checkCollisionTiledLayer(map, "Ground", probeRect).hit
+  if (onGround) jumping = false      // landed — clear the jump pose flag
 
   // ── camera follows horizontally ───────────────────────
   camera.target.x = Math.max(SCREEN_W / 2,
@@ -217,10 +250,16 @@ while (!WindowShouldClose()) {
     BeginMode2D(camera)
       drawTiledMap(map, 0, 0, WHITE)
 
-      // When idle (no horizontal input), pin to the standing sprite — frame 6
-      // (the 7th in the sheet). Otherwise let the tileset animation cycle.
-      const tile = currentSrcRect(map, dinoGid,
-                                  moveX === 0 ? IDLE_LOCAL_ID : undefined)
+      // Pose priority:
+      //   jumping (intentional, airborne) → JUMP frame
+      //   on the ground, no input          → IDLE frame
+      //   otherwise (walking, or falling
+      //   passively off an edge)           → let the walk-cycle animation play
+      const overrideLocalId =
+        jumping                       ? JUMP_LOCAL_ID
+        : (onGround && moveX === 0)   ? IDLE_LOCAL_ID
+        : undefined
+      const tile = currentSrcRect(map, dinoGid, overrideLocalId)
       if (tile) {
         const src = tile.srcRect
         // Mirror by negating source width (raylib convention).
