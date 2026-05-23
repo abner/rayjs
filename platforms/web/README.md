@@ -12,32 +12,34 @@ phases will populate `shell.html`, `loader.js`, and `manifest.example.json`.
 
 ## Prerequisites
 
-The web target requires the Emscripten SDK. Install once:
+The web build runs inside a container so the host never installs emsdk.
+Only Docker (or a compatible runtime such as colima) is required:
 
 ```sh
-# anywhere outside this repo
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install latest
-./emsdk activate latest
+# macOS via colima (lightweight; no Docker Desktop needed):
+brew install colima docker
+colima start
+
+# or Docker Desktop, or Linux's native docker — any will do.
 ```
 
-Activate the SDK in every new shell before configuring/building:
+The first invocation of `build.sh` pulls `emscripten/emsdk:3.1.74` (~1 GB,
+one-time) and builds a small project image on top. Subsequent builds are
+fast.
+
+## Building (preview — not functional until Phase 1 lands)
 
 ```sh
-source /path/to/emsdk/emsdk_env.sh
+platforms/web/build.sh              # configure + build (Release)
+platforms/web/build.sh configure    # configure only
+platforms/web/build.sh clean        # remove build-web/
+platforms/web/build.sh shell        # interactive container shell
 ```
 
-`emcc --version` should now resolve.
+Outputs land in `build-web/` on the host (the repo is bind-mounted into the
+container at `/src`, so artifacts persist after the container exits).
 
-## Building (preview — not functional until Phase 1)
-
-```sh
-emcmake cmake -S . -B build-web -DCMAKE_BUILD_TYPE=Release
-cmake --build build-web
-```
-
-The native build is unchanged and continues to use:
+The native build is unchanged and continues to use the host toolchain:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -46,6 +48,11 @@ cmake --build build
 
 The two build trees are independent — switching targets does not require
 cleaning the other.
+
+## Bumping the Emscripten version
+
+Edit the `FROM` tag in `Dockerfile`, then run `platforms/web/build.sh` —
+the image rebuilds automatically. Commit the new tag once verified.
 
 ## Layout (target)
 

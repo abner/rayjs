@@ -145,8 +145,14 @@ PLATFORM_WEB CMake target supports both.
 The mechanical "does it even compile under emcc" phase. Native build must
 continue to work after every step.
 
-- [ ] Document emsdk install in `platforms/web/README.md` (`emsdk install
-      latest && emsdk activate latest && source emsdk_env.sh`)
+**Toolchain decision (2026-05-23):** the emsdk toolchain runs inside a
+container (`platforms/web/Dockerfile` based on `emscripten/emsdk:<pinned>`),
+driven by `platforms/web/build.sh`. The host machine only needs Docker (or
+colima). Rationale: keeps the host clean, makes builds reproducible across
+machines, and pins the emcc version per-commit.
+
+- [x] Containerised emsdk: `platforms/web/Dockerfile` + `build.sh` wrapper
+- [x] Document Docker workflow in `platforms/web/README.md`
 - [ ] In `cmake/web.cmake`: set `RAYJS_USE_MIMALLOC OFF` for web (mimalloc
       compiles to wasm but threading model adds complexity we don't need)
 - [ ] Force-disable `MI_BUILD_*` mimalloc subdirectory entirely on web
