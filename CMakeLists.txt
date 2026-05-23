@@ -170,3 +170,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_
 set(RAYJS_LINK_LIBRARIES "quickjs" "mimalloc-static")
 set(RAYJS_LINK_LIBRARIES "${RAYJS_LINK_LIBRARIES}" "raylib" "lightmapper" "box2d")
 target_link_libraries(${CMAKE_PROJECT_NAME} ${RAYJS_LINK_LIBRARIES})
+
+# Web (WebAssembly) target — included only under emscripten toolchain.
+# Inert for native builds (clang/gcc never see EMSCRIPTEN set).
+if(EMSCRIPTEN)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/web.cmake)
+endif()
