@@ -378,8 +378,27 @@ Phase 3:
       to native raylib (WAV/OGG/MP3/FLAC/QOA + XM/MOD music) — emcc
       just provides the output path; raylib still decodes the bytes
       itself.
-- [ ] Raygui example (verifies immediate-mode UI input routing through
-      emscripten HTML5 events)
+- [x] **Raygui examples** — both run end-to-end (2026-05-23):
+      `examples/raygui/controls_test_suite/gui_value_box_float.js`
+      (selectable via `?game=raygui`) and the full
+      `controls_test_suite.js` with all 12 styles
+      (`?game=raygui_full`). The full one needed:
+      1. The systemic `memoryStore` bindings fix (committed in
+         `c2f16d7`) — same bug as the value-box case, just hit by more
+         widgets.
+      2. A loader-side absolutising of `Module.arguments[0]` so QuickJS
+         resolves `import "../styles/x.js"` against an absolute base
+         (otherwise emscripten's `realpath()` leaves the path
+         relative, and QuickJS's normalizer strips the leading `/`).
+      3. A MEMFS layout mirroring the native source tree
+         (`game/controls_test_suite/main.js` + `game/styles/_style_*.js`)
+         so `../styles/` from the script lands at `/game/styles/`.
+         Importantly, even with the entrypoint absolutised, QuickJS's
+         default `js_default_module_normalize_name` (quickjs.c:29239)
+         strips the leading slash when resolving `../` from a path one
+         level deep (e.g. base `/game/main.js` + `../x` → `x`, not
+         `/x`), so the script must live at least two directories deep
+         for `../` to resolve back into a still-absolute path.
 - [ ] Document any examples that *can't* port (e.g. anything reading
       stdin, anything spawning a child process) in
       `platforms/web/README.md`

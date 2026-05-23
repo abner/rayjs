@@ -1,18 +1,18 @@
 {
-    "entrypoint": "game/main.js",
+    "entrypoint": "game/controls_test_suite/main.js",
     "files": [
-        "game/main.js",
-        "styles/_style_amber.js",
-        "styles/_style_ashes.js",
-        "styles/_style_bluish.js",
-        "styles/_style_candy.js",
-        "styles/_style_cherry.js",
-        "styles/_style_cyber.js",
-        "styles/_style_dark.js",
-        "styles/_style_enefete.js",
-        "styles/_style_jungle.js",
-        "styles/_style_lavanda.js",
-        "styles/_style_sunny.js",
-        "styles/_style_terminal.js"
+        "game/controls_test_suite/main.js",
+        "game/styles/_style_amber.js",
+        "game/styles/_style_ashes.js",
+        "game/styles/_style_bluish.js",
+        "game/styles/_style_candy.js",
+        "game/styles/_style_cherry.js",
+        "game/styles/_style_cyber.js",
+        "game/styles/_style_dark.js",
+        "game/styles/_style_enefete.js",
+        "game/styles/_style_jungle.js",
+        "game/styles/_style_lavanda.js",
+        "game/styles/_style_sunny.js",
+        "game/styles/_style_terminal.js"
     ]
 }
