@@ -4,6 +4,7 @@
  "tiledversion": "1.10.2",
  "orientation": "orthogonal",
  "renderorder": "right-down",
+ "backgroundcolor": "#ffffbf",
  "infinite": false,
  "compressionlevel": -1,
  "width": 20,
@@ -87,6 +88,7 @@
    "tilecount": 24,
    "margin": 0,
    "spacing": 0,
+   
    "tiles": [
     {
      "id": 0,

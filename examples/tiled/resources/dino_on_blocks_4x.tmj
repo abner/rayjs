@@ -12,6 +12,7 @@
  "tileheight": 64,
  "nextlayerid": 3,
  "nextobjectid": 2,
+ "backgroundcolor": "#ffffbf",
  "layers": [
   {
    "id": 1,

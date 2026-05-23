@@ -10,6 +10,7 @@
 // Controls:
 //   ← → / A D     move
 //   ↑ / SPACE     jump
+//   ↓ / S         duck (hold)
 //   T             toggle dino sprite scale (2x ↔ 4x)
 
 import {
@@ -19,7 +20,8 @@ import {
   DrawTexturePro, DrawText, DrawFPS,
   GetColor, GetFrameTime,
   IsKeyDown, IsKeyPressed, SetTargetFPS,
-  KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_SPACE, KEY_A, KEY_D, KEY_T,
+  KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_SPACE,
+  KEY_A, KEY_D, KEY_S, KEY_T,
   Camera2D, Rectangle, Vector2,
   WHITE, RAYWHITE, BLUE, DARKGRAY,
 } from "rayjs:raylib"
@@ -27,6 +29,16 @@ import {
   loadTiledMap, updateTiledMap, drawTiledMap, unloadTiledMap,
   getTiledObjects, checkCollisionTiledLayer,
 } from "rayjs:ext:tiled"
+
+// Local prettifier for the raylib Color so `console.log(color)` prints
+// something readable instead of just enumerating r/g/b/a. We reach the
+// Color class via any existing instance's constructor (WHITE here) to
+// avoid having to also import the class name from rayjs:raylib.
+WHITE.constructor.prototype.toString = function () {
+  const h = (n) => n.toString(16).padStart(2, "0")
+  return `Color(r=${this.r}, g=${this.g}, b=${this.b}, a=${this.a}` +
+         ` #${h(this.r)}${h(this.g)}${h(this.b)}${h(this.a)})`
+}
 
 const SCREEN_W     = 1280
 const SCREEN_H     = 640
@@ -42,6 +54,8 @@ const MAP_PATHS = {
 
 InitWindow(SCREEN_W, SCREEN_H, "rayjs - Dino on Blocks")
 SetTargetFPS(60)
+
+let hasLoggedMapBgColor = false
 
 /** @param {any[]} tilesets @param {number} gid */
 function tilesetForGid(tilesets, gid) {
@@ -85,14 +99,35 @@ const IDLE_LOCAL_ID = 3
 // the closest match in this sheet to an "in the air" pose. Requires the
 // dino tileset in the .tmj to expose at least 15 frames (columns >= 15).
 const JUMP_LOCAL_ID = 14
+// Frames 17-22 are the duck-run cycle; frame 23 is the static crouch idle.
+// (Including the idle pose in the run cycle introduced a visible twitch each
+// loop, so it's used only when the player isn't moving while ducked.)
+const DUCK_LOCAL_ID = 23
+const DUCK_WALK_FRAMES   = [17, 18, 19, 20, 21, 22]
+const DUCK_FRAME_SECONDS = 0.08
+// Movement while ducked is slowed so the duck pose reads as cautious.
+const DUCK_SPEED_FRAC = 0.4
 
 // Visible dino body fills only the bottom-center of its sprite tile — the
 // rest is transparent padding (head spikes, side margins). Using the full
 // sprite rect for physics makes the character "stand on air" at platform
 // edges and bump invisible walls/ceilings near nearby tiles. The hitbox is
 // centered horizontally and bottom-aligned within the sprite.
-const HITBOX_W_FRAC = 0.5
-const HITBOX_H_FRAC = 0.8
+const HITBOX_W_FRAC      = 0.5
+const HITBOX_H_FRAC      = 0.8
+// Ducked hitbox is short enough that the 4x dino fits under the 1-tile gap
+// above the lower platform clusters but the standing hitbox does not — so
+// the 4x dino *must* crouch to crawl under those blocks, while the 2x dino
+// fits standing either way. 0.4 leaves ~25 px of clearance below the block
+// for the 4x dino, comfortably avoiding edge-of-tile sticking.
+const HITBOX_H_FRAC_DUCK = 0.4
+// The arks dino sheet has a few rows of transparent padding below the
+// visible feet, so the sprite-tile bottom sits below the dino's actual feet.
+// We keep physics aligned to the sprite tile (so the hitbox bottom = ground
+// top), but shift the *visible* draw down by this many tile-fractions to
+// make the visible feet rest on the ground. Tweak if the feet still hover
+// (raise) or sink into the ground (lower).
+const SPRITE_FOOT_PAD_FRAC = 0.15
 
 // jumping next to a platform side should now work, and walking 
 // past a platform edge should drop you cleanly. 
@@ -118,6 +153,8 @@ let jumping  = false        // true only when airborne due to an intentional jum
 let facing   = 1            // 1 = right, -1 = left
 let jumpKeyDown = false
 let jumpBuffer  = 0
+let duckAnimTime  = 0   // accumulated dt for the ducked walk-cycle
+let duckAnimIndex = 0   // index into DUCK_WALK_FRAMES
 
 const camera = new Camera2D(
   new Vector2(SCREEN_W / 2, SCREEN_H / 2),
@@ -152,45 +189,94 @@ while (!WindowShouldClose()) {
   if (IsKeyPressed(KEY_T)) swapMap()
 
   // ── input ──────────────────────────────────────────────
+  // Hitbox X dimensions don't depend on the duck state, so compute them
+  // first — the auto-stay-ducked probe below needs hbW / hbOffX.
+  const hbW    = dinoW * HITBOX_W_FRAC
+  const hbOffX = (dinoW - hbW) / 2
+
+  // Ducking is allowed while on the ground or passively falling — but never
+  // during an intentional jump (the jump pose / hitbox win there). Allowing
+  // duck-through-fall keeps the small hitbox active when the player duck-
+  // walks off a ledge: otherwise the hitbox would pop back to the standing
+  // size mid-air and snag on any block whose underside is at duck height.
+  const wantsDuck = !jumping && (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
+  let ducking = wantsDuck
+  // If the player releases ↓ while standing under a low block (the standing
+  // hitbox would clip the block bottom), keep ducking — otherwise the vertical
+  // collision resolve would pop the dino on top of the block. Only checked
+  // when the player isn't already requesting duck.
+  if (!ducking && onGround) {
+    const standH    = dinoH * HITBOX_H_FRAC
+    const standOffY = dinoH - standH
+    const standProbe = new Rectangle(
+      dinoX + hbOffX + 2, dinoY + standOffY + 2, hbW - 4, standH - 4,
+    )
+    if (checkCollisionTiledLayer(map, "Ground", standProbe).hit) ducking = true
+  }
+  const speed = ducking ? PLAYER_SPEED * DUCK_SPEED_FRAC : PLAYER_SPEED
   let moveX = 0
-  if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)) { moveX = -PLAYER_SPEED; facing = -1 }
-  if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) { moveX =  PLAYER_SPEED; facing =  1 }
+  if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)) { moveX = -speed; facing = -1 }
+  if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) { moveX =  speed; facing =  1 }
+
+  // Advance the ducked walk-cycle only while the player is actually moving
+  // while ducked; reset it otherwise so the next duck-walk begins on frame 0.
+  if (ducking && moveX !== 0) {
+    duckAnimTime += dt
+    while (duckAnimTime >= DUCK_FRAME_SECONDS) {
+      duckAnimTime  -= DUCK_FRAME_SECONDS
+      duckAnimIndex  = (duckAnimIndex + 1) % DUCK_WALK_FRAMES.length
+    }
+  } else {
+    duckAnimTime  = 0
+    duckAnimIndex = 0
+  }
 
 /*
-┌─────────────────────────┬─────────────────────────────────┬─────────────────────────────┐
-│          State          │             Trigger             │           Sprite            │
-├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
-│ jumping                 │ Press ↑ / SPACE while on ground │ Frame 14 (legs tucked)      │
-├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
-│ onGround && moveX === 0 │ Standing still                  │ Frame 3 (idle)              │
-├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
-│ Walking off an edge     │ onGround → false without a jump │ Walk animation continues    │
-├─────────────────────────┼─────────────────────────────────┼─────────────────────────────┤
-│ Walking on ground       │ onGround && moveX != 0          │ Walk animation (frames 4-9) │
-└─────────────────────────┴─────────────────────────────────┴─────────────────────────────┘
+┌─────────────────────────┬─────────────────────────────────┬──────────────────────────────┐
+│          State          │             Trigger             │            Sprite            │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ jumping                 │ Press ↑ / SPACE while on ground │ Frame 14 (legs tucked)       │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ ducking, still          │ Hold ↓ / S, no horizontal input │ Frame 23 (crouch idle)       │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ ducking, moving         │ Hold ↓ / S + ← → / A D          │ Crouch walk (frames 17–22)   │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ onGround && moveX === 0 │ Standing still                  │ Frame 3 (idle)               │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ Walking off an edge     │ onGround → false without a jump │ Walk animation continues     │
+├─────────────────────────┼─────────────────────────────────┼──────────────────────────────┤
+│ Walking on ground       │ onGround && moveX != 0          │ Walk animation (frames 4–9)  │
+└─────────────────────────┴─────────────────────────────────┴──────────────────────────────┘
 
  > jumping is set only by the intentional jump path and cleared on landing.
- Walking off a platform edge transitions onGround to false via the ground probe 
- without ever setting jumping, so the walk cycle keeps playing through the brief fall.
+   Walking off a platform edge transitions onGround to false via the ground probe
+   without ever setting jumping, so the walk cycle keeps playing through the brief fall.
+ > ducking disables jumps and slows horizontal speed (× DUCK_SPEED_FRAC). When the player
+   releases ↓ underneath a low block, the auto-stay-ducked probe keeps ducking true so
+   the vertical-resolve doesn't teleport the dino on top of the block.
+ > ducking persists through passive falls (walked off an edge while ↓ held) so the small
+   hitbox doesn't snag on overhead blocks mid-fall. Intentional jumps still suppress it.
+ > The upright walk cycle (4–9) is .tmj-animated via tiles[0].animation; the duck-run
+   cycle (17–22) is timed manually here using DUCK_FRAME_SECONDS.
 */
   const jumpHeld = IsKeyDown(KEY_UP) || IsKeyDown(KEY_SPACE)
   const jumpTriggered = jumpHeld && !jumpKeyDown
   jumpKeyDown = jumpHeld
   jumpBuffer = Math.max(0, jumpBuffer - dt)
   if (jumpTriggered) jumpBuffer = 0.12
-  if (jumpBuffer > 0 && onGround) {
+  if (jumpBuffer > 0 && onGround && !ducking) {
     velY = JUMP_VEL
     onGround = false
     jumping  = true
     jumpBuffer = 0
   }
 
-  // Hitbox derived from the sprite size, centered X, bottom-aligned Y.
+  // Hitbox H depends on duck state — shrunk while ducked so the 4x dino fits
+  // under the 1-tile gap above the lower platform clusters. (hbW / hbOffX
+  // were computed above so the auto-stay-ducked probe could use them.)
   // Inset by 2px on the cross-axis (per axis-resolve step) to avoid the
   // corner of one rect catching the edge of a tile during the other axis.
-  const hbW = dinoW * HITBOX_W_FRAC
-  const hbH = dinoH * HITBOX_H_FRAC
-  const hbOffX = (dinoW - hbW) / 2
+  const hbH    = dinoH * (ducking ? HITBOX_H_FRAC_DUCK : HITBOX_H_FRAC)
   const hbOffY = dinoH - hbH
 
   // ── horizontal move + resolve ─────────────────────────
@@ -242,6 +328,11 @@ while (!WindowShouldClose()) {
   BeginDrawing()
     if (map.backgroundcolor) {
       const hex = parseInt(map.backgroundcolor.slice(1), 16)
+      const backgroundColor = GetColor((hex << 8) | 0xff);
+      if (!hasLoggedMapBgColor) {
+        console.log("map bg color:", backgroundColor)
+        hasLoggedMapBgColor = true
+      }
       ClearBackground(GetColor((hex << 8) | 0xff))
     } else {
       ClearBackground(RAYWHITE)
@@ -252,12 +343,16 @@ while (!WindowShouldClose()) {
 
       // Pose priority:
       //   jumping (intentional, airborne) → JUMP frame
-      //   on the ground, no input          → IDLE frame
+      //   ducking + moving                → DUCK-walk cycle (frames 17–22)
+      //   ducking + still                 → DUCK-idle frame (17)
+      //   on the ground, no input         → IDLE frame
       //   otherwise (walking, or falling
-      //   passively off an edge)           → let the walk-cycle animation play
+      //   passively off an edge)          → let the walk-cycle animation play
       const overrideLocalId =
-        jumping                       ? JUMP_LOCAL_ID
-        : (onGround && moveX === 0)   ? IDLE_LOCAL_ID
+        jumping                            ? JUMP_LOCAL_ID
+        : (ducking && moveX !== 0)         ? DUCK_WALK_FRAMES[duckAnimIndex]
+        : ducking                          ? DUCK_LOCAL_ID
+        : (onGround && moveX === 0)        ? IDLE_LOCAL_ID
         : undefined
       const tile = currentSrcRect(map, dinoGid, overrideLocalId)
       if (tile) {
@@ -266,10 +361,14 @@ while (!WindowShouldClose()) {
         const mirroredSrc = new Rectangle(
           src.x, src.y, src.width * facing, src.height,
         )
+        // Visual-only shift: pushes the sprite down so the dino's visible
+        // feet sit on the ground top. Physics/hitbox still use the unshifted
+        // dinoY, so collision and ground probe remain tile-aligned.
+        const drawDy = dinoH * SPRITE_FOOT_PAD_FRAC
         DrawTexturePro(
           tile.texture,
           mirroredSrc,
-          new Rectangle(dinoX, dinoY, dinoW, dinoH),
+          new Rectangle(dinoX, dinoY + drawDy, dinoW, dinoH),
           new Vector2(0, 0), 0, WHITE,
         )
       }
@@ -277,7 +376,7 @@ while (!WindowShouldClose()) {
 
     DrawFPS(8, 8)
     DrawText(`scale: ${currentScale}    [T] toggle 2x / 4x`, 8, 28, 16, DARKGRAY)
-    DrawText("← → / A D move    ↑ / SPACE jump", 8, 48, 14, BLUE)
+    DrawText("← → / A D move    ↑ / SPACE jump    ↓ / S duck", 8, 48, 14, BLUE)
   EndDrawing()
 }
 
