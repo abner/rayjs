@@ -78,7 +78,7 @@
   {
    "firstgid": 61,
    "name": "dino_4x",
-   "image": "../../box2d/dinoCharactersVersion1.1/sheets/dino_4x.png",
+   "image": "dino_4x.png",
    "imagewidth": 2304,
    "imageheight": 96,
    "tilewidth": 96,
