@@ -199,6 +199,12 @@ if(WIN32)
     # wingdi/winuser functions, clashing with raylib's identically-named symbols when both
     # headers reach the same TU (rayjs.c includes cutils.h then raylib.h).
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOGDI NOUSER)
+elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+    # quickjs-libc.c references environ / sighandler_t / RTLD_DEFAULT, which on glibc are
+    # gated behind _GNU_SOURCE. The file already has per-OS typedef blocks for macOS, the
+    # BSDs, Solaris and Emscripten; plain Linux/glibc relies on the build system to set
+    # this. (Pre-quickjs-ng cutils.h forward-declared these locally.)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE _GNU_SOURCE)
 endif()
 
 set(RAYJS_LINK_LIBRARIES "quickjs" "raylib" "lightmapper" "box2d")
