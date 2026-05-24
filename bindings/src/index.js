@@ -1346,9 +1346,54 @@ function main() {
             // fix belongs in cgen.js's cast() but every attempt at that so
             // far broke the box2d callback-bridge generator path.
             const buf=fs.readFileSync(outPath,'utf8');
-            const fixed=buf
+            let fixed=buf
                 .replace(/memoryStore\(js_free,\(void  *\*\)\*/g, 'memoryStore(js_free,(void *)')
                 .replace(/memoryStore\(jsc_free,\(void  *\*\)\*/g, 'memoryStore(jsc_free,(void *)');
+            // Box2D Category B/C: wire up the hand-written trampolines in
+            // src/box2d_helpers.h (kept out of the generator because the bridges
+            // take a JS callback + opaque user-context, which the generic
+            // callback-emitter can't auto-wrap). Previously these injections
+            // lived directly in src/modules/js_box2d.h and got wiped on every
+            // regen — the proper persistence lives here.
+            if(module.gen.name === 'box2d'){
+                const bridges = [
+                    { name: 'b2World_OverlapAABB',              arity: 4 },
+                    { name: 'b2World_OverlapShape',             arity: 4 },
+                    { name: 'b2World_CastRay',                  arity: 5 },
+                    { name: 'b2World_CastShape',                arity: 5 },
+                    { name: 'b2World_CollideMover',             arity: 4 },
+                    { name: 'b2World_SetCustomFilterCallback',  arity: 2 },
+                    { name: 'b2World_SetPreSolveCallback',      arity: 2 },
+                ];
+                // Include the helpers right before js_box2d_init. They reference
+                // class IDs (js_b2ShapeId_class_id, …) declared earlier in this
+                // same file, so a top-of-file include via includeGen does not
+                // work — the IDs would be undeclared at that point.
+                fixed = fixed.replace(
+                    /(\n\s*static int js_box2d_init\(JSContext)/,
+                    '\n\t#include "box2d_helpers.h"\n$1'
+                );
+                // JS_SetModuleExport calls in js_box2d_init body, immediately
+                // after the auto-generated JS_SetModuleExportList call.
+                const setLines = bridges.map(b =>
+                    `\t\tJS_SetModuleExport(ctx,m,(const char  *)"${b.name}",JS_NewCFunction(ctx,js_${b.name}_bridge,(const char  *)"${b.name}",(int)${b.arity}));`
+                ).join('\n') + '\n';
+                fixed = fixed.replace(
+                    /(JS_SetModuleExportList\(ctx,m,jsbox2d_funcs,\(int\)listcount\);\n)/,
+                    '$1' + setLines
+                );
+                // JS_AddModuleExport calls in js_init_module_box2d body,
+                // injected right before its `return m;`. The anchor matches
+                // the very end of js_init_module_box2d (last in the file,
+                // immediately followed by the JS_box2d_GUARD #endif).
+                const addLines = bridges.map(b =>
+                    `\t\tJS_AddModuleExport(ctx,m,(const char  *)"${b.name}");`
+                ).join('\n') + '\n';
+                fixed = fixed.replace(
+                    /(\t\treturn m;\n\t\}\n\n#endif \/\/JS_box2d_GUARD)/,
+                    addLines + '$1'
+                );
+            }
             if(fixed!==buf) fs.writeFileSync(outPath,fixed);
             module.gen.typings.writeTo(`bindings/typings/lib.js_${module.gen.name}.d.ts`,{variables:module.gen.definitions.cgen.getVariables(),includegen:module.gen.includeGen,modules});
             const ignored = modules[key].functions.filter(x => x.binding.ignore).length;

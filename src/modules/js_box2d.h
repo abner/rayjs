@@ -22979,10 +22979,19 @@
 		JS_CFUNC_DEF("b2WheelJoint_GetMaxMotorTorque",1,js_b2WheelJoint_GetMaxMotorTorque),
 		JS_CFUNC_DEF("b2WheelJoint_GetMotorTorque",1,js_b2WheelJoint_GetMotorTorque)
 	};
+	#include "box2d_helpers.h"
+
 	
 	static int js_box2d_init(JSContext * ctx,JSModuleDef * m){
 		size_t listcount=countof(jsbox2d_funcs);
 		JS_SetModuleExportList(ctx,m,jsbox2d_funcs,(int)listcount);
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_OverlapAABB",JS_NewCFunction(ctx,js_b2World_OverlapAABB_bridge,(const char  *)"b2World_OverlapAABB",(int)4));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_OverlapShape",JS_NewCFunction(ctx,js_b2World_OverlapShape_bridge,(const char  *)"b2World_OverlapShape",(int)4));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CastRay",JS_NewCFunction(ctx,js_b2World_CastRay_bridge,(const char  *)"b2World_CastRay",(int)5));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CastShape",JS_NewCFunction(ctx,js_b2World_CastShape_bridge,(const char  *)"b2World_CastShape",(int)5));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CollideMover",JS_NewCFunction(ctx,js_b2World_CollideMover_bridge,(const char  *)"b2World_CollideMover",(int)4));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_SetCustomFilterCallback",JS_NewCFunction(ctx,js_b2World_SetCustomFilterCallback_bridge,(const char  *)"b2World_SetCustomFilterCallback",(int)2));
+		JS_SetModuleExport(ctx,m,(const char  *)"b2World_SetPreSolveCallback",JS_NewCFunction(ctx,js_b2World_SetPreSolveCallback_bridge,(const char  *)"b2World_SetPreSolveCallback",(int)2));
 		js_declare_b2Version(ctx,m);
 		JSValue b2Version_constr=JS_NewCFunction2(ctx,js_b2Version_constructor,(const char  *)"b2Version",(int)3,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"b2Version",b2Version_constr);
@@ -23611,6 +23620,13 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_PI");
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_MAX_POLYGON_VERTICES");
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_DEFAULT_CATEGORY_BITS");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_OverlapAABB");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_OverlapShape");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CastRay");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CastShape");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CollideMover");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_SetCustomFilterCallback");
+		JS_AddModuleExport(ctx,m,(const char  *)"b2World_SetPreSolveCallback");
 		return m;
 	}
 
