@@ -46,12 +46,15 @@ xcheck_add_c_compiler_flag(-Wno-array-bounds)
 xcheck_add_c_compiler_flag(-Wno-format-truncation)
 xcheck_add_c_compiler_flag(-funsigned-char)
 
-# GCC 14 promoted these three from warnings to errors. The bindings generator
-# emits a handful of legacy pointer-type mismatches (notably the js_Model_constructor
-# field order against raylib 6.0's new ModelSkeleton); the proper fix is in
-# bindings/src/raylib-header.js but for now keep them as warnings so MinGW/Winlibs
-# builds stay green. Clang and older gcc already treat these as warnings.
-xcheck_add_c_compiler_flag(-Wno-error=incompatible-pointer-types)
+# GCC 14 promoted these from warnings to errors. The incompatible-pointer-types
+# case (js_Model_constructor against raylib 6.0's new ModelSkeleton) was fixed
+# in bindings/src/raylib-header.js by switching jsStructConstructor to C99
+# designated initializers, so that flag is gone.
+#
+# The remaining two are upstream quickjs-libc.c issues that surface on glibc
+# (signal-handler stubs with implicit declarations / int-vs-pointer
+# conversions). They're harmless on macOS and have separate fixes pending
+# upstream; demoting them keeps MinGW/Winlibs CI green until then.
 xcheck_add_c_compiler_flag(-Wno-error=int-conversion)
 xcheck_add_c_compiler_flag(-Wno-error=implicit-function-declaration)
 #Inherit some compiler flags
