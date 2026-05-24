@@ -2747,7 +2747,7 @@
 		unsigned int format=js_getunsignedint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)rlGetPixelFormatName(format);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -2802,7 +2802,7 @@
 		int height=js_getint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=rlReadScreenPixels(width,height);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	

@@ -1157,7 +1157,7 @@
 		char * text=js_getchar_arrnull(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GuiIconText(iconId,(const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -1913,7 +1913,7 @@
 		int * iconId=js_getint_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetTextIcon((const char  *)text,iconId);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	

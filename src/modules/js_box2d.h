@@ -19800,7 +19800,7 @@
 		b2BodyId bodyId=js_getb2BodyId(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)b2Body_GetName(bodyId);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	

@@ -1368,7 +1368,18 @@ function main() {
             const buf=fs.readFileSync(outPath,'utf8');
             let fixed=buf
                 .replace(/memoryStore\(js_free,\(void  *\*\)\*/g, 'memoryStore(js_free,(void *)')
-                .replace(/memoryStore\(jsc_free,\(void  *\*\)\*/g, 'memoryStore(jsc_free,(void *)');
+                .replace(/memoryStore\(jsc_free,\(void  *\*\)\*/g, 'memoryStore(jsc_free,(void *)')
+                // Post-process workaround: raylib's char*-returning APIs
+                // (GetFileExtension, GetClipboardText, LoadFileText,
+                // GetKeyName, …) legitimately return NULL on miss / empty
+                // /alloc-fail, but cgen emits a bare JS_NewString(ctx,
+                // returnVal). JS_NewString calls strlen on its argument, so
+                // a NULL return from raylib segfaults the host. Wrap with a
+                // ternary so the JS side gets a real null instead.
+                // The C contract matches what existing examples already
+                // assume (e.g. `if (GetFileExtension(name) == null) ...`).
+                .replace(/JSValue ret=JS_NewString\(ctx,\(const char  \*\)returnVal\);/g,
+                         'JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;');
             // Box2D Category B/C: wire up the hand-written trampolines in
             // src/box2d_helpers.h (kept out of the generator because the bridges
             // take a JS callback + opaque user-context, which the generic

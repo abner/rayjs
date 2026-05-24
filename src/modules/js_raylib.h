@@ -15035,7 +15035,7 @@
 		int monitor=js_getint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetMonitorName(monitor);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -15050,7 +15050,7 @@
 	
 	static JSValue js_GetClipboardText(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		char * returnVal=(char  *)GetClipboardText();
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -15793,7 +15793,7 @@
 		char * fileName=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=LoadFileText((const char  *)fileName);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		UnloadFileText(returnVal);
 		memoryClear(ctx);
 		return ret;
@@ -16056,7 +16056,7 @@
 		char * fileName=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetFileExtension((const char  *)fileName);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16066,7 +16066,7 @@
 		char * filePath=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetFileName((const char  *)filePath);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16076,7 +16076,7 @@
 		char * filePath=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetFileNameWithoutExt((const char  *)filePath);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16086,7 +16086,7 @@
 		char * filePath=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetDirectoryPath((const char  *)filePath);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16096,20 +16096,20 @@
 		char * dirPath=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetPrevDirectoryPath((const char  *)dirPath);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
 	
 	static JSValue js_GetWorkingDirectory(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		char * returnVal=(char  *)GetWorkingDirectory();
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
 	static JSValue js_GetApplicationDirectory(JSContext * ctx,JSValue this_val,int argc,JSValue * argv){
 		char * returnVal=(char  *)GetApplicationDirectory();
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -16237,7 +16237,7 @@
 		int * compDataSize=js_getint_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=CompressData((const unsigned char  *)data,dataSize,compDataSize);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16256,7 +16256,7 @@
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)dataSize[0]));
 			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16270,7 +16270,7 @@
 		int * outputSize=js_getint_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=EncodeDataBase64((const unsigned char  *)data,dataSize,outputSize);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16282,7 +16282,7 @@
 		int * outputSize=js_getint_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=DecodeDataBase64((const char  *)text,outputSize);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -16481,7 +16481,7 @@
 		int key=js_getint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetKeyName(key);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -16507,7 +16507,7 @@
 		int gamepad=js_getint(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)GetGamepadName(gamepad);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		return ret;
 	}
 	
@@ -18079,7 +18079,7 @@
 			JSValue src=JS_NewInt32(ctx,(int32_t)((long)fileSize[0]));
 			JS_SetPropertyUint32(ctx,(JSValueConst)argv[2],(uint32_t)0,src);
 		}
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20395,7 +20395,7 @@
 		int length=js_getint(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=LoadUTF8((const int  *)codepoints,length);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20499,7 +20499,7 @@
 		int * utf8Size=js_getint_arr(ctx,argv[1],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)CodepointToUTF8(codepoint,utf8Size);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20753,7 +20753,7 @@
 		int length=js_getint(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)TextSubtext((const char  *)text,position,length);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20763,7 +20763,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=(char  *)TextRemoveSpaces((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20777,7 +20777,7 @@
 		char * end=js_getchar_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=GetTextBetween((const char  *)text,(const char  *)begin,(const char  *)end);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20791,7 +20791,7 @@
 		char * replacement=js_getchar_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextReplace((const char  *)text,(const char  *)search,(const char  *)replacement);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20805,7 +20805,7 @@
 		char * replacement=js_getchar_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextReplaceAlloc((const char  *)text,(const char  *)search,(const char  *)replacement);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20821,7 +20821,7 @@
 		char * replacement=js_getchar_arr(ctx,argv[3],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextReplaceBetween((const char  *)text,(const char  *)begin,(const char  *)end,(const char  *)replacement);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20837,7 +20837,7 @@
 		char * replacement=js_getchar_arr(ctx,argv[3],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextReplaceBetweenAlloc((const char  *)text,(const char  *)begin,(const char  *)end,(const char  *)replacement);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20851,7 +20851,7 @@
 		int position=js_getint(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextInsert((const char  *)text,(const char  *)insert,position);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20865,7 +20865,7 @@
 		int position=js_getint(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextInsertAlloc((const char  *)text,(const char  *)insert,position);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20879,7 +20879,7 @@
 		char * delimiter=js_getchar_arr(ctx,argv[2],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextJoin(textList,count,(const char  *)delimiter);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20943,7 +20943,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextToUpper((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20953,7 +20953,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextToLower((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20963,7 +20963,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextToPascal((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20973,7 +20973,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextToSnake((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
@@ -20983,7 +20983,7 @@
 		char * text=js_getchar_arr(ctx,argv[0],&error);
 		if(error==1)return JS_EXCEPTION;
 		char * returnVal=TextToCamel((const char  *)text);
-		JSValue ret=JS_NewString(ctx,(const char  *)returnVal);
+		JSValue ret=returnVal?JS_NewString(ctx,(const char  *)returnVal):JS_NULL;
 		memoryClear(ctx);
 		return ret;
 	}
