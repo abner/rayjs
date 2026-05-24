@@ -48,13 +48,21 @@
 
 - [`docs/bindings_struct_constructor_plan.md`](../docs/bindings_struct_constructor_plan.md) —
   Plan to fix `jsStructConstructor` in `bindings/src/raylib-header.js` so it handles nested
-  struct fields correctly. Surfaced as a GCC-14 `-Wincompatible-pointer-types` hard error
-  on Windows MinGW for `js_Model_constructor` after the raylib 6.0 bump introduced
-  `ModelSkeleton` inside `Model`. CI is currently green only because `CMakeLists.txt` carries
-  three `-Wno-error=...` flags as a safety net — the plan covers the audit, designated-init
-  fix, and removal of those flags once the proper fix lands.
+  struct fields correctly. **Status: RESOLVED** — implemented in commit `c8d684b`
+  (designated initializers) and `d9c679f` (dropped `-Wno-error=incompatible-pointer-types`).
+  The lesson moved into `bindings_generator_pitfalls.md` (Rule 2); this plan is kept for
+  the technical deep-dive.
 
 ## Developer reference
+
+- [`docs/bindings_generator_pitfalls.md`](../docs/bindings_generator_pitfalls.md) —
+  Three classes of generator bug that have bitten us and how to recognize them: (1) never
+  edit `src/modules/js_*.h` directly because regen wipes patches — recurring trap behind
+  the `b2World_CastRay` SyntaxError regression, persistence fix lives in `bindings/src/index.js`
+  post-writeTo hook; (2) emit C99 designated initializers in struct constructors — positional
+  brace-init silently misaligns when a disabled nested-struct field becomes a `0` placeholder;
+  (3) every `-Wno-error=` flag in CMakeLists.txt is a debt with a deadline, not a fix. Read
+  this before changing the generator or adding a compiler-flag demotion.
 
 - [`docs/adding_native_module.md`](../docs/adding_native_module.md) — Full walkthrough for
   adding a native C library as a `rayjs:<name>` module: git submodule → CMakeLists.txt →

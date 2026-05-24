@@ -1,5 +1,12 @@
 # Plan: Fix the struct constructor generator for nested structs
 
+> **Status: RESOLVED** — implemented in commit `c8d684b` (designated initializers
+> in `jsStructConstructor`) and the safety-net flag removed in `d9c679f`. The
+> contributor-facing writeup of the lesson lives in
+> [`bindings_generator_pitfalls.md`](bindings_generator_pitfalls.md) (Rule 2).
+> Keep this plan around for the technical-deep-dive section below; it's the
+> reference for *why* the fix takes the shape it does.
+
 ## Symptom
 
 GitHub Actions CI on Windows (MinGW Winlibs, gcc 14+) fails with:
