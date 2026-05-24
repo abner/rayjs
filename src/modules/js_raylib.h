@@ -13109,8 +13109,8 @@
 			float y=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Vector2){
-				x,
-				y
+				.x = x,
+				.y = y
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Vector2));
@@ -13144,9 +13144,9 @@
 			float z=js_getfloat(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Vector3){
-				x,
-				y,
-				z
+				.x = x,
+				.y = y,
+				.z = z
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Vector3));
@@ -13182,10 +13182,10 @@
 			float w=js_getfloat(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Vector4){
-				x,
-				y,
-				z,
-				w
+				.x = x,
+				.y = y,
+				.z = z,
+				.w = w
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Vector4));
@@ -13245,22 +13245,22 @@
 			float m15=js_getfloat(ctx,argv[15],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Matrix){
-				m0,
-				m4,
-				m8,
-				m12,
-				m1,
-				m5,
-				m9,
-				m13,
-				m2,
-				m6,
-				m10,
-				m14,
-				m3,
-				m7,
-				m11,
-				m15
+				.m0 = m0,
+				.m4 = m4,
+				.m8 = m8,
+				.m12 = m12,
+				.m1 = m1,
+				.m5 = m5,
+				.m9 = m9,
+				.m13 = m13,
+				.m2 = m2,
+				.m6 = m6,
+				.m10 = m10,
+				.m14 = m14,
+				.m3 = m3,
+				.m7 = m7,
+				.m11 = m11,
+				.m15 = m15
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Matrix));
@@ -13296,10 +13296,10 @@
 			unsigned char a=js_getunsignedchar(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Color){
-				r,
-				g,
-				b,
-				a
+				.r = r,
+				.g = g,
+				.b = b,
+				.a = a
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Color));
@@ -13335,10 +13335,10 @@
 			float height=js_getfloat(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Rectangle){
-				x,
-				y,
-				width,
-				height
+				.x = x,
+				.y = y,
+				.width = width,
+				.height = height
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Rectangle));
@@ -13376,11 +13376,11 @@
 			int format=js_getint(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Image){
-				data,
-				width,
-				height,
-				mipmaps,
-				format
+				.data = data,
+				.width = width,
+				.height = height,
+				.mipmaps = mipmaps,
+				.format = format
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Image));
@@ -13418,11 +13418,11 @@
 			int format=js_getint(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Texture){
-				id,
-				width,
-				height,
-				mipmaps,
-				format
+				.id = id,
+				.width = width,
+				.height = height,
+				.mipmaps = mipmaps,
+				.format = format
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Texture));
@@ -13456,9 +13456,9 @@
 			Texture depth=js_getTexture(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(RenderTexture){
-				id,
-				texture,
-				depth
+				.id = id,
+				.texture = texture,
+				.depth = depth
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(RenderTexture));
@@ -13498,12 +13498,12 @@
 			int layout=js_getint(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(NPatchInfo){
-				source,
-				left,
-				top,
-				right,
-				bottom,
-				layout
+				.source = source,
+				.left = left,
+				.top = top,
+				.right = right,
+				.bottom = bottom,
+				.layout = layout
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(NPatchInfo));
@@ -13541,11 +13541,11 @@
 			Image image=js_getImage(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(GlyphInfo){
-				value,
-				offsetX,
-				offsetY,
-				advanceX,
-				image
+				.value = value,
+				.offsetX = offsetX,
+				.offsetY = offsetY,
+				.advanceX = advanceX,
+				.image = image
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(GlyphInfo));
@@ -13585,12 +13585,12 @@
 			GlyphInfo * glyphs=js_getGlyphInfo_arrnc(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Font){
-				baseSize,
-				glyphCount,
-				glyphPadding,
-				texture,
-				recs,
-				glyphs
+				.baseSize = baseSize,
+				.glyphCount = glyphCount,
+				.glyphPadding = glyphPadding,
+				.texture = texture,
+				.recs = recs,
+				.glyphs = glyphs
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Font));
@@ -13628,11 +13628,11 @@
 			int projection=js_getint(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Camera3D){
-				position,
-				target,
-				up,
-				fovy,
-				projection
+				.position = position,
+				.target = target,
+				.up = up,
+				.fovy = fovy,
+				.projection = projection
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Camera3D));
@@ -13668,10 +13668,10 @@
 			float zoom=js_getfloat(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Camera2D){
-				offset,
-				target,
-				rotation,
-				zoom
+				.offset = offset,
+				.target = target,
+				.rotation = rotation,
+				.zoom = zoom
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Camera2D));
@@ -13731,22 +13731,22 @@
 			unsigned int * vboId=js_getunsignedint_arrnc(ctx,argv[15],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Mesh){
-				vertexCount,
-				triangleCount,
-				vertices,
-				texcoords,
-				texcoords2,
-				normals,
-				tangents,
-				colors,
-				indices,
-				boneCount,
-				boneIndices,
-				boneWeights,
-				animVertices,
-				animNormals,
-				vaoId,
-				vboId
+				.vertexCount = vertexCount,
+				.triangleCount = triangleCount,
+				.vertices = vertices,
+				.texcoords = texcoords,
+				.texcoords2 = texcoords2,
+				.normals = normals,
+				.tangents = tangents,
+				.colors = colors,
+				.indices = indices,
+				.boneCount = boneCount,
+				.boneIndices = boneIndices,
+				.boneWeights = boneWeights,
+				.animVertices = animVertices,
+				.animNormals = animNormals,
+				.vaoId = vaoId,
+				.vboId = vboId
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Mesh));
@@ -13778,8 +13778,8 @@
 			int * locs=js_getint_arrnc(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Shader){
-				id,
-				locs
+				.id = id,
+				.locs = locs
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Shader));
@@ -13813,9 +13813,9 @@
 			float value=js_getfloat(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(MaterialMap){
-				texture,
-				color,
-				value
+				.texture = texture,
+				.color = color,
+				.value = value
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(MaterialMap));
@@ -13849,9 +13849,9 @@
 			float * params=js_getfloat_arr4nc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Material){
-				shader,
-				maps,
-				{params[0],params[1],params[2],params[3]}
+				.shader = shader,
+				.maps = maps,
+				.params = {params[0],params[1],params[2],params[3]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Material));
@@ -13885,9 +13885,9 @@
 			Vector3 scale=js_getVector3(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Transform){
-				translation,
-				rotation,
-				scale
+				.translation = translation,
+				.rotation = rotation,
+				.scale = scale
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Transform));
@@ -13919,8 +13919,8 @@
 			int parent=js_getint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(BoneInfo){
-				{name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]},
-				parent
+				.name = {name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]},
+				.parent = parent
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(BoneInfo));
@@ -13954,9 +13954,9 @@
 			Transform * bindPose=js_getTransform_arrnc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(ModelSkeleton){
-				boneCount,
-				bones,
-				bindPose
+				.boneCount = boneCount,
+				.bones = bones,
+				.bindPose = bindPose
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(ModelSkeleton));
@@ -14000,15 +14000,14 @@
 			Matrix * boneMatrices=js_getMatrix_arrnc(ctx,argv[7],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Model){
-				transform,
-				meshCount,
-				materialCount,
-				meshes,
-				materials,
-				meshMaterial,
-				0,
-				currentPose,
-				boneMatrices
+				.transform = transform,
+				.meshCount = meshCount,
+				.materialCount = materialCount,
+				.meshes = meshes,
+				.materials = materials,
+				.meshMaterial = meshMaterial,
+				.currentPose = currentPose,
+				.boneMatrices = boneMatrices
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Model));
@@ -14044,10 +14043,10 @@
 			Transform * * keyframePoses=js_getTransform_arr_arrnc(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(ModelAnimation){
-				{name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]},
-				boneCount,
-				keyframeCount,
-				keyframePoses
+				.name = {name[0],name[1],name[2],name[3],name[4],name[5],name[6],name[7],name[8],name[9],name[10],name[11],name[12],name[13],name[14],name[15],name[16],name[17],name[18],name[19],name[20],name[21],name[22],name[23],name[24],name[25],name[26],name[27],name[28],name[29],name[30],name[31]},
+				.boneCount = boneCount,
+				.keyframeCount = keyframeCount,
+				.keyframePoses = keyframePoses
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(ModelAnimation));
@@ -14079,8 +14078,8 @@
 			Vector3 direction=js_getVector3(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Ray){
-				position,
-				direction
+				.position = position,
+				.direction = direction
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Ray));
@@ -14116,10 +14115,10 @@
 			Vector3 normal=js_getVector3(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(RayCollision){
-				hit,
-				distance,
-				point,
-				normal
+				.hit = hit,
+				.distance = distance,
+				.point = point,
+				.normal = normal
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(RayCollision));
@@ -14151,8 +14150,8 @@
 			Vector3 max=js_getVector3(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(BoundingBox){
-				min,
-				max
+				.min = min,
+				.max = max
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(BoundingBox));
@@ -14190,11 +14189,11 @@
 			void * data=js_getvoid_arr(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Wave){
-				frameCount,
-				sampleRate,
-				sampleSize,
-				channels,
-				data
+				.frameCount = frameCount,
+				.sampleRate = sampleRate,
+				.sampleSize = sampleSize,
+				.channels = channels,
+				.data = data
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Wave));
@@ -14234,11 +14233,11 @@
 			unsigned int channels=js_getunsignedint(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(AudioStream){
-				buffer,
-				processor,
-				sampleRate,
-				sampleSize,
-				channels
+				.buffer = buffer,
+				.processor = processor,
+				.sampleRate = sampleRate,
+				.sampleSize = sampleSize,
+				.channels = channels
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(AudioStream));
@@ -14270,8 +14269,8 @@
 			unsigned int frameCount=js_getunsignedint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Sound){
-				stream,
-				frameCount
+				.stream = stream,
+				.frameCount = frameCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Sound));
@@ -14306,11 +14305,10 @@
 			int ctxType=js_getint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Music){
-				stream,
-				frameCount,
-				looping,
-				ctxType,
-				0
+				.stream = stream,
+				.frameCount = frameCount,
+				.looping = looping,
+				.ctxType = ctxType
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Music));
@@ -14356,15 +14354,15 @@
 			float * chromaAbCorrection=js_getfloat_arr4nc(ctx,argv[8],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(VrDeviceInfo){
-				hResolution,
-				vResolution,
-				hScreenSize,
-				vScreenSize,
-				eyeToScreenDistance,
-				lensSeparationDistance,
-				interpupillaryDistance,
-				{lensDistortionValues[0],lensDistortionValues[1],lensDistortionValues[2],lensDistortionValues[3]},
-				{chromaAbCorrection[0],chromaAbCorrection[1],chromaAbCorrection[2],chromaAbCorrection[3]}
+				.hResolution = hResolution,
+				.vResolution = vResolution,
+				.hScreenSize = hScreenSize,
+				.vScreenSize = vScreenSize,
+				.eyeToScreenDistance = eyeToScreenDistance,
+				.lensSeparationDistance = lensSeparationDistance,
+				.interpupillaryDistance = interpupillaryDistance,
+				.lensDistortionValues = {lensDistortionValues[0],lensDistortionValues[1],lensDistortionValues[2],lensDistortionValues[3]},
+				.chromaAbCorrection = {chromaAbCorrection[0],chromaAbCorrection[1],chromaAbCorrection[2],chromaAbCorrection[3]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(VrDeviceInfo));
@@ -14408,14 +14406,14 @@
 			float * scaleIn=js_getfloat_arr2nc(ctx,argv[7],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(VrStereoConfig){
-				{projection[0],projection[1]},
-				{viewOffset[0],viewOffset[1]},
-				{leftLensCenter[0],leftLensCenter[1]},
-				{rightLensCenter[0],rightLensCenter[1]},
-				{leftScreenCenter[0],leftScreenCenter[1]},
-				{rightScreenCenter[0],rightScreenCenter[1]},
-				{scale[0],scale[1]},
-				{scaleIn[0],scaleIn[1]}
+				.projection = {projection[0],projection[1]},
+				.viewOffset = {viewOffset[0],viewOffset[1]},
+				.leftLensCenter = {leftLensCenter[0],leftLensCenter[1]},
+				.rightLensCenter = {rightLensCenter[0],rightLensCenter[1]},
+				.leftScreenCenter = {leftScreenCenter[0],leftScreenCenter[1]},
+				.rightScreenCenter = {rightScreenCenter[0],rightScreenCenter[1]},
+				.scale = {scale[0],scale[1]},
+				.scaleIn = {scaleIn[0],scaleIn[1]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(VrStereoConfig));
@@ -14447,8 +14445,8 @@
 			char * * paths=js_getchar_arr_arrnc(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(FilePathList){
-				count,
-				paths
+				.count = count,
+				.paths = paths
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(FilePathList));
@@ -14482,9 +14480,9 @@
 			int * params=js_getint_arr4nc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(AutomationEvent){
-				frame,
-				type,
-				{params[0],params[1],params[2],params[3]}
+				.frame = frame,
+				.type = type,
+				.params = {params[0],params[1],params[2],params[3]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(AutomationEvent));
@@ -14518,9 +14516,9 @@
 			AutomationEvent * events=js_getAutomationEvent_arrnc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(AutomationEventList){
-				capacity,
-				count,
-				events
+				.capacity = capacity,
+				.count = count,
+				.events = events
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(AutomationEventList));

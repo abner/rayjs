@@ -14306,9 +14306,9 @@
 			int revision=js_getint(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Version){
-				major,
-				minor,
-				revision
+				.major = major,
+				.minor = minor,
+				.revision = revision
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Version));
@@ -14340,8 +14340,8 @@
 			float y=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Vec2){
-				x,
-				y
+				.x = x,
+				.y = y
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Vec2));
@@ -14373,8 +14373,8 @@
 			float sine=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2CosSin){
-				cosine,
-				sine
+				.cosine = cosine,
+				.sine = sine
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2CosSin));
@@ -14406,8 +14406,8 @@
 			float s=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Rot){
-				c,
-				s
+				.c = c,
+				.s = s
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Rot));
@@ -14439,8 +14439,8 @@
 			b2Rot q=js_getb2Rot(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Transform){
-				p,
-				q
+				.p = p,
+				.q = q
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Transform));
@@ -14472,8 +14472,8 @@
 			b2Vec2 cy=js_getb2Vec2(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Mat22){
-				cx,
-				cy
+				.cx = cx,
+				.cy = cy
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Mat22));
@@ -14505,8 +14505,8 @@
 			b2Vec2 upperBound=js_getb2Vec2(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2AABB){
-				lowerBound,
-				upperBound
+				.lowerBound = lowerBound,
+				.upperBound = upperBound
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2AABB));
@@ -14538,8 +14538,8 @@
 			float offset=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Plane){
-				normal,
-				offset
+				.normal = normal,
+				.offset = offset
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Plane));
@@ -14573,9 +14573,9 @@
 			uint8_t * indexB=js_getuint8_t_arr3nc(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SimplexCache){
-				count,
-				{indexA[0],indexA[1],indexA[2]},
-				{indexB[0],indexB[1],indexB[2]}
+				.count = count,
+				.indexA = {indexA[0],indexA[1],indexA[2]},
+				.indexB = {indexB[0],indexB[1],indexB[2]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SimplexCache));
@@ -14603,7 +14603,7 @@
 			_struct =ptr;
 		}else{
 			_struct =(b2Hull){
-				
+				0
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Hull));
@@ -14637,9 +14637,9 @@
 			float maxFraction=js_getfloat(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2RayCastInput){
-				origin,
-				translation,
-				maxFraction
+				.origin = origin,
+				.translation = translation,
+				.maxFraction = maxFraction
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2RayCastInput));
@@ -14667,7 +14667,7 @@
 			_struct =ptr;
 		}else{
 			_struct =(b2ShapeProxy){
-				
+				0
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ShapeProxy));
@@ -14703,10 +14703,10 @@
 			bool canEncroach=js_getbool(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ShapeCastInput){
-				proxy,
-				translation,
-				maxFraction,
-				canEncroach
+				.proxy = proxy,
+				.translation = translation,
+				.maxFraction = maxFraction,
+				.canEncroach = canEncroach
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ShapeCastInput));
@@ -14744,11 +14744,11 @@
 			bool hit=js_getbool(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2CastOutput){
-				normal,
-				point,
-				fraction,
-				iterations,
-				hit
+				.normal = normal,
+				.point = point,
+				.fraction = fraction,
+				.iterations = iterations,
+				.hit = hit
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2CastOutput));
@@ -14782,9 +14782,9 @@
 			float rotationalInertia=js_getfloat(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2MassData){
-				mass,
-				center,
-				rotationalInertia
+				.mass = mass,
+				.center = center,
+				.rotationalInertia = rotationalInertia
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2MassData));
@@ -14816,8 +14816,8 @@
 			float radius=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Circle){
-				center,
-				radius
+				.center = center,
+				.radius = radius
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Circle));
@@ -14851,9 +14851,9 @@
 			float radius=js_getfloat(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Capsule){
-				center1,
-				center2,
-				radius
+				.center1 = center1,
+				.center2 = center2,
+				.radius = radius
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Capsule));
@@ -14881,7 +14881,7 @@
 			_struct =ptr;
 		}else{
 			_struct =(b2Polygon){
-				
+				0
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Polygon));
@@ -14913,8 +14913,8 @@
 			b2Vec2 point2=js_getb2Vec2(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Segment){
-				point1,
-				point2
+				.point1 = point1,
+				.point2 = point2
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Segment));
@@ -14950,10 +14950,10 @@
 			int chainId=js_getint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ChainSegment){
-				ghost1,
-				segment,
-				ghost2,
-				chainId
+				.ghost1 = ghost1,
+				.segment = segment,
+				.ghost2 = ghost2,
+				.chainId = chainId
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ChainSegment));
@@ -14991,11 +14991,11 @@
 			float distanceSquared=js_getfloat(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SegmentDistanceResult){
-				closest1,
-				closest2,
-				fraction1,
-				fraction2,
-				distanceSquared
+				.closest1 = closest1,
+				.closest2 = closest2,
+				.fraction1 = fraction1,
+				.fraction2 = fraction2,
+				.distanceSquared = distanceSquared
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SegmentDistanceResult));
@@ -15033,11 +15033,11 @@
 			bool useRadii=js_getbool(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2DistanceInput){
-				proxyA,
-				proxyB,
-				transformA,
-				transformB,
-				useRadii
+				.proxyA = proxyA,
+				.proxyB = proxyB,
+				.transformA = transformA,
+				.transformB = transformB,
+				.useRadii = useRadii
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2DistanceInput));
@@ -15077,12 +15077,12 @@
 			int simplexCount=js_getint(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2DistanceOutput){
-				pointA,
-				pointB,
-				normal,
-				distance,
-				iterations,
-				simplexCount
+				.pointA = pointA,
+				.pointB = pointB,
+				.normal = normal,
+				.distance = distance,
+				.iterations = iterations,
+				.simplexCount = simplexCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2DistanceOutput));
@@ -15122,12 +15122,12 @@
 			int indexB=js_getint(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SimplexVertex){
-				wA,
-				wB,
-				w,
-				a,
-				indexA,
-				indexB
+				.wA = wA,
+				.wB = wB,
+				.w = w,
+				.a = a,
+				.indexA = indexA,
+				.indexB = indexB
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SimplexVertex));
@@ -15163,10 +15163,10 @@
 			int count=js_getint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Simplex){
-				v1,
-				v2,
-				v3,
-				count
+				.v1 = v1,
+				.v2 = v2,
+				.v3 = v3,
+				.count = count
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Simplex));
@@ -15208,13 +15208,13 @@
 			bool canEncroach=js_getbool(ctx,argv[6],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ShapeCastPairInput){
-				proxyA,
-				proxyB,
-				transformA,
-				transformB,
-				translationB,
-				maxFraction,
-				canEncroach
+				.proxyA = proxyA,
+				.proxyB = proxyB,
+				.transformA = transformA,
+				.transformB = transformB,
+				.translationB = translationB,
+				.maxFraction = maxFraction,
+				.canEncroach = canEncroach
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ShapeCastPairInput));
@@ -15252,11 +15252,11 @@
 			b2Rot q2=js_getb2Rot(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Sweep){
-				localCenter,
-				c1,
-				c2,
-				q1,
-				q2
+				.localCenter = localCenter,
+				.c1 = c1,
+				.c2 = c2,
+				.q1 = q1,
+				.q2 = q2
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Sweep));
@@ -15294,11 +15294,11 @@
 			float maxFraction=js_getfloat(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2TOIInput){
-				proxyA,
-				proxyB,
-				sweepA,
-				sweepB,
-				maxFraction
+				.proxyA = proxyA,
+				.proxyB = proxyB,
+				.sweepA = sweepA,
+				.sweepB = sweepB,
+				.maxFraction = maxFraction
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2TOIInput));
@@ -15330,8 +15330,8 @@
 			float fraction=js_getfloat(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2TOIOutput){
-				state,
-				fraction
+				.state = state,
+				.fraction = fraction
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2TOIOutput));
@@ -15379,16 +15379,16 @@
 			bool persisted=js_getbool(ctx,argv[9],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ManifoldPoint){
-				point,
-				anchorA,
-				anchorB,
-				separation,
-				normalImpulse,
-				tangentImpulse,
-				totalNormalImpulse,
-				normalVelocity,
-				id,
-				persisted
+				.point = point,
+				.anchorA = anchorA,
+				.anchorB = anchorB,
+				.separation = separation,
+				.normalImpulse = normalImpulse,
+				.tangentImpulse = tangentImpulse,
+				.totalNormalImpulse = totalNormalImpulse,
+				.normalVelocity = normalVelocity,
+				.id = id,
+				.persisted = persisted
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ManifoldPoint));
@@ -15424,10 +15424,10 @@
 			int pointCount=js_getint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Manifold){
-				normal,
-				rollingImpulse,
-				{points[0],points[1]},
-				pointCount
+				.normal = normal,
+				.rollingImpulse = rollingImpulse,
+				.points = {points[0],points[1]},
+				.pointCount = pointCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Manifold));
@@ -15459,8 +15459,8 @@
 			int leafVisits=js_getint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2TreeStats){
-				nodeVisits,
-				leafVisits
+				.nodeVisits = nodeVisits,
+				.leafVisits = leafVisits
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2TreeStats));
@@ -15494,9 +15494,9 @@
 			bool hit=js_getbool(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2PlaneResult){
-				plane,
-				point,
-				hit
+				.plane = plane,
+				.point = point,
+				.hit = hit
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2PlaneResult));
@@ -15532,10 +15532,10 @@
 			bool clipVelocity=js_getbool(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2CollisionPlane){
-				plane,
-				pushLimit,
-				push,
-				clipVelocity
+				.plane = plane,
+				.pushLimit = pushLimit,
+				.push = push,
+				.clipVelocity = clipVelocity
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2CollisionPlane));
@@ -15567,8 +15567,8 @@
 			int iterationCount=js_getint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2PlaneSolverResult){
-				translation,
-				iterationCount
+				.translation = translation,
+				.iterationCount = iterationCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2PlaneSolverResult));
@@ -15600,8 +15600,8 @@
 			uint16_t generation=js_getuint16_t(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2WorldId){
-				index1,
-				generation
+				.index1 = index1,
+				.generation = generation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2WorldId));
@@ -15635,9 +15635,9 @@
 			uint16_t generation=js_getuint16_t(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2BodyId){
-				index1,
-				world0,
-				generation
+				.index1 = index1,
+				.world0 = world0,
+				.generation = generation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2BodyId));
@@ -15671,9 +15671,9 @@
 			uint16_t generation=js_getuint16_t(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ShapeId){
-				index1,
-				world0,
-				generation
+				.index1 = index1,
+				.world0 = world0,
+				.generation = generation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ShapeId));
@@ -15707,9 +15707,9 @@
 			uint16_t generation=js_getuint16_t(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ChainId){
-				index1,
-				world0,
-				generation
+				.index1 = index1,
+				.world0 = world0,
+				.generation = generation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ChainId));
@@ -15743,9 +15743,9 @@
 			uint16_t generation=js_getuint16_t(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2JointId){
-				index1,
-				world0,
-				generation
+				.index1 = index1,
+				.world0 = world0,
+				.generation = generation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2JointId));
@@ -15787,13 +15787,13 @@
 			bool hit=js_getbool(ctx,argv[6],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2RayResult){
-				shapeId,
-				point,
-				normal,
-				fraction,
-				nodeVisits,
-				leafVisits,
-				hit
+				.shapeId = shapeId,
+				.point = point,
+				.normal = normal,
+				.fraction = fraction,
+				.nodeVisits = nodeVisits,
+				.leafVisits = leafVisits,
+				.hit = hit
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2RayResult));
@@ -15841,23 +15841,16 @@
 			int workerCount=js_getint(ctx,argv[9],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2WorldDef){
-				gravity,
-				restitutionThreshold,
-				hitEventThreshold,
-				contactHertz,
-				contactDampingRatio,
-				maxContactPushSpeed,
-				maximumLinearSpeed,
-				0,
-				0,
-				enableSleep,
-				enableContinuous,
-				workerCount,
-				0,
-				0,
-				0,
-				0,
-				0
+				.gravity = gravity,
+				.restitutionThreshold = restitutionThreshold,
+				.hitEventThreshold = hitEventThreshold,
+				.contactHertz = contactHertz,
+				.contactDampingRatio = contactDampingRatio,
+				.maxContactPushSpeed = maxContactPushSpeed,
+				.maximumLinearSpeed = maximumLinearSpeed,
+				.enableSleep = enableSleep,
+				.enableContinuous = enableContinuous,
+				.workerCount = workerCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2WorldDef));
@@ -15917,24 +15910,22 @@
 			bool allowFastRotation=js_getbool(ctx,argv[15],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2BodyDef){
-				type,
-				position,
-				rotation,
-				linearVelocity,
-				angularVelocity,
-				linearDamping,
-				angularDamping,
-				gravityScale,
-				sleepThreshold,
-				name,
-				0,
-				enableSleep,
-				isAwake,
-				fixedRotation,
-				isBullet,
-				isEnabled,
-				allowFastRotation,
-				0
+				.type = type,
+				.position = position,
+				.rotation = rotation,
+				.linearVelocity = linearVelocity,
+				.angularVelocity = angularVelocity,
+				.linearDamping = linearDamping,
+				.angularDamping = angularDamping,
+				.gravityScale = gravityScale,
+				.sleepThreshold = sleepThreshold,
+				.name = name,
+				.enableSleep = enableSleep,
+				.isAwake = isAwake,
+				.fixedRotation = fixedRotation,
+				.isBullet = isBullet,
+				.isEnabled = isEnabled,
+				.allowFastRotation = allowFastRotation
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2BodyDef));
@@ -15968,9 +15959,9 @@
 			int groupIndex=js_getint(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Filter){
-				categoryBits,
-				maskBits,
-				groupIndex
+				.categoryBits = categoryBits,
+				.maskBits = maskBits,
+				.groupIndex = groupIndex
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Filter));
@@ -16002,8 +15993,8 @@
 			uint64_t maskBits=js_getuint64_t(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2QueryFilter){
-				categoryBits,
-				maskBits
+				.categoryBits = categoryBits,
+				.maskBits = maskBits
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2QueryFilter));
@@ -16043,12 +16034,12 @@
 			uint32_t customColor=js_getuint32_t(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SurfaceMaterial){
-				friction,
-				restitution,
-				rollingResistance,
-				tangentSpeed,
-				userMaterialId,
-				customColor
+				.friction = friction,
+				.restitution = restitution,
+				.rollingResistance = rollingResistance,
+				.tangentSpeed = tangentSpeed,
+				.userMaterialId = userMaterialId,
+				.customColor = customColor
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SurfaceMaterial));
@@ -16096,18 +16087,16 @@
 			bool updateBodyMass=js_getbool(ctx,argv[9],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ShapeDef){
-				0,
-				material,
-				density,
-				filter,
-				isSensor,
-				enableSensorEvents,
-				enableContactEvents,
-				enableHitEvents,
-				enablePreSolveEvents,
-				invokeContactCreation,
-				updateBodyMass,
-				0
+				.material = material,
+				.density = density,
+				.filter = filter,
+				.isSensor = isSensor,
+				.enableSensorEvents = enableSensorEvents,
+				.enableContactEvents = enableContactEvents,
+				.enableHitEvents = enableHitEvents,
+				.enablePreSolveEvents = enablePreSolveEvents,
+				.invokeContactCreation = invokeContactCreation,
+				.updateBodyMass = updateBodyMass
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ShapeDef));
@@ -16149,15 +16138,13 @@
 			bool enableSensorEvents=js_getbool(ctx,argv[6],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ChainDef){
-				0,
-				points,
-				count,
-				materials,
-				materialCount,
-				filter,
-				isLoop,
-				enableSensorEvents,
-				0
+				.points = points,
+				.count = count,
+				.materials = materials,
+				.materialCount = materialCount,
+				.filter = filter,
+				.isLoop = isLoop,
+				.enableSensorEvents = enableSensorEvents
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ChainDef));
@@ -16229,28 +16216,28 @@
 			float sensors=js_getfloat(ctx,argv[21],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Profile){
-				step,
-				pairs,
-				collide,
-				solve,
-				mergeIslands,
-				prepareStages,
-				solveConstraints,
-				prepareConstraints,
-				integrateVelocities,
-				warmStart,
-				solveImpulses,
-				integratePositions,
-				relaxImpulses,
-				applyRestitution,
-				storeImpulses,
-				splitIslands,
-				transforms,
-				hitEvents,
-				refit,
-				bullets,
-				sleepIslands,
-				sensors
+				.step = step,
+				.pairs = pairs,
+				.collide = collide,
+				.solve = solve,
+				.mergeIslands = mergeIslands,
+				.prepareStages = prepareStages,
+				.solveConstraints = solveConstraints,
+				.prepareConstraints = prepareConstraints,
+				.integrateVelocities = integrateVelocities,
+				.warmStart = warmStart,
+				.solveImpulses = solveImpulses,
+				.integratePositions = integratePositions,
+				.relaxImpulses = relaxImpulses,
+				.applyRestitution = applyRestitution,
+				.storeImpulses = storeImpulses,
+				.splitIslands = splitIslands,
+				.transforms = transforms,
+				.hitEvents = hitEvents,
+				.refit = refit,
+				.bullets = bullets,
+				.sleepIslands = sleepIslands,
+				.sensors = sensors
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Profile));
@@ -16300,17 +16287,17 @@
 			int * colorCounts=js_getint_arr12nc(ctx,argv[10],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2Counters){
-				bodyCount,
-				shapeCount,
-				contactCount,
-				jointCount,
-				islandCount,
-				stackUsed,
-				staticTreeHeight,
-				treeHeight,
-				byteCount,
-				taskCount,
-				{colorCounts[0],colorCounts[1],colorCounts[2],colorCounts[3],colorCounts[4],colorCounts[5],colorCounts[6],colorCounts[7],colorCounts[8],colorCounts[9],colorCounts[10],colorCounts[11]}
+				.bodyCount = bodyCount,
+				.shapeCount = shapeCount,
+				.contactCount = contactCount,
+				.jointCount = jointCount,
+				.islandCount = islandCount,
+				.stackUsed = stackUsed,
+				.staticTreeHeight = staticTreeHeight,
+				.treeHeight = treeHeight,
+				.byteCount = byteCount,
+				.taskCount = taskCount,
+				.colorCounts = {colorCounts[0],colorCounts[1],colorCounts[2],colorCounts[3],colorCounts[4],colorCounts[5],colorCounts[6],colorCounts[7],colorCounts[8],colorCounts[9],colorCounts[10],colorCounts[11]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2Counters));
@@ -16368,23 +16355,21 @@
 			bool collideConnected=js_getbool(ctx,argv[14],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2DistanceJointDef){
-				bodyIdA,
-				bodyIdB,
-				localAnchorA,
-				localAnchorB,
-				length,
-				enableSpring,
-				hertz,
-				dampingRatio,
-				enableLimit,
-				minLength,
-				maxLength,
-				enableMotor,
-				maxMotorForce,
-				motorSpeed,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.localAnchorA = localAnchorA,
+				.localAnchorB = localAnchorB,
+				.length = length,
+				.enableSpring = enableSpring,
+				.hertz = hertz,
+				.dampingRatio = dampingRatio,
+				.enableLimit = enableLimit,
+				.minLength = minLength,
+				.maxLength = maxLength,
+				.enableMotor = enableMotor,
+				.maxMotorForce = maxMotorForce,
+				.motorSpeed = motorSpeed,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2DistanceJointDef));
@@ -16428,16 +16413,14 @@
 			bool collideConnected=js_getbool(ctx,argv[7],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2MotorJointDef){
-				bodyIdA,
-				bodyIdB,
-				linearOffset,
-				angularOffset,
-				maxForce,
-				maxTorque,
-				correctionFactor,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.linearOffset = linearOffset,
+				.angularOffset = angularOffset,
+				.maxForce = maxForce,
+				.maxTorque = maxTorque,
+				.correctionFactor = correctionFactor,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2MotorJointDef));
@@ -16479,15 +16462,13 @@
 			bool collideConnected=js_getbool(ctx,argv[6],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2MouseJointDef){
-				bodyIdA,
-				bodyIdB,
-				target,
-				hertz,
-				dampingRatio,
-				maxForce,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.target = target,
+				.hertz = hertz,
+				.dampingRatio = dampingRatio,
+				.maxForce = maxForce,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2MouseJointDef));
@@ -16519,10 +16500,8 @@
 			b2BodyId bodyIdB=js_getb2BodyId(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2FilterJointDef){
-				bodyIdA,
-				bodyIdB,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2FilterJointDef));
@@ -16584,25 +16563,23 @@
 			bool collideConnected=js_getbool(ctx,argv[16],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2PrismaticJointDef){
-				bodyIdA,
-				bodyIdB,
-				localAnchorA,
-				localAnchorB,
-				localAxisA,
-				referenceAngle,
-				targetTranslation,
-				enableSpring,
-				hertz,
-				dampingRatio,
-				enableLimit,
-				lowerTranslation,
-				upperTranslation,
-				enableMotor,
-				maxMotorForce,
-				motorSpeed,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.localAnchorA = localAnchorA,
+				.localAnchorB = localAnchorB,
+				.localAxisA = localAxisA,
+				.referenceAngle = referenceAngle,
+				.targetTranslation = targetTranslation,
+				.enableSpring = enableSpring,
+				.hertz = hertz,
+				.dampingRatio = dampingRatio,
+				.enableLimit = enableLimit,
+				.lowerTranslation = lowerTranslation,
+				.upperTranslation = upperTranslation,
+				.enableMotor = enableMotor,
+				.maxMotorForce = maxMotorForce,
+				.motorSpeed = motorSpeed,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2PrismaticJointDef));
@@ -16664,25 +16641,23 @@
 			bool collideConnected=js_getbool(ctx,argv[16],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2RevoluteJointDef){
-				bodyIdA,
-				bodyIdB,
-				localAnchorA,
-				localAnchorB,
-				referenceAngle,
-				targetAngle,
-				enableSpring,
-				hertz,
-				dampingRatio,
-				enableLimit,
-				lowerAngle,
-				upperAngle,
-				enableMotor,
-				maxMotorTorque,
-				motorSpeed,
-				drawSize,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.localAnchorA = localAnchorA,
+				.localAnchorB = localAnchorB,
+				.referenceAngle = referenceAngle,
+				.targetAngle = targetAngle,
+				.enableSpring = enableSpring,
+				.hertz = hertz,
+				.dampingRatio = dampingRatio,
+				.enableLimit = enableLimit,
+				.lowerAngle = lowerAngle,
+				.upperAngle = upperAngle,
+				.enableMotor = enableMotor,
+				.maxMotorTorque = maxMotorTorque,
+				.motorSpeed = motorSpeed,
+				.drawSize = drawSize,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2RevoluteJointDef));
@@ -16730,18 +16705,16 @@
 			bool collideConnected=js_getbool(ctx,argv[9],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2WeldJointDef){
-				bodyIdA,
-				bodyIdB,
-				localAnchorA,
-				localAnchorB,
-				referenceAngle,
-				linearHertz,
-				angularHertz,
-				linearDampingRatio,
-				angularDampingRatio,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.localAnchorA = localAnchorA,
+				.localAnchorB = localAnchorB,
+				.referenceAngle = referenceAngle,
+				.linearHertz = linearHertz,
+				.angularHertz = angularHertz,
+				.linearDampingRatio = linearDampingRatio,
+				.angularDampingRatio = angularDampingRatio,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2WeldJointDef));
@@ -16799,23 +16772,21 @@
 			bool collideConnected=js_getbool(ctx,argv[14],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2WheelJointDef){
-				bodyIdA,
-				bodyIdB,
-				localAnchorA,
-				localAnchorB,
-				localAxisA,
-				enableSpring,
-				hertz,
-				dampingRatio,
-				enableLimit,
-				lowerTranslation,
-				upperTranslation,
-				enableMotor,
-				maxMotorTorque,
-				motorSpeed,
-				collideConnected,
-				0,
-				0
+				.bodyIdA = bodyIdA,
+				.bodyIdB = bodyIdB,
+				.localAnchorA = localAnchorA,
+				.localAnchorB = localAnchorB,
+				.localAxisA = localAxisA,
+				.enableSpring = enableSpring,
+				.hertz = hertz,
+				.dampingRatio = dampingRatio,
+				.enableLimit = enableLimit,
+				.lowerTranslation = lowerTranslation,
+				.upperTranslation = upperTranslation,
+				.enableMotor = enableMotor,
+				.maxMotorTorque = maxMotorTorque,
+				.motorSpeed = motorSpeed,
+				.collideConnected = collideConnected
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2WheelJointDef));
@@ -16853,11 +16824,11 @@
 			float impulsePerLength=js_getfloat(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ExplosionDef){
-				maskBits,
-				position,
-				radius,
-				falloff,
-				impulsePerLength
+				.maskBits = maskBits,
+				.position = position,
+				.radius = radius,
+				.falloff = falloff,
+				.impulsePerLength = impulsePerLength
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ExplosionDef));
@@ -16889,8 +16860,8 @@
 			b2ShapeId visitorShapeId=js_getb2ShapeId(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SensorBeginTouchEvent){
-				sensorShapeId,
-				visitorShapeId
+				.sensorShapeId = sensorShapeId,
+				.visitorShapeId = visitorShapeId
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SensorBeginTouchEvent));
@@ -16922,8 +16893,8 @@
 			b2ShapeId visitorShapeId=js_getb2ShapeId(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SensorEndTouchEvent){
-				sensorShapeId,
-				visitorShapeId
+				.sensorShapeId = sensorShapeId,
+				.visitorShapeId = visitorShapeId
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SensorEndTouchEvent));
@@ -16959,10 +16930,10 @@
 			int endCount=js_getint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2SensorEvents){
-				beginEvents,
-				endEvents,
-				beginCount,
-				endCount
+				.beginEvents = beginEvents,
+				.endEvents = endEvents,
+				.beginCount = beginCount,
+				.endCount = endCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2SensorEvents));
@@ -16996,9 +16967,9 @@
 			b2Manifold manifold=js_getb2Manifold(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ContactBeginTouchEvent){
-				shapeIdA,
-				shapeIdB,
-				manifold
+				.shapeIdA = shapeIdA,
+				.shapeIdB = shapeIdB,
+				.manifold = manifold
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ContactBeginTouchEvent));
@@ -17030,8 +17001,8 @@
 			b2ShapeId shapeIdB=js_getb2ShapeId(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ContactEndTouchEvent){
-				shapeIdA,
-				shapeIdB
+				.shapeIdA = shapeIdA,
+				.shapeIdB = shapeIdB
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ContactEndTouchEvent));
@@ -17069,11 +17040,11 @@
 			float approachSpeed=js_getfloat(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ContactHitEvent){
-				shapeIdA,
-				shapeIdB,
-				point,
-				normal,
-				approachSpeed
+				.shapeIdA = shapeIdA,
+				.shapeIdB = shapeIdB,
+				.point = point,
+				.normal = normal,
+				.approachSpeed = approachSpeed
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ContactHitEvent));
@@ -17113,12 +17084,12 @@
 			int hitCount=js_getint(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ContactEvents){
-				beginEvents,
-				endEvents,
-				hitEvents,
-				beginCount,
-				endCount,
-				hitCount
+				.beginEvents = beginEvents,
+				.endEvents = endEvents,
+				.hitEvents = hitEvents,
+				.beginCount = beginCount,
+				.endCount = endCount,
+				.hitCount = hitCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ContactEvents));
@@ -17152,10 +17123,9 @@
 			bool fellAsleep=js_getbool(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2BodyMoveEvent){
-				transform,
-				bodyId,
-				0,
-				fellAsleep
+				.transform = transform,
+				.bodyId = bodyId,
+				.fellAsleep = fellAsleep
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2BodyMoveEvent));
@@ -17187,8 +17157,8 @@
 			int moveCount=js_getint(ctx,argv[1],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2BodyEvents){
-				moveEvents,
-				moveCount
+				.moveEvents = moveEvents,
+				.moveCount = moveCount
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2BodyEvents));
@@ -17222,9 +17192,9 @@
 			b2Manifold manifold=js_getb2Manifold(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(b2ContactData){
-				shapeIdA,
-				shapeIdB,
-				manifold
+				.shapeIdA = shapeIdA,
+				.shapeIdB = shapeIdB,
+				.manifold = manifold
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(b2ContactData));
@@ -23010,18 +22980,9 @@
 		JS_CFUNC_DEF("b2WheelJoint_GetMotorTorque",1,js_b2WheelJoint_GetMotorTorque)
 	};
 	
-	#include "../box2d_helpers.h"
-
 	static int js_box2d_init(JSContext * ctx,JSModuleDef * m){
 		size_t listcount=countof(jsbox2d_funcs);
 		JS_SetModuleExportList(ctx,m,jsbox2d_funcs,(int)listcount);
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_OverlapAABB",JS_NewCFunction(ctx,js_b2World_OverlapAABB_bridge,(const char  *)"b2World_OverlapAABB",(int)4));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_OverlapShape",JS_NewCFunction(ctx,js_b2World_OverlapShape_bridge,(const char  *)"b2World_OverlapShape",(int)4));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CastRay",JS_NewCFunction(ctx,js_b2World_CastRay_bridge,(const char  *)"b2World_CastRay",(int)5));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CastShape",JS_NewCFunction(ctx,js_b2World_CastShape_bridge,(const char  *)"b2World_CastShape",(int)5));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_CollideMover",JS_NewCFunction(ctx,js_b2World_CollideMover_bridge,(const char  *)"b2World_CollideMover",(int)4));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_SetCustomFilterCallback",JS_NewCFunction(ctx,js_b2World_SetCustomFilterCallback_bridge,(const char  *)"b2World_SetCustomFilterCallback",(int)2));
-		JS_SetModuleExport(ctx,m,(const char  *)"b2World_SetPreSolveCallback",JS_NewCFunction(ctx,js_b2World_SetPreSolveCallback_bridge,(const char  *)"b2World_SetPreSolveCallback",(int)2));
 		js_declare_b2Version(ctx,m);
 		JSValue b2Version_constr=JS_NewCFunction2(ctx,js_b2Version_constructor,(const char  *)"b2Version",(int)3,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"b2Version",b2Version_constr);
@@ -23650,13 +23611,6 @@
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_PI");
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_MAX_POLYGON_VERTICES");
 		JS_AddModuleExport(ctx,m,(const char  *)"B2_DEFAULT_CATEGORY_BITS");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_OverlapAABB");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_OverlapShape");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CastRay");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CastShape");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_CollideMover");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_SetCustomFilterCallback");
-		JS_AddModuleExport(ctx,m,(const char  *)"b2World_SetPreSolveCallback");
 		return m;
 	}
 

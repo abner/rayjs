@@ -1006,9 +1006,9 @@
 			int propertyValue=js_getint(ctx,argv[2],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(GuiStyleProp){
-				controlId,
-				propertyId,
-				propertyValue
+				.controlId = controlId,
+				.propertyId = propertyId,
+				.propertyValue = propertyValue
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(GuiStyleProp));

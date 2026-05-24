@@ -372,18 +372,18 @@
 			int attenuationLoc=js_getint(ctx,argv[11],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Light){
-				type,
-				enabled,
-				position,
-				target,
-				color,
-				attenuation,
-				enabledLoc,
-				typeLoc,
-				positionLoc,
-				targetLoc,
-				colorLoc,
-				attenuationLoc
+				.type = type,
+				.enabled = enabled,
+				.position = position,
+				.target = target,
+				.color = color,
+				.attenuation = attenuation,
+				.enabledLoc = enabledLoc,
+				.typeLoc = typeLoc,
+				.positionLoc = positionLoc,
+				.targetLoc = targetLoc,
+				.colorLoc = colorLoc,
+				.attenuationLoc = attenuationLoc
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Light));

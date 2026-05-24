@@ -746,21 +746,27 @@ export class RayJsHeader {
                 const para = enabledFields[i];
                 this.jsToC(elseBody,para.type, para.name, "argv[" + i + "]",{noContextAlloc:true});
             }
+            // Use C99 designated initializers — positional brace-init silently
+            // misaligns when a struct contains a nested-struct value field whose
+            // binding is disabled (the `0` placeholder spills into the inner
+            // struct's first sub-field, shifting all subsequent values). Naming
+            // each field eliminates the hazard and is immune to upstream header
+            // field reordering. Disabled fields are simply omitted — C99 zero-
+            // initializes any field not named in a designated-init list.
             let structArgs=[];
             for(let field of fields){
-                // Disabled fields (function pointers, void*, etc.) get zero-initialized
-                if(field.binding && field.binding.get===false){
-                    structArgs.push('0');
-                    continue;
-                }
+                if(field.binding && field.binding.get===false) continue;
                 let type=field.type;
                 if(type.endsWith(']')){
                     let arrayLen = getStaticArrayLen(type);
-                    structArgs.push(subrepeat(field.name,arrayLen.sizevars));
+                    structArgs.push(`.${field.name} = ${subrepeat(field.name,arrayLen.sizevars)}`);
                 }else{
-                    structArgs.push(field.name);
+                    structArgs.push(`.${field.name} = ${field.name}`);
                 }
             }
+            // Guard against an empty designator list (every field disabled):
+            // `(Type){}` is invalid in C99/C11, so fall back to `{0}`.
+            if(structArgs.length===0) structArgs.push('0');
             elseBody.declare(structType, "_struct", structArgs);
 
             body.call('create_shadow_with_data',[`sizeof(${structType})`],{'type':'opaqueShadow *','name':'_structShadow'});

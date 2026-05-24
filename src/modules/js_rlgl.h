@@ -1595,14 +1595,14 @@
 			unsigned int * vboId=js_getunsignedint_arr5nc(ctx,argv[7],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(rlVertexBuffer){
-				elementCount,
-				vertices,
-				texcoords,
-				normals,
-				colors,
-				indices,
-				vaoId,
-				{vboId[0],vboId[1],vboId[2],vboId[3],vboId[4]}
+				.elementCount = elementCount,
+				.vertices = vertices,
+				.texcoords = texcoords,
+				.normals = normals,
+				.colors = colors,
+				.indices = indices,
+				.vaoId = vaoId,
+				.vboId = {vboId[0],vboId[1],vboId[2],vboId[3],vboId[4]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(rlVertexBuffer));
@@ -1638,10 +1638,10 @@
 			unsigned int textureId=js_getunsignedint(ctx,argv[3],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(rlDrawCall){
-				mode,
-				vertexCount,
-				vertexAlignment,
-				textureId
+				.mode = mode,
+				.vertexCount = vertexCount,
+				.vertexAlignment = vertexAlignment,
+				.textureId = textureId
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(rlDrawCall));
@@ -1681,12 +1681,12 @@
 			float currentDepth=js_getfloat(ctx,argv[5],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(rlRenderBatch){
-				bufferCount,
-				currentBuffer,
-				vertexBuffer,
-				draws,
-				drawCounter,
-				currentDepth
+				.bufferCount = bufferCount,
+				.currentBuffer = currentBuffer,
+				.vertexBuffer = vertexBuffer,
+				.draws = draws,
+				.drawCounter = drawCounter,
+				.currentDepth = currentDepth
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(rlRenderBatch));

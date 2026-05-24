@@ -487,7 +487,7 @@
 			float * v=js_getfloat_arr3nc(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(float3){
-				{v[0],v[1],v[2]}
+				.v = {v[0],v[1],v[2]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(float3));
@@ -517,7 +517,7 @@
 			float * v=js_getfloat_arr16nc(ctx,argv[0],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(float16){
-				{v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11],v[12],v[13],v[14],v[15]}
+				.v = {v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11],v[12],v[13],v[14],v[15]}
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(float16));

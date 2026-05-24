@@ -471,11 +471,11 @@
 			float progress=js_getfloat(ctx,argv[4],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(Lightmapper){
-				lm_handle,
-				data,
-				w,
-				h,
-				progress
+				.lm_handle = lm_handle,
+				.data = data,
+				.w = w,
+				.h = h,
+				.progress = progress
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(Lightmapper));
@@ -517,13 +517,13 @@
 			float cameraToSurfaceDistanceModifier=js_getfloat(ctx,argv[6],&error);
 			if(error==1)return JS_EXCEPTION;
 			_struct =(LightmapperConfig){
-				hemisphereSize,
-				zNear,
-				zFar,
-				backgroundColor,
-				interpolationPasses,
-				interpolationThreshold,
-				cameraToSurfaceDistanceModifier
+				.hemisphereSize = hemisphereSize,
+				.zNear = zNear,
+				.zFar = zFar,
+				.backgroundColor = backgroundColor,
+				.interpolationPasses = interpolationPasses,
+				.interpolationThreshold = interpolationThreshold,
+				.cameraToSurfaceDistanceModifier = cameraToSurfaceDistanceModifier
 			};
 		}
 		opaqueShadow * _structShadow=create_shadow_with_data(sizeof(LightmapperConfig));
