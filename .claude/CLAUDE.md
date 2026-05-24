@@ -46,6 +46,14 @@
   picking, raycast vision, one-way platforms, team-based filtering, material friction,
   kinematic mover). Implementation pending.
 
+- [`docs/bindings_struct_constructor_plan.md`](../docs/bindings_struct_constructor_plan.md) —
+  Plan to fix `jsStructConstructor` in `bindings/src/raylib-header.js` so it handles nested
+  struct fields correctly. Surfaced as a GCC-14 `-Wincompatible-pointer-types` hard error
+  on Windows MinGW for `js_Model_constructor` after the raylib 6.0 bump introduced
+  `ModelSkeleton` inside `Model`. CI is currently green only because `CMakeLists.txt` carries
+  three `-Wno-error=...` flags as a safety net — the plan covers the audit, designated-init
+  fix, and removal of those flags once the proper fix lands.
+
 ## Developer reference
 
 - [`docs/adding_native_module.md`](../docs/adding_native_module.md) — Full walkthrough for
