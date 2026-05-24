@@ -486,10 +486,30 @@ function main() {
     att.fields.find(a=>a.name=='meshes').binding.sizeVars=['ptr.meshCount'];
     att.fields.find(a=>a.name=='meshMaterial').binding.sizeVars=['ptr.meshCount'];
     att.fields.find(a=>a.name=='materials').binding.sizeVars=['ptr.materialCount'];
-    att.fields.find(a=>a.name=='skeleton').binding.get=false;att.fields.find(a=>a.name=='skeleton').binding.set=false; // nested struct, accessed via boneCount/bones/bindPose getters
+    att.fields.find(a=>a.name=='skeleton').binding.get=false;att.fields.find(a=>a.name=='skeleton').binding.set=false; // nested struct, re-exposed via the boneCount/bones/bindPose virtual fields below
     att.fields.find(a=>a.name=='currentPose').type='Transform *'; // ModelAnimPose typedef
     att.fields.find(a=>a.name=='currentPose').binding.sizeVars=['ptr.skeleton.boneCount'];
     att.fields.find(a=>a.name=='boneMatrices').binding.sizeVars=['ptr.skeleton.boneCount'];
+    // Re-expose ModelSkeleton sub-fields as flat read-only properties on Model so
+    // existing examples can keep using `model.boneCount` / `model.bones` /
+    // `model.bindPose` instead of `model.skeleton.X` (skeleton itself stays
+    // disabled — the nested-struct getter path is more work than it's worth
+    // here, and flat read access matches raylib's pre-6.0 API shape).
+    // `binding.access` retargets the C-side ptr.<name> access; `binding.virtual`
+    // tells the constructor generator to skip the field entirely (no argv slot,
+    // no designator in the brace-init — it's not a real top-level Model member).
+    att.fields.push({
+        name:'boneCount', type:'int',
+        binding:{ get:true, set:false, virtual:true, access:'skeleton.boneCount' }
+    });
+    att.fields.push({
+        name:'bones', type:'BoneInfo *',
+        binding:{ get:true, set:false, virtual:true, access:'skeleton.bones', sizeVars:['ptr.skeleton.boneCount'] }
+    });
+    att.fields.push({
+        name:'bindPose', type:'Transform *', // ModelAnimPose typedef
+        binding:{ get:true, set:false, virtual:true, access:'skeleton.bindPose', sizeVars:['ptr.skeleton.boneCount'] }
+    });
     att = modules['raylib'].getFunction("LoadCodepoints");
     att.returnSizeVars=['count[0]'];
     att = modules['raylib'].getFunction("ComputeSHA256");

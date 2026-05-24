@@ -338,6 +338,9 @@ meshMaterial: number[],
 currentPose: Transform[],
 /** Bones animated transformation matrices */
 boneMatrices: Matrix[],
+boneCount: number,
+bones: BoneInfo[],
+bindPose: Transform[],
 }
 var Model: {
 prototype: Model

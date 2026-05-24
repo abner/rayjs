@@ -636,6 +636,12 @@ export class RayJsHeader {
         const args = [{ type: "JSContext *", name: "ctx" }, { type: "JSValue", name: "this_val" }];
         let thiz=this;
 
+        // `binding.access` overrides the C-side member path for "virtual" fields
+        // that re-expose a sub-field of a nested struct under a flat JS name
+        // (e.g. Model.boneCount reading ptr.skeleton.boneCount). Defaults to the
+        // field's own name when unset.
+        const cAccess = (field.binding && field.binding.access) || field.name;
+
         //array proxy functions should be defined before _get_
         if(field.type.endsWith(']')){
             let type2=field.type.split('[');
@@ -690,12 +696,12 @@ export class RayJsHeader {
                     });
                     flags.anchor='anchor';
                     if(capture[1].replaceAll(' ','').length==0){
-                        fun.declare(field.type+' *', field.name, "ptr." + field.name);
+                        fun.declare(field.type+' *', field.name, "ptr." + cAccess);
                     }else{
-                        fun.declare(field.type, field.name, "ptr." + field.name);
+                        fun.declare(field.type, field.name, "ptr." + cAccess);
                     }
                 }else{
-                    fun.declare(field.type, field.name, "ptr." + field.name);
+                    fun.declare(field.type, field.name, "ptr." + cAccess);
                 }
                 if(isEnum){
                     // Bypass cToJs for enum fields: cToJs emits (int)(localvar) which
@@ -741,7 +747,10 @@ export class RayJsHeader {
                 });
             }
 
-            const enabledFields = fields.filter(f => !(f.binding && f.binding.get===false));
+            // Virtual fields (binding.virtual === true) are JS-only accessors that
+            // re-expose a sub-field of a nested struct; they have no corresponding
+            // C member at top level, so they cannot be passed to the constructor.
+            const enabledFields = fields.filter(f => !(f.binding && (f.binding.get===false || f.binding.virtual)));
             for(let i = 0; i < enabledFields.length; i++) {
                 const para = enabledFields[i];
                 this.jsToC(elseBody,para.type, para.name, "argv[" + i + "]",{noContextAlloc:true});
@@ -755,7 +764,7 @@ export class RayJsHeader {
             // initializes any field not named in a designated-init list.
             let structArgs=[];
             for(let field of fields){
-                if(field.binding && field.binding.get===false) continue;
+                if(field.binding && (field.binding.get===false || field.binding.virtual)) continue;
                 let type=field.type;
                 if(type.endsWith(']')){
                     let arrayLen = getStaticArrayLen(type);
@@ -791,6 +800,8 @@ export class RayJsHeader {
         }
         let length=binding.sizeVars[0];
         let variables=this.definitions.cgen.getVariables();
+        // See jsStructGetter for the rationale on `binding.access`.
+        const cAccess = binding.access || field.name;
 
         const args = {
             ctx:{ type: "JSContext *", name: "ctx" },
@@ -804,7 +815,7 @@ export class RayJsHeader {
         const get_args = [args.ctx,args.anchor,args.ptr,args.property,args.as_string];
         this.structGen.cgen.function("JSValue",`js_${structName}_${field.name}_values`, get_args, true,(ctx)=>{
             ctx.declare(`${structName} *`,'ptr','ptr_u');
-            let ptrcast=`ptr.${field.name}`;
+            let ptrcast=`ptr.${cAccess}`;
             if(binding.typeCast!=undefined){
                 ptrcast+=`(${binding.typeCast})`;
             }
@@ -842,10 +853,10 @@ export class RayJsHeader {
             },ctx=>{
                 ctx.if([`property>=0 && property<${length}`,''],ctx=>{
                     let type=getsubtype(field.type);
-                    let ptrcast=`ptr.${field.name}`;
+                    let ptrcast=`ptr.${cAccess}`;
                     if(binding.typeCast!=undefined){
                         ptrcast=ctx.allocVariable('ptrcast');
-                        ctx.declare(binding.typeCast, ptrcast, `ptr.${field.name}`);
+                        ctx.declare(binding.typeCast, ptrcast, `ptr.${cAccess}`);
                         type=getsubtype(binding.typeCast);
                     }
                     //Once more, from the top!,

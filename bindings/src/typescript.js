@@ -152,9 +152,15 @@ export class TypeScriptDeclaration {
         //Structs
         for(let struct of this.structs){
             const options = struct.binding || {};
+            // Instance properties: include virtual fields (they have JS getters).
             var fields = struct.fields.filter(x => x.binding.get).map(x => ({ name: x.name, comment: x.comment, type: this.toJsType(x.type) }));
+            // Constructor signature: exclude virtual fields — they're JS-only
+            // accessors with no top-level C member, so the constructor body
+            // skips them entirely. Listing them in `new(...)` would mislead
+            // callers into passing values that get silently ignored.
+            var ctorFields = struct.fields.filter(x => x.binding.get && !x.binding.virtual).map(x => ({ name: x.name, comment: x.comment, type: this.toJsType(x.type) }));
             this.structsGen.tsDeclareInterface(struct.name, fields);
-            this.structsGen.tsDeclareType(struct.name, !!(options.createConstructor), fields);
+            this.structsGen.tsDeclareType(struct.name, !!(options.createConstructor), ctorFields);
         }
         //Callbacks
         for(let callback of this.callbacks){

@@ -10010,6 +10010,184 @@
 		ptr[0].boneMatrices =value;
 		return JS_UNDEFINED;
 	}
+	
+	static JSValue js_Model_get_boneCount(JSContext * ctx,JSValue this_val){
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_Model_class_id);
+		Model * ptr=(Model  *)shadow[0].ptr;
+		int boneCount=ptr[0].skeleton.boneCount;
+		JSValue ret=JS_NewInt32(ctx,(int32_t)((long)boneCount));
+		return ret;
+	}
+	
+	static JSValue js_Model_bones_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		JSValue ret=JS_NewArray(ctx);
+		for(int i=0;i<ptr[0].skeleton.boneCount;i++){
+			BoneInfo * src0=(ptr[0].skeleton.bones+i);
+			JS_DupValue(ctx,(JSValueConst)anchor);
+			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
+			JSValue ret1=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
+			JS_SetOpaque((JSValueConst)ret1,(void  *)ptr_ret1);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+		}
+		if(as_sting==true){
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
+		}
+		return ret;
+	}
+	
+	static int js_Model_bones_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
+		Model * ptr=(Model  *)ptr_u;
+		int length=ptr[0].skeleton.boneCount;
+		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
+		for(int i=0;i<length;i++){
+			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
+		}
+		keys[0][length] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_ATOM_length};
+		return true;
+	}
+	
+	static JSValue js_Model_bones_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		if(as_sting==true){
+			if(property==JS_ATOM_length){
+				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].skeleton.boneCount));
+				return ret;
+			}else{
+				return JS_UNDEFINED;
+			}
+		}else{
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				BoneInfo * src=(ptr[0].skeleton.bones+property);
+				JS_DupValue(ctx,(JSValueConst)anchor);
+				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
+				JSValue ret=JS_NewObjectClass(ctx,js_BoneInfo_class_id);
+				JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
+				return ret;
+			}else{
+				return JS_UNDEFINED;
+			}
+		}
+	}
+	
+	static int js_Model_bones_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
+		return false;
+	}
+	
+	static int js_Model_bones_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		if(as_sting==true){
+			if(property==JS_ATOM_length){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	static JSValue js_Model_get_bones(JSContext * ctx,JSValue this_val){
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_Model_class_id);
+		Model * ptr=(Model  *)shadow[0].ptr;
+		JSValue anchor;
+		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
+			anchor=this_val;
+		}else{
+			anchor=shadow[0].anchor;
+		}
+		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_Model_bones_values,.keys = js_Model_bones_keys,.get = js_Model_bones_get,.set = js_Model_bones_set,.has = js_Model_bones_has});
+		return ret;
+	}
+	
+	static JSValue js_Model_bindPose_values(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		JSValue ret=JS_NewArray(ctx);
+		for(int i=0;i<ptr[0].skeleton.boneCount;i++){
+			Transform * src0=(ptr[0].skeleton.bindPose+i);
+			JS_DupValue(ctx,(JSValueConst)anchor);
+			opaqueShadow * ptr_ret1=create_shadow_with_external((void  *)src0,anchor);
+			JSValue ret1=JS_NewObjectClass(ctx,js_Transform_class_id);
+			JS_SetOpaque((JSValueConst)ret1,(void  *)ptr_ret1);
+			JS_DefinePropertyValueUint32(ctx,(JSValueConst)ret,(uint32_t)i,ret1,JS_PROP_C_W_E);
+		}
+		if(as_sting==true){
+			ret =JS_JSONStringify(ctx,(JSValueConst)ret,(JSValueConst)JS_UNDEFINED,(JSValueConst)JS_UNDEFINED);
+		}
+		return ret;
+	}
+	
+	static int js_Model_bindPose_keys(JSContext * ctx,void * ptr_u,JSPropertyEnum * * keys){
+		Model * ptr=(Model  *)ptr_u;
+		int length=ptr[0].skeleton.boneCount;
+		keys[0] =(JSPropertyEnum  *)js_malloc(ctx,(length+1)*sizeof(JSPropertyEnum));
+		for(int i=0;i<length;i++){
+			keys[0][i] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_NewAtomUInt32(ctx,i)};
+		}
+		keys[0][length] =(JSPropertyEnum){.is_enumerable=false, .atom=JS_ATOM_length};
+		return true;
+	}
+	
+	static JSValue js_Model_bindPose_get(JSContext * ctx,JSValue anchor,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		if(as_sting==true){
+			if(property==JS_ATOM_length){
+				JSValue ret=JS_NewInt32(ctx,(int32_t)((long)ptr[0].skeleton.boneCount));
+				return ret;
+			}else{
+				return JS_UNDEFINED;
+			}
+		}else{
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				Transform * src=(ptr[0].skeleton.bindPose+property);
+				JS_DupValue(ctx,(JSValueConst)anchor);
+				opaqueShadow * ptr_ret=create_shadow_with_external((void  *)src,anchor);
+				JSValue ret=JS_NewObjectClass(ctx,js_Transform_class_id);
+				JS_SetOpaque((JSValueConst)ret,(void  *)ptr_ret);
+				return ret;
+			}else{
+				return JS_UNDEFINED;
+			}
+		}
+	}
+	
+	static int js_Model_bindPose_set(JSContext * ctx,void * ptr_u,JSValue set_to,int property,bool as_sting){
+		return false;
+	}
+	
+	static int js_Model_bindPose_has(JSContext * ctx,void * ptr_u,int property,bool as_sting){
+		Model * ptr=(Model  *)ptr_u;
+		if(as_sting==true){
+			if(property==JS_ATOM_length){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if(property>=0&&property<ptr[0].skeleton.boneCount){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	static JSValue js_Model_get_bindPose(JSContext * ctx,JSValue this_val){
+		opaqueShadow * shadow=(opaqueShadow  *)JS_GetOpaque2(ctx,(JSValueConst)this_val,js_Model_class_id);
+		Model * ptr=(Model  *)shadow[0].ptr;
+		JSValue anchor;
+		if(JS_IsUndefined(shadow[0].anchor)||JS_IsNull(shadow[0].anchor)){
+			anchor=this_val;
+		}else{
+			anchor=shadow[0].anchor;
+		}
+		JSValue ret=js_NewArrayProxy(ctx,(ArrayProxy_class){.anchor = anchor,.opaque = ptr,.values = js_Model_bindPose_values,.keys = js_Model_bindPose_keys,.get = js_Model_bindPose_get,.set = js_Model_bindPose_set,.has = js_Model_bindPose_has});
+		return ret;
+	}
 	static const JSCFunctionListEntry js_Model_proto_funcs[]={
 		JS_PROP_STRING_DEF("[Symbol.toStringTag]","Model", JS_PROP_CONFIGURABLE),
 		JS_CGETSET_DEF("transform",js_Model_get_transform,js_Model_set_transform),
@@ -10020,7 +10198,10 @@
 		JS_CGETSET_DEF("meshMaterial",js_Model_get_meshMaterial,js_Model_set_meshMaterial),
 		JS_CGETSET_DEF("skeleton",NULL,NULL),
 		JS_CGETSET_DEF("currentPose",js_Model_get_currentPose,js_Model_set_currentPose),
-		JS_CGETSET_DEF("boneMatrices",js_Model_get_boneMatrices,js_Model_set_boneMatrices)
+		JS_CGETSET_DEF("boneMatrices",js_Model_get_boneMatrices,js_Model_set_boneMatrices),
+		JS_CGETSET_DEF("boneCount",js_Model_get_boneCount,NULL),
+		JS_CGETSET_DEF("bones",js_Model_get_bones,NULL),
+		JS_CGETSET_DEF("bindPose",js_Model_get_bindPose,NULL)
 	};
 	
 	static int js_declare_Model(JSContext * ctx,JSModuleDef * m){
@@ -23269,7 +23450,7 @@
 		JSValue ModelSkeleton_constr=JS_NewCFunction2(ctx,js_ModelSkeleton_constructor,(const char  *)"ModelSkeleton",(int)3,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"ModelSkeleton",ModelSkeleton_constr);
 		js_declare_Model(ctx,m);
-		JSValue Model_constr=JS_NewCFunction2(ctx,js_Model_constructor,(const char  *)"Model",(int)8,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
+		JSValue Model_constr=JS_NewCFunction2(ctx,js_Model_constructor,(const char  *)"Model",(int)11,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);
 		JS_SetModuleExport(ctx,m,(const char  *)"Model",Model_constr);
 		js_declare_ModelAnimation(ctx,m);
 		JSValue ModelAnimation_constr=JS_NewCFunction2(ctx,js_ModelAnimation_constructor,(const char  *)"ModelAnimation",(int)4,(JSCFunctionEnum)JS_CFUNC_constructor,(int)0);

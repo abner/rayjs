@@ -464,7 +464,10 @@ export function deepCCopy(ctx,ctype,name,src,variables,deepCCopyBox,testShallow=
     for(let i=0;i<variable.fields.length;i++){
         let field=variable.fields[i];
         // Skip fields that are marked as non-gettable (function pointers, void*, etc.)
-        if(field.binding && field.binding.get===false) continue;
+        // OR virtual (JS-only accessors that re-expose a nested struct's sub-field;
+        // they have no corresponding top-level C member, so `name.field` would not
+        // compile — the underlying data is copied via its real nested location).
+        if(field.binding && (field.binding.get===false || field.binding.virtual)) continue;
         let capture=[];
         simpleregex(field.type,['r+',azZ0+' ','r*',' *','os','[','r*',a0+' '],0,capture);
         let arrsize=capture[1].replaceAll(' ','').length;
