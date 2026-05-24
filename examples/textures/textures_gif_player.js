@@ -48,6 +48,17 @@ const MIN_FRAME_DELAY =  1;
     // use spritesheets instead, like illustrated in textures_sprite_anim example
     let texScarfyAnim = LoadTextureFromImage(imScarfyAnim);
 
+    // rayjs note: image.data is an array-like proxy whose length is bounded to
+    // a single frame (GetPixelDataSize(w, h, format)). LoadImageAnim appends
+    // additional frames in memory after that, so widen image.height to expose
+    // the full buffer through the proxy, snapshot it once, then restore the
+    // per-frame height (the texture above was already created at frame size).
+    const frameHeight = imScarfyAnim.height;
+    const frameByteSize = imScarfyAnim.width*frameHeight*4;
+    imScarfyAnim.height = frameHeight*animFrames[0];
+    const allFrameBytes = new Uint8Array(imScarfyAnim.data).buffer;
+    imScarfyAnim.height = frameHeight;
+
     let nextFrameDataOffset = 0;  // Current byte offset to next frame in image.data
 
     let currentAnimFrame = 0;     // Current animation frame to load and draw
@@ -69,13 +80,11 @@ const MIN_FRAME_DELAY =  1;
             if (currentAnimFrame >= animFrames[0]) currentAnimFrame = 0;
 
             // Get memory offset position for next frame data in image.data
-            nextFrameDataOffset = imScarfyAnim.width*imScarfyAnim.height*4*currentAnimFrame;
+            nextFrameDataOffset = frameByteSize*currentAnimFrame;
 
             // Update GPU texture data with next frame image data
             // WARNING: Data size (frame size) and pixel format must match already created texture
-            // WARNING: imScarfyAnim.data will in the future contain appropirate typed array instead of ArrayBuffer and this will change syntax for offsets
-            let buffer=(new Uint8Array(new Uint8Array(imScarfyAnim.data, nextFrameDataOffset))).buffer;
-            UpdateTexture(texScarfyAnim, buffer);
+            UpdateTexture(texScarfyAnim, allFrameBytes.slice(nextFrameDataOffset, nextFrameDataOffset + frameByteSize));
 
             frameCounter = 0;
         }
