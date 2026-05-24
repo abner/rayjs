@@ -25,10 +25,10 @@ import {BeginDrawing,
     DrawRectangle,
     DrawRectangleLinesEx,
     DrawText,Texture as Texture2D,
-    DrawTextureEx, EndDrawing, ExportImage, ExportImageAsCode, Fade, GetColor, GetFileExtension,
+    DrawTextureEx, EndDrawing, ExportImage, ExportImageAsCode, Fade, GetColor,
     GetMousePosition, GetMouseWheelMove, GetPixelDataSize, Image,
     ImageFormat, InitWindow, IsFileDropped,
-    IsFileExtension, LoadDroppedFiles, LoadImage, LoadTextureFromImage, RAYWHITE, RED, Rectangle, SetTargetFPS,
+    LoadDroppedFiles, LoadImage, LoadTextureFromImage, RAYWHITE, RED, Rectangle, SetTargetFPS,
     TextFormat,
     TextJoin,
     UnloadImage, UnloadTexture, Vector2, WHITE, WindowShouldClose } from 'rayjs:raylib';
@@ -80,8 +80,12 @@ import {BeginDrawing,
 
             if (droppedFiles.length == 1) {
                 let imTemp = LoadImage(droppedFiles[0]);
-                
-                if (imTemp.data != null) {
+
+                // C original checks `imTemp.data != NULL` to detect load
+                // failure. In rayjs `image.data` is always a non-null proxy
+                // object, so check width instead — failed LoadImage returns
+                // an all-zero Image.
+                if (imTemp.width > 0) {
                     UnloadImage(image);
                     image = imTemp;
                     
@@ -99,28 +103,36 @@ import {BeginDrawing,
     
         if (btnExportPressed) {
             if (imageLoaded) {
-                let imageptr = [image];
-                ImageFormat(imageptr, pixelFormatActive + 1);
-                image = imageptr[0];
+                // The binding mutates `image` in place when passed directly
+                // (no `[image]` wrapper / read-back needed — that form exists
+                // for callers that want a fresh copy).
+                ImageFormat(image, pixelFormatActive + 1);
                 console.log(fileName);
                 
                 if (fileFormatActive == 0) {       // PNG
-                    if(!fileName.includes('.'))fileName=fileName+'.';
-                    if ((GetFileExtension(fileName) == null) || (!IsFileExtension(fileName, ".png"))){
-                        fileName+= ".png"; // No extension provided
-                    }
+                    // Use native JS for the extension check. The raylib
+                    // GetFileExtension binding crashes on strings with no
+                    // '.' (it passes raylib's NULL return straight into
+                    // JS_NewString), which is what the old `fileName + '.'`
+                    // line was silently working around — at the cost of
+                    // producing "comp..png" for inputs like "comp".
+                    if (!fileName.toLowerCase().endsWith(".png")) fileName += ".png";
                     ExportImage(image, fileName);
                 } else if (fileFormatActive == 1) {  // RAW
-                    if(!fileName.includes('.'))fileName=fileName+'.';
-                    if ((GetFileExtension(fileName) == null) || (!IsFileExtension(fileName, ".raw"))) {
-                        fileName+= ".raw"; // No extension provided
-                    }
+                    if (!fileName.toLowerCase().endsWith(".raw")) fileName += ".raw";
                     
                     let dataSize = GetPixelDataSize(image.width, image.height, image.format);
-                    
+
+                    // qjs:std write(buf, position, length) needs an ArrayBuffer
+                    // (image.data is an array-like proxy, not one). Also note
+                    // `position` is an offset into the buffer, not C fwrite's
+                    // element size — the original `, 1, dataSize)` was a naive
+                    // port that skipped the first byte and overran by one.
                     let rawFile = std.open(fileName, "wb");
-                    rawFile.write(image.data, 1, dataSize);
-                    rawFile.close();
+                    if (rawFile) {
+                        rawFile.write(new Uint8Array(image.data).buffer, 0, dataSize);
+                        rawFile.close();
+                    }
                 } else if (fileFormatActive == 2) {  // CODE
 
                     ExportImageAsCode(image, fileName);
