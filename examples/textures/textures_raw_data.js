@@ -42,13 +42,21 @@ import {BROWN, BeginDrawing, ClearBackground, CloseWindow, DrawText, DrawTexture
     let width = 960;
     let height = 480;
 
-    // Dynamic memory allocation to store pixels data (Color type)
-    let pixels = new Uint8Array(width*height);
+    // Dynamic memory allocation to store pixels data (RGBA, 4 bytes per pixel).
+    // The C original uses a Color* array; in JS we pack the 4 components
+    // manually into a flat Uint8Array since Color is an object, not a number.
+    let pixels = new Uint8Array(width*height*4);
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-            if (((x/32+y/32)/1)%2 == 0) pixels[y*width + x] = ORANGE;
-            else pixels[y*width + x] = GOLD;
+            // C original uses integer division here; in JS `/` is float, so
+            // `(x/32 + y/32) % 2 == 0` almost never matches. Truncate explicitly.
+            const color = (((x>>5) + (y>>5)) & 1) == 0 ? ORANGE : GOLD;
+            const i = (y*width + x)*4;
+            pixels[i    ] = color.r;
+            pixels[i + 1] = color.g;
+            pixels[i + 2] = color.b;
+            pixels[i + 3] = color.a;
         }
     }
 
