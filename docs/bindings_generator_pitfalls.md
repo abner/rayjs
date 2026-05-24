@@ -230,6 +230,93 @@ and remove them together.
 
 ---
 
+## Rule 4 — Flatten nested-struct sub-fields with `binding.virtual` + `binding.access`
+
+When raylib (or any upstream lib) hoists existing fields into a nested
+sub-struct, the bindings have two paths:
+
+1. **Re-enable the nested struct as a value field** so JS callers write
+   `model.skeleton.boneCount`. Easy but breaks examples that were written
+   against the pre-refactor flat API.
+2. **Re-expose each sub-field as a flat virtual accessor** so JS callers
+   keep writing `model.boneCount`. This is the path the codebase uses.
+
+### The trap (closed in commit `fae41c1`)
+
+raylib 6.0 moved `boneCount`, `bones`, and `bindPose` from being direct
+members of `Model` into a new `ModelSkeleton` struct nested inside
+`Model.skeleton`. `bindings/src/index.js:489` disabled `model.skeleton`
+("accessed via boneCount/bones/bindPose getters") but the flattening
+was never wired up — `model.boneCount` etc. returned `undefined` from
+JS. `examples/models/models_animation.js:84`'s
+`for (let i = 0; i < model.boneCount; i++)` loop silently iterated zero
+times, so the bone-debug cubes never drew.
+
+### The fix pattern
+
+Two field-binding overrides in `bindings/src/raylib-header.js`:
+
+- `field.binding.access` — overrides the C-side `ptr.X` member path used
+  by struct getters. The six read sites in `jsStructGetter` and
+  `jsStructGetter_array` consult `field.binding.access || field.name`,
+  so a JS field named `boneCount` can walk `ptr.skeleton.boneCount` on
+  the C side.
+- `field.binding.virtual` — flags a field that has a JS getter but no
+  corresponding top-level C member. Skipped by `jsStructConstructor`
+  (both the argv slot and the designator), by `deepCCopy` in
+  `bindings/src/quickjs.js` (no `target.field` member exists), and by
+  the TypeScript constructor signature emitter in
+  `bindings/src/typescript.js` (so `new Model(...)` doesn't advertise
+  args the C body silently ignores).
+
+Usage in `bindings/src/index.js`:
+
+```js
+att = modules['raylib'].getStruct("Model");
+att.fields.find(a => a.name === 'skeleton').binding.get = false;
+att.fields.find(a => a.name === 'skeleton').binding.set = false;
+
+att.fields.push({
+    name: 'boneCount', type: 'int',
+    binding: { get: true, set: false, virtual: true, access: 'skeleton.boneCount' }
+});
+att.fields.push({
+    name: 'bones', type: 'BoneInfo *',
+    binding: {
+        get: true, set: false, virtual: true,
+        access: 'skeleton.bones',
+        sizeVars: ['ptr.skeleton.boneCount'],
+    }
+});
+att.fields.push({
+    name: 'bindPose', type: 'Transform *',
+    binding: {
+        get: true, set: false, virtual: true,
+        access: 'skeleton.bindPose',
+        sizeVars: ['ptr.skeleton.boneCount'],
+    }
+});
+```
+
+### When to reach for this
+
+- The upstream struct already had a member at this name in a prior
+  version, and existing JS examples / API callers expect it to keep
+  working flat.
+- The sub-struct itself is also bound (so users can still reach it via
+  the nested path if they need the whole struct).
+- Read-only is fine. Setters for virtual fields aren't supported in
+  this version — write-through to a nested member would need its own
+  generator path. Set `binding.set = false`.
+
+### Verification
+
+`examples/models/models_constructor_smoketest.js` exercises this end
+to end: it asserts `src.boneCount === 14` after `LoadModel("guy.iqm")`
+and that `src.bones` / `src.bindPose` are non-null array proxies.
+
+---
+
 ## Related material
 
 - [`bindings_struct_constructor_plan.md`](bindings_struct_constructor_plan.md) —
