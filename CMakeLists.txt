@@ -194,6 +194,13 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/mimalloc/include)
 
+if(WIN32)
+    # cutils.h pulls in <windows.h> which defines Rectangle / CloseWindow / ShowCursor as
+    # wingdi/winuser functions, clashing with raylib's identically-named symbols when both
+    # headers reach the same TU (rayjs.c includes cutils.h then raylib.h).
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOGDI NOUSER)
+endif()
+
 set(RAYJS_LINK_LIBRARIES "quickjs" "raylib" "lightmapper" "box2d")
 if(NOT EMSCRIPTEN)
     # mimalloc skipped on web; falls back to emscripten's default allocator.

@@ -5,61 +5,36 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: MinSizeRel
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        bits: [32, 64]
-        include:
-        - bits: 32
-          ARCH: "i386"
-          ARCH_NAME: "i386"
-          COMPILER_PATH: "/user/bin"
-        - bits: 64
-          ARCH: "x86_64"
-          ARCH_NAME: "amd64"
-          COMPILER_PATH: "/user/bin"
+    runs-on: ubuntu-22.04
+
     steps:
     - uses: actions/checkout@v4
-      with: 
-        submodules: true
-    - uses: jirutka/setup-alpine@v1
       with:
-        arch: ${{matrix.arch}}
-        packages: "build-base make cmake"
-    - name: Setup Environment
-      run: | 
-        sudo apt-get update -qq
-        sudo apt-get install gcc-multilib
-        sudo apt-get install -y --no-install-recommends libglfw3 libglfw3-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libxext-dev libxfixes-dev libwayland-dev libxkbcommon-dev
-    - name: build
-      shell: alpine.sh {0}
+        submodules: true
+
+    - name: Install raylib build deps
       run: |
-        mkdir ${{github.workspace}}/build
-        cd ${{github.workspace}}/build
-        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
-        make PLATFORM=PLATFORM_DESKTOP CC=gcc
-        mv rayjs.exe ..
+        sudo apt-get update -qq
+        sudo apt-get install -y --no-install-recommends \
+          libglfw3 libglfw3-dev \
+          libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libxext-dev libxfixes-dev \
+          libwayland-dev libxkbcommon-dev
+
+    - name: Configure
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}} -j
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: rayjs
-        path: rayjs.exe
-  
-  deploy:
-    needs: build
-    runs-on: windows-latest
-
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: rayjs
-          path: build
+        name: rayjs-linux-x86_64
+        path: rayjs

@@ -5,9 +5,9 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: MinSizeRel
 
 jobs:
@@ -16,30 +16,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with: 
+      with:
         submodules: true
 
+    - name: Configure
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
     - name: Build
-      run: |
-        mkdir ${{github.workspace}}/build
-        cd ${{github.workspace}}/build
-        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
-        make -j$(getconf _NPROCESSORS_ONLN)
-        mv rayjs.exe ${{github.workspace}}/rayjs.exe
-      
+      run: cmake --build build --config ${{env.BUILD_TYPE}} -j
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: rayjs
+        name: rayjs-macos-universal
         path: rayjs
-  
-  deploy:
-    needs: build
-    runs-on: macos-latest
-
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: rayjs
-          path: build
